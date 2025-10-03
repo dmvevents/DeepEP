@@ -240,7 +240,7 @@ ENV PATH=/opt/nvshmem/bin:$PATH LD_LIBRARY_PATH=/opt/amazon/pmix/lib:/opt/nvshme
 ## DeepEP
 WORKDIR /workspace
 RUN git clone https://github.com/dmvevents/DeepEP.git && cd DeepEP \
-    && ./install.sh
+    && git checkout deepep-aws && ./install.sh
 
 ###################################################
 ## Final Environment Setup
