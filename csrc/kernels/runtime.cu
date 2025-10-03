@@ -7,7 +7,8 @@
 #include "utils.cuh"
 
 #ifndef DISABLE_NVSHMEM
-#include "ibgda_device.cuh"
+#include "nvshmem.h"
+// #include "ibgda_device.cuh"
 #endif
 
 namespace deep_ep {

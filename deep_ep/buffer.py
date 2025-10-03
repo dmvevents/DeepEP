@@ -9,9 +9,23 @@ import deep_ep_cpp
 from deep_ep_cpp import Config, EventHandle
 from .utils import EventOverlap, check_nvlink_connections
 
+"""
+Buffer management for DeepEP with EFA/NVSHMEM support.
+
+This module handles the initialization and management of communication buffers
+for distributed MoE training using EFA transport instead of IBGDA.
+
+Note:
+    Major migration from IBGDA to EFA/NVSHMEM for improved AWS compatibility
+    and standardized transport layer support.
+
+Warning:
+    Environment variable changes affect performance and compatibility.
+"""
+
 
 class Buffer:
-    """
+    """DeepEP buffer management with EFA optimization.
     The core expert-parallel (EP) communication buffers for Mixture of Experts (MoE) model, which supports:
         - high-throughput intranode all-to-all (dispatch and combine, using NVLink)
         - high-throughput internode all-to-all (dispatch and combine, using RDMA and NVLink)
@@ -53,6 +67,12 @@ class Buffer:
             explicitly_destroy: If this flag is set to True, you need to explicitly call `destroy()` to release resources;
                 otherwise, the resources will be released by the destructor.
                 Note: Releasing resources in the destructor may cause Python's exception handling process to hang.
+        Note:
+            EFA Migration: Removed NVSHMEM_IB_ENABLE_IBGDA environment variable
+            as IBGDA is no longer used with EFA transport.
+            
+        Warning:
+            Queue pair configuration may need adjustment for different EFA setups.        
         """
         check_nvlink_connections(group)
 
@@ -79,15 +99,29 @@ class Buffer:
         # Synchronize NVSHMEM unique IDs
         root_unique_id = None
         if self.runtime.get_num_rdma_ranks() > 1 or low_latency_mode:
-            # Enable IBGDA 
+            # Enable IBGDA support (legacy configuration maintained for compatibility)
             assert num_qps_per_rank > 0
             os.environ['NVSHMEM_DISABLE_P2P'] = '0' if allow_nvlink_for_low_latency_mode else '1'
+            
+            """
+            EFA Migration Note: Commented out IBGDA-specific environment variable
+            
+            Original IBGDA configuration:
             os.environ['NVSHMEM_IB_ENABLE_IBGDA'] = '1'
-            os.environ['NVSHMEM_IBGDA_NIC_HANDLER'] = 'gpu'
+            
+            EFA uses standard NVSHMEM transport without IBGDA extensions.
+            """
+            # os.environ['NVSHMEM_IB_ENABLE_IBGDA'] = '1'  # Disabled for EFA
+            
             os.environ['NVSHMEM_IBGDA_NUM_RC_PER_PE'] = f'{num_qps_per_rank}'
-            # Make sure QP depth is always larger than the number of on-flight WRs, so that we can skip WQ slot check
-            os.environ['NVSHMEM_QP_DEPTH'] = '1024'
-
+            # Make sure QP depth is always larger than the number of on-flight WRs, 
+            # so that we can skip WQ slot check
+            os.environ['NVSHMEM_QP_DEPTH'] = os.environ.get('NVSHMEM_QP_DEPTH', '1024')
+            
+            # Additional EFA-specific configuration would go here
+            # os.environ['NVSHMEM_REMOTE_TRANSPORT'] = 'libfabric'
+            # os.environ['NVSHMEM_LIBFABRIC_PROVIDER'] = 'efa'
+            
             # Reduce gpu memory usage
             # 6 default teams + 1 extra team
             os.environ['NVSHMEM_MAX_TEAMS'] = '7'
@@ -248,7 +282,7 @@ class Buffer:
             2: Config(Buffer.num_sms, 10, 256, 6, 128),
             4: Config(Buffer.num_sms, 9, 256, 6, 128),
             8: Config(Buffer.num_sms, 4, 256, 6, 128),
-            16: Config(Buffer.num_sms, 4, 288, 16, 128),
+            16: Config(Buffer.num_sms, 4, 288, 12, 128),
             24: Config(Buffer.num_sms, 1, 288, 8, 128),
             32: Config(Buffer.num_sms, 1, 288, 8, 128),
             64: Config(Buffer.num_sms, 1, 288, 20, 128),
@@ -516,6 +550,7 @@ class Buffer:
     def low_latency_dispatch(self, x: torch.Tensor, topk_idx: torch.Tensor,
                              num_max_dispatch_tokens_per_rank: int, num_experts: int,
                              cumulative_local_expert_recv_stats: Optional[torch.Tensor] = None,
+                             dispatch_wait_recv_cost_stats: Optional[torch.Tensor] = None,
                              use_fp8: bool = True, round_scale: bool = False, use_ue8m0: bool = False,
                              async_finish: bool = False, return_recv_hook: bool = False) -> \
             Tuple[Tuple[torch.Tensor, torch.Tensor], torch.Tensor, Tuple, EventOverlap, Callable]:
@@ -536,6 +571,9 @@ class Buffer:
             cumulative_local_expert_recv_stats: a cumulative expert count tensor for statistics, which should have shape
                 `[num_local_experts]` and be typed as `torch.int`. This is useful for online service EP load balance
                 monitoring.
+            dispatch_wait_recv_cost_stats: a cumulative time spent waiting to receive each token tensor for statistics,
+                which should have shape `[num_ranks, num_ranks]` and be typed as `torch.int64`.
+                This is useful for detecting and pre-cisely localizing slow anomalies.
             use_fp8: whether to enable FP8 casting, with this, the received data will be a tuple of FP8 tensor and scaling factors.
             round_scale: whether round the scaling factors into power of 2.
             use_ue8m0: whether use UE8M0 as scaling factor format (available only with `round_scale=True`).
@@ -566,6 +604,7 @@ class Buffer:
         packed_recv_x, packed_recv_x_scales, packed_recv_count, packed_recv_src_info, packed_recv_layout_range, event, hook = \
             self.runtime.low_latency_dispatch(x, topk_idx,
                                               cumulative_local_expert_recv_stats,
+                                              dispatch_wait_recv_cost_stats,
                                               num_max_dispatch_tokens_per_rank, num_experts,
                                               use_fp8, round_scale, use_ue8m0,
                                               async_finish, return_recv_hook)
@@ -580,7 +619,8 @@ class Buffer:
     # noinspection PyTypeChecker
     def low_latency_combine(self, x: torch.Tensor, topk_idx: torch.Tensor, topk_weights: torch.Tensor,
                             handle: tuple, use_logfmt: bool = False, zero_copy: bool = False, async_finish: bool = False,
-                            return_recv_hook: bool = False, out: Optional[torch.Tensor] = None) -> \
+                            return_recv_hook: bool = False, out: Optional[torch.Tensor] = None,
+                            combine_wait_recv_cost_stats: Optional[torch.Tensor] = None) -> \
             Tuple[torch.Tensor, EventOverlap, Callable]:
         """
         A low-latency implementation for combining tokens (reduce **with weights**) with IBGDA.
@@ -606,6 +646,9 @@ class Buffer:
                 but **without actually receiving the data**. You must call the received hook to make sure the data's arrival.
                 If you do not set this flag, the kernel will ensure the data's arrival.
             out: the in-place output tensor, if set, the kernel will write the result to this tensor and return it directly.
+            combine_wait_recv_cost_stats: a cumulative time spent waiting to receive each token tensor for statistics,
+                which should have shape `[num_ranks, num_ranks]` and be typed as `torch.int64`.
+                This is useful for detecting and pre-cisely localizing slow anomalies.
 
         Returns:
             combined_x: the reduced token tensor, with shape `[num_combined_tokens, hidden]` and type `torch.bfloat16`.
@@ -614,6 +657,7 @@ class Buffer:
         """
         src_info, layout_range, num_max_dispatch_tokens_per_rank, hidden, num_experts = handle
         combined_x, event, hook = self.runtime.low_latency_combine(x, topk_idx, topk_weights, src_info, layout_range,
+                                                                   combine_wait_recv_cost_stats,
                                                                    num_max_dispatch_tokens_per_rank, num_experts,
                                                                    use_logfmt, zero_copy, async_finish, return_recv_hook,
                                                                    out)

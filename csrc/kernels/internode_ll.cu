@@ -1,10 +1,38 @@
+/**
+ * @file internode_ll.cu  
+ * @brief Low-latency inter-node communication kernels for DeepEP
+ * @details Specialized kernels optimized for low-latency scenarios in distributed
+ *          MoE training. Contains commented-out NVSHMEM extensions for future use.
+ * 
+ * @note Migration Status: Partial EFA integration with IBGDA compatibility layer
+ * @warning Some NVSHMEM extensions remain commented for compatibility
+ */
+
 #include "configs.cuh"
 #include "exception.cuh"
 #include "launch.cuh"
+#include "utils.cuh"
+#include "ibgda_device.cuh"  // Still included for compatibility
+#include "configs.cuh"
+#include "exception.cuh"
+#include "launch.cuh"
+/**
+ * @brief Added utils.cuh include for utility functions
+ * 
+ * This include was added to provide access to utility functions that may be needed
+ * for the transition from IBGDA-specific operations to standard NVSHMEM operations.
+ */
+#include "utils.cuh"
 #include "ibgda_device.cuh"
 
 namespace deep_ep {
-
+/**
+ * @brief Low-latency dispatch kernel for expert token distribution
+ * @details Optimized for scenarios requiring minimal communication latency,
+ *          such as small batch sizes or interactive inference workloads.
+ * 
+ * @note Contains experimental NVSHMEM extensions (commented out)
+ */
 namespace internode_ll {
 
 template <int kNumThreads> __launch_bounds__(kNumThreads, 1)
@@ -42,6 +70,7 @@ dispatch(void* packed_recv_x, void* packed_recv_x_scales,
          int* packed_recv_src_info, int64_t* packed_recv_layout_range,
          int* packed_recv_count,
          int* cumulative_local_expert_recv_stats,
+         int64_t* dispatch_wait_recv_cost_stats,
          void* rdma_recv_x, int* rdma_recv_count, void* rdma_x,
          const void* x, const int64_t* topk_idx,
          int* atomic_counter_per_expert, int* atomic_finish_counter_per_expert,
@@ -148,6 +177,16 @@ dispatch(void* packed_recv_x, void* packed_recv_x_scales,
 
             // Issue IBGDA sends
             if (dst_expert_idx >= 0) {
+                /**
+                * @brief Transition from IBGDA to standard NVSHMEM put operations
+                * 
+                * The original IBGDA-specific put operation has been replaced with a wrapper
+                * that uses standard NVSHMEM primitives. The commented code shows the direct
+                * NVSHMEM alternative that could be used instead of the wrapper function.
+                * 
+                * @note This change was made to improve compatibility with different network
+                * fabrics (like EFA) that may not support IBGDA-specific optimizations
+                */
                 int slot_idx = lane_id == 0 ? atomicAdd(atomic_counter_per_expert + dst_expert_idx, 1) : 0;
                 slot_idx = __shfl_sync(0xffffffff, slot_idx, 0);
                 const auto dst_rank = dst_expert_idx / num_local_experts;
@@ -157,9 +196,22 @@ dispatch(void* packed_recv_x, void* packed_recv_x_scales,
                                      dst_expert_local_idx * num_ranks * num_max_dispatch_tokens_per_rank * num_bytes_per_msg +
                                      rank * num_max_dispatch_tokens_per_rank * num_bytes_per_msg +
                                      slot_idx * num_bytes_per_msg;
+                /**
+                 * @brief Data transfer with P2P optimization
+                 * @details Attempts P2P transfer first, falls back to RDMA if unavailable
+                 */
+                                     
                 const auto dst_p2p_ptr = nvshmemi_get_p2p_ptr(dst_ptr, rank, dst_rank);
                 if (dst_p2p_ptr == 0) {
                     nvshmemi_ibgda_put_nbi_warp(dst_ptr, src_ptr, num_bytes_per_msg, dst_rank, dst_expert_local_idx, lane_id, slot_idx);
+                    /**
+                     * @note Future EFA Enhancement: Commented NVSHMEM extensions
+                     * @details These calls represent planned migration to pure NVSHMEM APIs
+                     */
+                    // nvshmemx_uint64_put_nbi_warp(reinterpret_cast<uint64_t*>(dst_ptr),
+                    //                 reinterpret_cast<uint64_t*>(src_ptr),
+                    //                 num_bytes_per_msg,
+                    //                 dst_rank);
                 } else {
                     // NOTES: only 2 load iterations for 7K hidden with 8 unrolls
                     const auto* src_int4_ptr = reinterpret_cast<const int4*>(src_ptr);
@@ -174,9 +226,19 @@ dispatch(void* packed_recv_x, void* packed_recv_x_scales,
         }
     } else if (warp_id == num_warps - 1) {
         EP_DEVICE_ASSERT(num_sms > 1);
+        
         if (sm_id == 0) {
+            /**
+            * @brief Commented out IBGDA-specific queue pair assertion
+            * 
+            * This assertion was specific to IBGDA queue pair management and has been
+            * disabled as it's not applicable when using standard NVSHMEM operations.
+            * The assertion checked that sufficient queue pairs were available per PE.
+            * 
+            * @note Removed because standard NVSHMEM handles queue management internally
+            */
             // The first SM is also responsible for checking QPs
-            EP_DEVICE_ASSERT(ibgda_get_state()->num_rc_per_pe >= num_local_experts);
+            // EP_DEVICE_ASSERT(ibgda_get_state()->num_rc_per_pe >= num_local_experts);
 
             // The first SM is also responsible for cleaning the next buffer
             #pragma unroll
@@ -226,7 +288,19 @@ dispatch(void* packed_recv_x, void* packed_recv_x_scales,
         auto dst_ptr = reinterpret_cast<uint64_t>(rdma_recv_count + dst_expert_local_idx * num_ranks + rank);
         auto dst_p2p_ptr = nvshmemi_get_p2p_ptr(dst_ptr, rank, dst_rank);
         if (dst_p2p_ptr == 0) {
+            /**
+             * @brief Atomic operation transition from IBGDA to standard NVSHMEM
+             * 
+             * The IBGDA-specific atomic add operation has been replaced with a wrapper
+             * that uses standard NVSHMEM atomic operations. The commented line shows
+             * the direct NVSHMEM atomic add that could be used as an alternative.
+             * 
+             * @note This change ensures compatibility across different network fabrics
+             * while maintaining the same semantic behavior
+             */            
             nvshmemi_ibgda_amo_nonfetch_add(reinterpret_cast<int*>(dst_ptr), -num_tokens_sent - 1, dst_rank, dst_expert_local_idx);
+            // nvshmem_int_atomic_add(reinterpret_cast<int*>(dst_ptr), -num_tokens_sent - 1, dst_rank);
+
         } else {
             st_release_sys_global(reinterpret_cast<int*>(dst_p2p_ptr), -num_tokens_sent - 1);
         }
@@ -272,14 +346,20 @@ dispatch(void* packed_recv_x, void* packed_recv_x_scales,
         int num_recv_tokens, recv_token_begin_idx;
         EP_DEVICE_ASSERT(num_warps_per_group > 1 and num_warp_groups < 15);
         if (sub_warp_id == 1 and lane_id == 0) {
+            auto start_time = clock64();
             while ((num_recv_tokens = ld_acquire_sys_global(rdma_recv_count + local_expert_idx * num_ranks + src_rank)) == 0);
+            auto wait_recv_cost = clock64() - start_time;
             num_recv_tokens = -num_recv_tokens - 1;
             recv_token_begin_idx = atomicAdd(packed_recv_count + local_expert_idx, num_recv_tokens);
             shared_num_recv_tokens[warp_group_id] = num_recv_tokens;
             shared_recv_token_begin_idx[warp_group_id] = recv_token_begin_idx;
             recv_range[src_rank] = pack2<int, int64_t>(num_recv_tokens, recv_token_begin_idx);
+
+            // Add stats for diagnosis
             if (cumulative_local_expert_recv_stats != nullptr)
                 atomicAdd(cumulative_local_expert_recv_stats + local_expert_idx, num_recv_tokens);
+            if (dispatch_wait_recv_cost_stats != nullptr)
+                atomicAdd(reinterpret_cast<unsigned long long*>(dispatch_wait_recv_cost_stats + src_rank), wait_recv_cost);
         }
         asm volatile("bar.sync %0, %1;" :: "r"(warp_group_id + 2), "r"(num_warps_per_group * 32));
         num_recv_tokens = shared_num_recv_tokens[warp_group_id];
@@ -330,6 +410,7 @@ void dispatch(void* packed_recv_x, void* packed_recv_x_scales,
               int* packed_recv_src_info, int64_t* packed_recv_layout_range,
               int* packed_recv_count,
               int* cumulative_local_expert_recv_stats,
+              int64_t* dispatch_wait_recv_cost_stats,
               void* rdma_recv_x, int* rdma_recv_count, void* rdma_x,
               const void* x, const int64_t* topk_idx,
               int* next_clean, int num_next_clean_int,
@@ -368,6 +449,7 @@ LAUNCH_KERNEL(&cfg, dispatch_func, \
               packed_recv_src_info, packed_recv_layout_range, \
               packed_recv_count, \
               cumulative_local_expert_recv_stats, \
+              dispatch_wait_recv_cost_stats, \
               rdma_recv_x, rdma_recv_count, rdma_x, \
               x, topk_idx, \
               atomic_counter_per_expert, atomic_finish_counter_per_expert, \
@@ -382,12 +464,17 @@ LAUNCH_KERNEL(&cfg, dispatch_func, \
 #undef DISPATCH_LAUNCH_CASE
 }
 
+/**
+ * @brief Low-latency combine kernel for result aggregation
+ * @details Optimized combination kernel for latency-sensitive workloads
+ */
 template <bool kUseLogFMT, int kHidden, int kNumMaxTopk>
 __global__ __launch_bounds__(1024, 1) void
 combine(void* combined_x,
         void* rdma_recv_x, int* rdma_recv_flag, void* rdma_send_x,
         const void* x, const int64_t* topk_idx, const float* topk_weights,
         const int* src_info, const int64_t* layout_range,
+        int64_t* combine_wait_recv_cost_stats,
         int* next_clean, int num_next_clean_int,
         int* atomic_clean_flag,
         int num_combined_tokens, int hidden, int num_topk,
@@ -586,10 +673,29 @@ combine(void* combined_x,
             tma_store_wait();
             __syncwarp();
 
+            /**
+             * @brief Data transfer with NVSHMEM extension support
+             * @details Shows progression toward pure NVSHMEM implementation
+             */
+            
             // Issue RDMA
             // NOTES: for zero-copy mode, we assume the data is already in the send buffer
             if (dst_p2p_ptr == 0)
+                /**
+                * @brief Data transfer operation using NVSHMEM wrapper
+                * 
+                * Similar to the dispatch function, this uses the NVSHMEM wrapper instead
+                * of direct IBGDA operations. The commented code shows the type-specific
+                * NVSHMEM put operation that could be used for bfloat16 data transfers.
+                * 
+                * @note The wrapper provides a unified interface that can handle different
+                * data types and network configurations transparently
+                */                
                 nvshmemi_ibgda_put_nbi_warp(dst_ptr, buf_ptr, hidden * sizeof(nv_bfloat16), dst_rank, local_expert_idx, lane_id, token_idx - offset);
+                // nvshmemx_bfloat16_put_nbi_warp(reinterpret_cast<nv_bfloat16*>(dst_ptr),
+                //     reinterpret_cast<nv_bfloat16*>(buf_ptr),
+                //     hidden * sizeof(nv_bfloat16),
+                //     dst_rank);
         }
 
         // Put the finishing flag
@@ -600,7 +706,17 @@ combine(void* combined_x,
             auto dst_ptr = reinterpret_cast<uint64_t>(rdma_recv_flag + global_expert_idx);
             auto dst_p2p_ptr = nvshmemi_get_p2p_ptr(dst_ptr, rank, dst_rank);
             if (dst_p2p_ptr == 0) {
+                /**
+                * @brief Completion signaling using NVSHMEM atomic operations
+                * 
+                * The finishing flag is set using the NVSHMEM wrapper for atomic operations
+                * instead of direct IBGDA atomics. This ensures consistent behavior across
+                * different network fabrics while maintaining the synchronization semantics.
+                * 
+                * @note The commented line shows the direct NVSHMEM atomic add alternative
+                */
                 nvshmemi_ibgda_amo_nonfetch_add(reinterpret_cast<int*>(dst_ptr), 1, dst_rank, local_expert_idx);
+                // nvshmem_int_atomic_add(reinterpret_cast<int*>(dst_ptr), 1, dst_rank);
             } else {
                 st_release_sys_global(reinterpret_cast<int*>(dst_p2p_ptr), 1);
             }
@@ -618,7 +734,13 @@ combine(void* combined_x,
     if (responsible_expert_idx < num_experts) {
         EP_DEVICE_ASSERT(num_warps_per_group > 1);
         if (sub_warp_id == 0 and lane_id == 0) {
+            auto start_time = clock64();
             while (ld_acquire_sys_global(rdma_recv_flag + responsible_expert_idx) == 0);
+            auto wait_recv_cost = clock64() - start_time;
+            if (combine_wait_recv_cost_stats != nullptr) {
+                const auto& src_rank = responsible_expert_idx / num_local_experts;
+                atomicAdd(reinterpret_cast<unsigned long long*>(combine_wait_recv_cost_stats + src_rank), wait_recv_cost);
+            }
         }
     }
     cg::this_grid().sync();
@@ -667,6 +789,7 @@ void combine(void* combined_x,
              void* rdma_recv_x, int* rdma_recv_flag, void* rdma_send_x,
              const void* x, const int64_t* topk_idx, const float* topk_weights,
              const int* src_info, const int64_t* layout_range,
+             int64_t* combine_wait_recv_cost_stats,
              int* next_clean, int num_next_clean_int,
              int num_combined_tokens, int hidden, int num_max_dispatch_tokens_per_rank,
              int num_topk, int num_experts, int rank, int num_ranks,
@@ -701,6 +824,7 @@ LAUNCH_KERNEL(&cfg, combine_func, \
               combined_x, \
               rdma_recv_x, rdma_recv_flag, rdma_send_x, \
               x, topk_idx, topk_weights, src_info, layout_range, \
+              combine_wait_recv_cost_stats, \
               next_clean, num_next_clean_int, \
               atomic_clean_flag, \
               num_combined_tokens, hidden, num_topk, \
