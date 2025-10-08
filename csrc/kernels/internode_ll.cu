@@ -162,12 +162,14 @@ dispatch(void* packed_recv_x, void* packed_recv_x_scales,
                                      slot_idx * num_bytes_per_msg;
                 const auto dst_p2p_ptr = nvshmemi_get_p2p_ptr(dst_ptr, rank, dst_rank);
                 if (dst_p2p_ptr == 0) {
-                    nvshmemi_ibgda_put_nbi_warp(dst_ptr, src_ptr, num_bytes_per_msg, dst_rank, dst_expert_local_idx, lane_id, slot_idx);
-                    // nvshmemx_uint64_put_nbi_warp(reinterpret_cast<uint64_t*>(dst_ptr),
-                    //                 reinterpret_cast<uint64_t*>(src_ptr),
-                    //                 num_bytes_per_msg,
-                    //                 dst_rank);
-                    nvshmem_fence();
+                    // OLD: nvshmemi_ibgda_put_nbi_warp(dst_ptr, src_ptr, num_bytes_per_msg, dst_rank, dst_expert_local_idx, lane_id, slot_idx);
+                    // FIX: Use NVSHMEM warp-collective directly for better EFA performance
+                    // All lanes participate in the transfer for higher bandwidth
+                    nvshmemx_putmem_nbi_warp(reinterpret_cast<void*>(dst_ptr),
+                                             reinterpret_cast<const void*>(src_ptr),
+                                             num_bytes_per_msg,
+                                             dst_rank);
+                    // NO FENCE HERE - critical for performance, will batch fence later
                 } else {
                     // NOTES: only 2 load iterations for 7K hidden with 8 unrolls
                     const auto* src_int4_ptr = reinterpret_cast<const int4*>(src_ptr);
@@ -179,6 +181,10 @@ dispatch(void* packed_recv_x, void* packed_recv_x_scales,
                 __syncwarp();
                 lane_id == 0 ? atomic_add_release_global(atomic_finish_counter_per_expert + dst_expert_idx, 1) : 0;
             }
+        }
+        // FIX: Add single fence after all tokens processed
+        if (lane_id == 0) {
+            nvshmem_fence();
         }
     } else if (warp_id == num_warps - 1) {
         EP_DEVICE_ASSERT(num_sms > 1);
@@ -282,7 +288,10 @@ dispatch(void* packed_recv_x, void* packed_recv_x_scales,
         EP_DEVICE_ASSERT(num_warps_per_group > 1 and num_warp_groups < 15);
         if (sub_warp_id == 1 and lane_id == 0) {
             auto start_time = clock64();
-            while ((num_recv_tokens = ld_acquire_sys_global(rdma_recv_count + local_expert_idx * num_ranks + src_rank)) == 0);
+            // OLD: while ((num_recv_tokens = ld_acquire_sys_global(rdma_recv_count + local_expert_idx * num_ranks + src_rank)) == 0);
+            // FIX: Use NVSHMEM wait for better EFA performance
+            nvshmem_int_wait_until(rdma_recv_count + local_expert_idx * num_ranks + src_rank, NVSHMEM_CMP_NE, 0);
+            num_recv_tokens = ld_acquire_sys_global(rdma_recv_count + local_expert_idx * num_ranks + src_rank);
             auto wait_recv_cost = clock64() - start_time;
             num_recv_tokens = -num_recv_tokens - 1;
             recv_token_begin_idx = atomicAdd(packed_recv_count + local_expert_idx, num_recv_tokens);
@@ -607,12 +616,19 @@ combine(void* combined_x,
             // Issue RDMA
             // NOTES: for zero-copy mode, we assume the data is already in the send buffer
             if (dst_p2p_ptr == 0)
-                nvshmemi_ibgda_put_nbi_warp(dst_ptr, buf_ptr, hidden * sizeof(nv_bfloat16), dst_rank, local_expert_idx, lane_id, token_idx - offset);
-                // nvshmemx_bfloat16_put_nbi_warp(reinterpret_cast<nv_bfloat16*>(dst_ptr),
-                //     reinterpret_cast<nv_bfloat16*>(buf_ptr),
-                //     hidden * sizeof(nv_bfloat16),
-                //     dst_rank);
-                nvshmem_fence();
+                // OLD: nvshmemi_ibgda_put_nbi_warp(dst_ptr, buf_ptr, hidden * sizeof(nv_bfloat16), dst_rank, local_expert_idx, lane_id, token_idx - offset);
+                // FIX: Use NVSHMEM warp-collective directly for better EFA performance
+                // All lanes participate for maximum bandwidth on AWS EFA
+                nvshmemx_putmem_nbi_warp(reinterpret_cast<void*>(dst_ptr),
+                                         reinterpret_cast<const void*>(buf_ptr),
+                                         hidden * sizeof(nv_bfloat16),
+                                         dst_rank);
+                // NO FENCE HERE - will batch fence after all tokens sent
+        }
+
+        // FIX: Add single fence after all tokens sent
+        if (sub_warp_id == 0 && lane_id == 0) {
+            nvshmem_fence();
         }
 
         // Put the finishing flag
@@ -639,11 +655,14 @@ combine(void* combined_x,
         return;
 
     // Wait all ranks to arrive
+    // Wait all ranks to arrive
     if (responsible_expert_idx < num_experts) {
         EP_DEVICE_ASSERT(num_warps_per_group > 1);
         if (sub_warp_id == 0 and lane_id == 0) {
             auto start_time = clock64();
-            while (ld_acquire_sys_global(rdma_recv_flag + responsible_expert_idx) == 0);
+            // OLD: while (ld_acquire_sys_global(rdma_recv_flag + responsible_expert_idx) == 0);
+            // FIX: Use NVSHMEM wait for better EFA performance
+            nvshmem_int_wait_until(rdma_recv_flag + responsible_expert_idx, NVSHMEM_CMP_NE, 0);
             auto wait_recv_cost = clock64() - start_time;
             if (combine_wait_recv_cost_stats != nullptr) {
                 const auto& src_rank = responsible_expert_idx / num_local_experts;

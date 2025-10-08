@@ -67,6 +67,21 @@ spec:
       value: "2"
     - name: RANK
       value: "0"
+     # FIX: Add EFA SHM transfer for better local communication
+    - name: NVSHMEM_BOOTSTRAP
+      value: "MPI"
+     # FIX: Add EFA SHM transfer for better local communication
+    - name: FI_EFA_ENABLE_SHM_TRANSFER
+      value: "1"    
+    # FIX: Add NVSHMEM symmetric heap size (4GB)
+    - name: NVSHMEM_SYMMETRIC_SIZE
+      value: "4294967296"      
+    # FIX: Enable NIC to PE mapping for better performance
+    - name: NVSHMEM_ENABLE_NIC_PE_MAPPING
+      value: "1"
+    # FIX: Disable CUDA VMM for EFA compatibility
+    - name: NVSHMEM_DISABLE_CUDA_VMM
+      value: "1" 
     resources:
       limits:
         nvidia.com/gpu: 8
@@ -163,6 +178,21 @@ spec:
       value: "2"
     - name: RANK
       value: "1"
+     # FIX: Add EFA SHM transfer for better local communication
+    - name: NVSHMEM_BOOTSTRAP
+      value: "MPI"
+     # FIX: Add EFA SHM transfer for better local communication
+    - name: FI_EFA_ENABLE_SHM_TRANSFER
+      value: "1"    
+    # FIX: Add NVSHMEM symmetric heap size (4GB)
+    - name: NVSHMEM_SYMMETRIC_SIZE
+      value: "4294967296"      
+    # FIX: Enable NIC to PE mapping for better performance
+    - name: NVSHMEM_ENABLE_NIC_PE_MAPPING
+      value: "1"
+    # FIX: Disable CUDA VMM for EFA compatibility
+    - name: NVSHMEM_DISABLE_CUDA_VMM
+      value: "1"       
     resources:
       limits:
         nvidia.com/gpu: 8
