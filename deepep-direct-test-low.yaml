@@ -93,7 +93,9 @@ spec:
       cd /workspace/DeepEP/tests/
       python3 test_internode.py \
         --num-tokens 4096 \
-        --hidden 7168 
+        --hidden 7168 \
+        --num-experts 16 \
+        --num-topk 8 --test-ll-compatibility
 ---
 apiVersion: v1
 kind: Pod
@@ -105,6 +107,9 @@ metadata:
 spec:
   restartPolicy: Never
   volumes:
+  - name: test-files
+    configMap:
+      name: deepep-test-files
   - name: dev-shm
     emptyDir:
       medium: Memory
@@ -190,7 +195,9 @@ spec:
       cd /workspace/DeepEP/tests/
       python3 test_internode.py \
         --num-tokens 4096 \
-        --hidden 7168 
+        --hidden 7168 \
+        --num-experts 16 \
+        --num-topk 8 --test-ll-compatibility
 ---
 apiVersion: v1
 kind: Service
@@ -204,3 +211,4 @@ spec:
   - port: 29500
     name: pytorch
   clusterIP: None
+

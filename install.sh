@@ -6,7 +6,7 @@ cd "$script_dir"
 # Remove old dist file, build, and install
 rm -rf dist
 python setup.py bdist_wheel
-pip install dist/*.whl
+pip install dist/*.whl --force-reinstall
 
 # Open users' original directory
 cd "$original_dir"

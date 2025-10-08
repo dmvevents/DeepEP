@@ -91,10 +91,7 @@ spec:
       
       echo "Starting test..."
       cd /workspace/DeepEP/tests/
-      python3 test_internode.py \
-        --num-tokens 4096 \
-        --hidden 7168 
----
+      python3 test_low_latency.py
 apiVersion: v1
 kind: Pod
 metadata:
@@ -188,9 +185,7 @@ spec:
       
       echo "Starting test..."
       cd /workspace/DeepEP/tests/
-      python3 test_internode.py \
-        --num-tokens 4096 \
-        --hidden 7168 
+      python3 test_low_latency.py 
 ---
 apiVersion: v1
 kind: Service
@@ -204,3 +199,6 @@ spec:
   - port: 29500
     name: pytorch
   clusterIP: None
+
+
+

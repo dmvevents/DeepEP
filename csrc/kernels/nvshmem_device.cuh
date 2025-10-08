@@ -83,4 +83,23 @@ nvshmemi_ibgda_amo_nonfetch_add(void *rptr, const int& value, int pe, int qp_id,
     }
 }
 
+/**
+ * @brief Replacement for nvshmemi_ibgda_rma_p - remote memory put
+ */
+__device__ __forceinline__ void 
+nvshmemi_ibgda_rma_p(void *rptr, const int& value, int pe, int qp_id) {
+    nvshmem_int_p(static_cast<int*>(rptr), value, pe);
+}
+
+/**
+ * @brief Replacement for nvshmemi_ibgda_quiet - ensures completion
+ */
+__device__ __forceinline__ void
+nvshmemi_ibgda_quiet(int dst_pe, int qp_id) {
+    // In EFA, we don't have per-QP quiet, just use global quiet
+    // This will be called in loops but only executed once per thread
+    nvshmem_quiet();
+}
+
+
 } // namespace deep_ep

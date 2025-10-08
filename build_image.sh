@@ -17,11 +17,11 @@ ECR_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${TAG
 echo "Building Docker image: ${LOCAL_IMAGE}..."
 docker build --progress=plain -t "${LOCAL_IMAGE}" .
 
-# Create ECR repository if needed
-if ! aws ecr describe-repositories --repository-names "${ECR_REPO}" --region "${AWS_REGION}" &>/dev/null; then
-    echo "Creating ECR repository..."
-    aws ecr create-repository --repository-name "${ECR_REPO}" --region "${AWS_REGION}"
-fi
+# # Create ECR repository if needed
+# if ! aws ecr describe-repositories --repository-names "${ECR_REPO}" --region "${AWS_REGION}" &>/dev/null; then
+#     echo "Creating ECR repository..."
+#     aws ecr create-repository --repository-name "${ECR_REPO}" --region "${AWS_REGION}"
+# fi
 
 # Login to ECR
 echo "Logging in to ECR..."

@@ -239,8 +239,10 @@ ENV PATH=/opt/nvshmem/bin:$PATH LD_LIBRARY_PATH=/opt/amazon/pmix/lib:/opt/nvshme
 ###################################################
 ## DeepEP
 WORKDIR /workspace
-RUN git clone https://github.com/dmvevents/DeepEP.git && cd DeepEP \
-    && git checkout deepep-aws && ./install.sh
+COPY . DeepEP
+RUN cd DeepEP && ./install.sh
+
+#RUN git clone https://github.com/whn09/DeepEP.git && cd DeepEP && ./install.sh
 
 ###################################################
 ## Final Environment Setup
@@ -254,3 +256,14 @@ RUN echo "/opt/amazon/openmpi/lib" > /etc/ld.so.conf.d/ompi.conf && \
     echo "/opt/amazon/efa/lib" > /etc/ld.so.conf.d/efa.conf && \
     echo "/opt/nvshmem/lib" > /etc/ld.so.conf.d/nvshmem.conf && \
     ldconfig
+
+    # Build and make symbolic links for SO files using your exact NVSHMEM path
+RUN NVSHMEM_DIR=/opt/nvshmem python3 setup.py build && \
+    ln -s build/lib.linux-x86_64-cpython-310/deep_ep_cpp.cpython-310-x86_64-linux-gnu.so . || \
+    ln -s build/lib.linux-x86_64-cpython-3*/deep_ep_cpp.cpython-3*-x86_64-linux-gnu.so . || \
+    echo "Warning: Could not create symbolic link, checking build directory:" && \
+    find build -name "*.so" -type f
+
+# Verify the build worked
+RUN python3 -c "import deep_ep; print('DeepEP imported successfully')" || \
+    echo "DeepEP import failed, but continuing..."

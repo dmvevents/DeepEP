@@ -1,12 +1,10 @@
-
-
 # Clean up old resources
 kubectl delete mpijob deepep-test --ignore-not-found
 kubectl delete pod deepep-node0 deepep-node1 --ignore-not-found
 kubectl delete svc deepep-node0 --ignore-not-found
 
 # Deploy both pods
-kubectl apply -f deepep-direct-test.yaml
+kubectl apply -f deepep-direct-test-low2.yaml
 
 echo ""
 echo "📊 Waiting for pods to start..."

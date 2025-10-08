@@ -91,9 +91,8 @@ spec:
       
       echo "Starting test..."
       cd /workspace/DeepEP/tests/
-      python3 test_internode.py \
-        --num-tokens 4096 \
-        --hidden 7168 
+        python3 test_low_latency.py 
+
 ---
 apiVersion: v1
 kind: Pod
@@ -188,9 +187,7 @@ spec:
       
       echo "Starting test..."
       cd /workspace/DeepEP/tests/
-      python3 test_internode.py \
-        --num-tokens 4096 \
-        --hidden 7168 
+      python3 test_low_latency.py 
 ---
 apiVersion: v1
 kind: Service
