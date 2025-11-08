@@ -257,7 +257,7 @@ const AdminDashboard = () => {
             <Button
               variant="outlined"
               color="secondary"
-              size={{ xs: 'small', sm: 'medium' }}
+              size="small"
               sx={{ whiteSpace: 'nowrap' }}
             >
               Logout
@@ -350,8 +350,7 @@ const AdminDashboard = () => {
                   variant="contained"
                   color="secondary"
                   onClick={() => handleOpenModal()}
-                  fullWidth={{ xs: true, sm: false }}
-                  sx={{ whiteSpace: 'nowrap' }}
+                  sx={{ whiteSpace: 'nowrap', width: { xs: '100%', sm: 'auto' } }}
                 >
                   + Create New Borrower
                 </Button>

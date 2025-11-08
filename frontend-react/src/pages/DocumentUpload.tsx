@@ -378,11 +378,11 @@ const DocumentUpload = () => {
             variant="contained"
             size="large"
             href="/"
-            fullWidth={{ xs: true, sm: false }}
             sx={{
               bgcolor: 'white',
               color: '#667eea',
               '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' },
+              width: { xs: '100%', sm: 'auto' },
               maxWidth: { xs: '100%', sm: 240 },
               py: { xs: 1.5, sm: 1 },
             }}
