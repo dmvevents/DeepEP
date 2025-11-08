@@ -109,9 +109,12 @@ const Home = () => {
                 py: { xs: 1.5, sm: 1.5 },
                 fontSize: { xs: '1rem', sm: '1.1rem' },
                 minWidth: { xs: '100%', sm: 220 },
+                boxShadow: '0 4px 14px 0 rgba(0,0,0,0.15)',
+                transition: 'all 0.3s ease',
                 '&:hover': {
-                  bgcolor: 'rgba(255,255,255,0.9)',
-                  transform: 'translateY(-2px)',
+                  bgcolor: 'rgba(255,255,255,0.95)',
+                  transform: 'translateY(-3px) scale(1.02)',
+                  boxShadow: '0 6px 20px 0 rgba(0,0,0,0.25)',
                 },
               }}
               startIcon={<CalculateIcon />}
@@ -125,15 +128,21 @@ const Home = () => {
               fullWidth={false}
               sx={{
                 borderColor: 'white',
+                borderWidth: 2,
                 color: 'white',
                 px: { xs: 3, sm: 4 },
                 py: { xs: 1.5, sm: 1.5 },
                 fontSize: { xs: '1rem', sm: '1.1rem' },
                 minWidth: { xs: '100%', sm: 220 },
+                backdropFilter: 'blur(10px)',
+                bgcolor: 'rgba(255,255,255,0.05)',
+                transition: 'all 0.3s ease',
                 '&:hover': {
                   borderColor: 'white',
-                  bgcolor: 'rgba(255,255,255,0.1)',
-                  transform: 'translateY(-2px)',
+                  borderWidth: 2,
+                  bgcolor: 'rgba(255,255,255,0.15)',
+                  transform: 'translateY(-3px) scale(1.02)',
+                  boxShadow: '0 6px 20px 0 rgba(255,255,255,0.2)',
                 },
               }}
               startIcon={<LoginIcon />}
@@ -151,10 +160,29 @@ const Home = () => {
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
-                  transition: 'all 0.3s ease',
+                  borderRadius: 3,
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                  overflow: 'hidden',
+                  position: 'relative',
+                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: '4px',
+                    background: `linear-gradient(90deg, ${feature.color}, ${feature.color}dd)`,
+                    transform: 'scaleX(0)',
+                    transformOrigin: 'left',
+                    transition: 'transform 0.4s ease',
+                  },
                   '&:hover': {
-                    transform: 'translateY(-8px)',
-                    boxShadow: '0 12px 40px rgba(0,0,0,0.3)',
+                    transform: 'translateY(-12px) scale(1.02)',
+                    boxShadow: '0 16px 48px rgba(0,0,0,0.18)',
+                    '&::before': {
+                      transform: 'scaleX(1)',
+                    },
                   },
                 }}
               >
@@ -191,13 +219,20 @@ const Home = () => {
                     sx={{
                       bgcolor: feature.color,
                       py: { xs: 1.25, sm: 1.5 },
+                      fontWeight: 600,
+                      fontSize: '1rem',
+                      textTransform: 'none',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                      transition: 'all 0.3s ease',
                       '&:hover': {
                         bgcolor: feature.color,
                         opacity: 0.9,
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
                       },
                     }}
                   >
-                    Open
+                    Explore →
                   </Button>
                 </CardActions>
               </Card>
@@ -205,8 +240,27 @@ const Home = () => {
           ))}
         </Grid>
 
-        <Box mt={8} p={4} bgcolor="rgba(255,255,255,0.1)" borderRadius={3}>
-          <Typography variant="h4" gutterBottom sx={{ color: 'white', fontWeight: 600 }}>
+        <Box
+          mt={{ xs: 6, sm: 8 }}
+          p={{ xs: 3, sm: 4 }}
+          sx={{
+            bgcolor: 'rgba(255,255,255,0.12)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: 4,
+            border: '1px solid rgba(255,255,255,0.18)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+          }}
+        >
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{
+              color: 'white',
+              fontWeight: 700,
+              fontSize: { xs: '1.75rem', sm: '2.125rem' },
+              mb: 3,
+            }}
+          >
             ✨ Key Features
           </Typography>
           <Grid container spacing={3} mt={1}>
