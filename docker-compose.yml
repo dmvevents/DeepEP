@@ -1,0 +1,276 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: mortgage_postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-mortgage_calc}
+      POSTGRES_USER: ${DB_USER:-admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-securemortgagepassword123}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - mortgage_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-admin}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: mortgage_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - mortgage_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mortgage_backend
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 120 --access-logfile - --error-logfile -"
+    volumes:
+      - ./backend:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-admin}:${DB_PASSWORD:-securemortgagepassword123}@postgres:5432/${DB_NAME:-mortgage_calc}
+      - REDIS_URL=redis://redis:6379/0
+    networks:
+      - mortgage_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  scraper-agent:
+    build:
+      context: ./scraper
+      dockerfile: Dockerfile
+    container_name: mortgage_scraper
+    command: uvicorn main:app --host 0.0.0.0 --port 8001 --workers 2
+    volumes:
+      - ./scraper:/app
+      - scraper_cache:/app/cache
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env.scraper
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-admin}:${DB_PASSWORD:-securemortgagepassword123}@postgres:5432/${DB_NAME:-mortgage_calc}
+    networks:
+      - mortgage_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  vlm-service:
+    build:
+      context: ./vlm-service
+      dockerfile: Dockerfile
+    container_name: mortgage_vlm
+    command: uvicorn main:app --host 0.0.0.0 --port 8002
+    volumes:
+      - ./vlm-service:/app
+    ports:
+      - "8002:8002"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    networks:
+      - mortgage_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  ocr-service:
+    build:
+      context: ./ocr-service
+      dockerfile: Dockerfile
+    container_name: mortgage_ocr
+    command: uvicorn main:app --host 0.0.0.0 --port 8003
+    volumes:
+      - ./ocr-service:/app
+      - ocr_uploads:/app/uploads
+    ports:
+      - "8003:8003"
+    environment:
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - OCR_PRIMARY_MODEL=granite3.2-vision
+      - OCR_FALLBACK_MODEL=llama3.2-vision:11b
+      - CONFIDENCE_THRESHOLD=70
+      - DATABASE_URL=postgresql://${DB_USER:-admin}:${DB_PASSWORD:-securemortgagepassword123}@postgres:5432/${DB_NAME:-mortgage_calc}
+    networks:
+      - mortgage_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mortgage_celery
+    command: celery -A config worker -l info --concurrency=2
+    volumes:
+      - ./backend:/app
+      - media_volume:/app/media
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-admin}:${DB_PASSWORD:-securemortgagepassword123}@postgres:5432/${DB_NAME:-mortgage_calc}
+      - REDIS_URL=redis://redis:6379/0
+    networks:
+      - mortgage_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mortgage_celery_beat
+    command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - ./backend:/app
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-admin}:${DB_PASSWORD:-securemortgagepassword123}@postgres:5432/${DB_NAME:-mortgage_calc}
+      - REDIS_URL=redis://redis:6379/0
+    networks:
+      - mortgage_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  property-api:
+    build:
+      context: ./backend/api
+      dockerfile: Dockerfile
+    container_name: mortgage_property_api
+    command: uvicorn property_api:app --host 0.0.0.0 --port 8004
+    volumes:
+      - ./backend/api:/app
+    ports:
+      - "8004:8004"
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-admin}:${DB_PASSWORD:-securemortgagepassword123}@postgres:5432/${DB_NAME:-mortgage_calc}
+      - REDIS_URL=redis://redis:6379/0
+    networks:
+      - mortgage_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  frontend-react:
+    build:
+      context: ./frontend-react
+      dockerfile: Dockerfile
+    container_name: mortgage_frontend_react
+    ports:
+      - "3000:80"
+    networks:
+      - mortgage_network
+    depends_on:
+      - property-api
+      - ocr-service
+      - backend
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: mortgage_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/static:ro
+      - media_volume:/media:ro
+    networks:
+      - mortgage_network
+    depends_on:
+      - backend
+      - scraper-agent
+      - vlm-service
+      - ocr-service
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  static_volume:
+    driver: local
+  media_volume:
+    driver: local
+  scraper_cache:
+    driver: local
+  ocr_uploads:
+    driver: local
+
+networks:
+  mortgage_network:
+    driver: bridge

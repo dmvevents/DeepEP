@@ -1,0 +1,7 @@
+state,county,success,completeness,confidence,sources_found,error,timestamp
+MD,Montgomery,False,0,0,0,HTTP 400,2025-11-07T22:09:22.387750
+MD,Prince George's,False,0,0,0,HTTP 400,2025-11-07T22:09:23.144959
+VA,Fairfax,False,0,0,0,HTTP 400,2025-11-07T22:09:23.779644
+VA,Virginia Beach,False,0,0,0,HTTP 400,2025-11-07T22:09:24.786682
+CA,Los Angeles,False,0,0,0,HTTP 400,2025-11-07T22:09:25.537305
+CA,San Diego,False,0,0,0,HTTP 400,2025-11-07T22:09:26.305921

@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mortgage Application - Smart Qualification System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .workflow-steps {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding: 10px;
+        }
+
+        .step {
+            background: white;
+            border-radius: 10px;
+            padding: 15px 20px;
+            min-width: 180px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+        }
+
+        .step.active {
+            opacity: 1;
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .step.completed {
+            background: #10b981;
+            color: white;
+            opacity: 1;
+        }
+
+        .step-number {
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .step.completed .step-number {
+            background: white;
+            color: #10b981;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-height: 600px;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .navigation-buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .success-box {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .property-details-card {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .property-details-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .detail-value {
+            color: #111827;
+        }
+
+        .upload-zone {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .upload-zone:hover {
+            background: #f8f9ff;
+            border-color: #764ba2;
+        }
+
+        .upload-zone.has-files {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .file-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .file-item {
+            background: #f8f9ff;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item .remove-file {
+            color: #ef4444;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .auto-populated {
+            background: #ecfdf5 !important;
+            border-color: #10b981 !important;
+        }
+
+        .auto-populated-label::after {
+            content: " ✓ Auto-filled";
+            color: #10b981;
+            font-size: 0.85rem;
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏠 Mortgage Application</h1>
+            <p>Smart qualification system with automatic property lookup</p>
+        </header>
+
+        <!-- Workflow Steps -->
+        <div class="workflow-steps">
+            <div class="step active" data-step="1">
+                <div class="step-number">1</div>
+                <div>Property Address</div>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-number">2</div>
+                <div>Loan Details</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-number">3</div>
+                <div>Upload Documents</div>
+            </div>
+            <div class="step" data-step="4">
+                <div class="step-number">4</div>
+                <div>Other Debts</div>
+            </div>
+            <div class="step" data-step="5">
+                <div class="step-number">5</div>
+                <div>Results</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Step 1: Property Address -->
+            <div class="step-content active" data-step="1">
+                <h2>Step 1: Enter Property Address</h2>
+                <p style="color: #6b7280; margin-bottom: 30px;">We'll automatically look up property taxes and fees</p>
+
+                <div class="form-group">
+                    <label for="property_address">Property Address</label>
+                    <input
+                        type="text"
+                        id="property_address"
+                        placeholder="123 Main Street, Rockville, MD 20850"
+                        autocomplete="street-address"
+                    >
+                </div>
+
+                <div class="info-box">
+                    <strong>💡 Smart Lookup:</strong> Enter the property address and we'll automatically retrieve:
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li>Property tax rates</li>
+                        <li>Transfer tax rates</li>
+                        <li>Recording fees</li>
+                        <li>Insurance estimates</li>
+                        <li>County jurisdiction</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" onclick="lookupProperty()">
+                    🔍 Look Up Property
+                </button>
+
+                <!-- Property details will appear here after lookup -->
+                <div id="property-details-container" style="display: none;">
+                    <div class="property-details-card">
+                        <h3>📍 Property Information</h3>
+                        <div id="property-details-content"></div>
+                    </div>
+
+                    <div class="navigation-buttons" style="margin-top: 30px;">
+                        <div></div>
+                        <button class="btn btn-primary" onclick="nextStep()">Next: Loan Details →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Loan Details -->
+            <div class="step-content" data-step="2">
+                <h2>Step 2: Loan Details</h2>
+                <p style="color: #6b7280; margin-bottom: 30px;">Property costs are auto-filled from our database</p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="property_value">Property Value / Purchase Price</label>
+                        <input type="number" id="property_value" placeholder="500000" value="500000">
+                    </div>
+                    <div class="form-group">
+                        <label for="loan_amount">Loan Amount</label>
+                        <input type="number" id="loan_amount" placeholder="400000" value="400000">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="interest_rate">Interest Rate (%)</label>
+                        <input type="number" step="0.01" id="interest_rate" placeholder="6.5" value="6.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="loan_term">Loan Term</label>
+                        <select id="loan_term">
+                            <option value="15">15 Years</option>
+                            <option value="20">20 Years</option>
+                            <option value="30" selected>30 Years</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="loan_type">Loan Type</label>
+                        <select id="loan_type">
+                            <option value="fannie_mae">Fannie Mae (Conventional)</option>
+                            <option value="fha">FHA (Government)</option>
+                            <option value="va">VA (Veterans)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="credit_score">Credit Score</label>
+                        <input type="number" id="credit_score" placeholder="740" value="740">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="property_type">Property Type</label>
+                        <select id="property_type" onchange="updateTransferTaxScenario()">
+                            <option value="resale">Resale / Existing Home</option>
+                            <option value="new_construction">New Construction</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="first_time_buyer" style="width: auto; cursor: pointer;" onchange="updateTransferTaxScenario()">
+                            <span>First-Time Home Buyer</span>
+                        </label>
+                        <small style="color: #6b7280; margin-top: 5px; display: block;">
+                            ✓ May qualify for state transfer tax exemption (resale only)
+                        </small>
+                    </div>
+                </div>
+
+                <div class="info-box" id="transfer-tax-info" style="display: none;">
+                    <strong>💰 Transfer Tax Scenario:</strong>
+                    <div id="transfer-tax-scenario"></div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px;">Monthly Property Costs</h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="auto-populated-label" for="property_tax_monthly" id="property_tax_label">Monthly Property Tax</label>
+                        <input type="number" step="0.01" id="property_tax_monthly" class="auto-populated" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="auto-populated-label" for="insurance_monthly" id="insurance_label">Monthly Insurance</label>
+                        <input type="number" step="0.01" id="insurance_monthly" class="auto-populated" readonly>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="hoa_fees">Monthly HOA Fees (if applicable)</label>
+                    <input type="number" step="0.01" id="hoa_fees" placeholder="0" value="0">
+                </div>
+
+                <div class="success-box" id="auto-filled-notice" style="display: none;">
+                    <strong>✓ Property costs auto-filled</strong> from our database based on the property address.
+                    These values are calculated using current tax rates for <span id="county-name"></span> County.
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                    <button class="btn btn-primary" onclick="nextStep()">Next: Upload Documents →</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Upload Documents -->
+            <div class="step-content" data-step="3">
+                <h2>Step 3: Upload Income Documents</h2>
+                <p style="color: #6b7280; margin-bottom: 30px;">Upload documents to verify your income</p>
+
+                <div class="form-group">
+                    <label>Pay Stubs (Recent 2 months) *Required</label>
+                    <div class="upload-zone" id="paystub-zone" onclick="document.getElementById('paystub-input').click()">
+                        <div style="font-size: 2rem;">📄</div>
+                        <div>Click to upload or drag and drop pay stubs</div>
+                        <small>PDF, JPG, PNG (Max 10MB each)</small>
+                    </div>
+                    <input type="file" id="paystub-input" style="display: none" multiple accept="image/*,application/pdf" onchange="handleFileUpload('paystub', this.files)">
+                    <ul class="file-list" id="paystub-list"></ul>
+                </div>
+
+                <div class="form-group">
+                    <label>W-2 Forms (Recent 2 years) *Required</label>
+                    <div class="upload-zone" id="w2-zone" onclick="document.getElementById('w2-input').click()">
+                        <div style="font-size: 2rem;">📋</div>
+                        <div>Click to upload or drag and drop W-2 forms</div>
+                        <small>PDF, JPG, PNG (Max 10MB each)</small>
+                    </div>
+                    <input type="file" id="w2-input" style="display: none" multiple accept="image/*,application/pdf" onchange="handleFileUpload('w2', this.files)">
+                    <ul class="file-list" id="w2-list"></ul>
+                </div>
+
+                <div class="form-group">
+                    <label>Tax Returns (Optional - for self-employed)</label>
+                    <div class="upload-zone" id="tax-zone" onclick="document.getElementById('tax-input').click()">
+                        <div style="font-size: 2rem;">📝</div>
+                        <div>Click to upload or drag and drop tax returns</div>
+                        <small>PDF, JPG, PNG (Max 10MB each)</small>
+                    </div>
+                    <input type="file" id="tax-input" style="display: none" multiple accept="image/*,application/pdf" onchange="handleFileUpload('tax', this.files)">
+                    <ul class="file-list" id="tax-list"></ul>
+                </div>
+
+                <div class="info-box">
+                    <strong>Note:</strong> Documents will be processed using AI OCR to extract income information automatically.
+                    All data is encrypted and secure.
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                    <button class="btn btn-primary" onclick="nextStep()" id="documents-next">Next: Other Debts →</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Other Debts -->
+            <div class="step-content" data-step="4">
+                <h2>Step 4: Other Monthly Debts</h2>
+                <p style="color: #6b7280; margin-bottom: 30px;">Enter your monthly debt obligations</p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="car_payments">Car Payments</label>
+                        <input type="number" step="0.01" id="car_payments" placeholder="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="student_loans">Student Loans</label>
+                        <input type="number" step="0.01" id="student_loans" placeholder="0" value="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="credit_cards">Credit Card Minimum Payments</label>
+                        <input type="number" step="0.01" id="credit_cards" placeholder="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="personal_loans">Personal Loans</label>
+                        <input type="number" step="0.01" id="personal_loans" placeholder="0" value="0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="other_debts">Other Monthly Debts</label>
+                    <input type="number" step="0.01" id="other_debts" placeholder="0" value="0">
+                </div>
+
+                <div class="info-box">
+                    <strong>Important:</strong> Include all recurring monthly payments. These are used to calculate your debt-to-income ratio.
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                    <button class="btn btn-primary" onclick="calculateQualification()">Submit Application 🚀</button>
+                </div>
+            </div>
+
+            <!-- Step 5: Results -->
+            <div class="step-content" data-step="5">
+                <div id="results-container">
+                    <h2>Processing Your Application...</h2>
+                    <p>Please wait while we analyze your qualification.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h3 id="loading-title">Processing...</h3>
+            <p id="loading-message">Please wait...</p>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+        const uploadedFiles = {
+            paystub: [],
+            w2: [],
+            tax: []
+        };
+        let propertyData = null;
+
+        // Step navigation
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('completed');
+                currentStep++;
+                updateStepDisplay();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepDisplay();
+            }
+        }
+
+        function updateStepDisplay() {
+            document.querySelectorAll('.step').forEach((step, index) => {
+                if (index + 1 === currentStep) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+
+            document.querySelectorAll('.step-content').forEach((content) => {
+                content.classList.remove('active');
+            });
+            document.querySelector(`.step-content[data-step="${currentStep}"]`).classList.add('active');
+        }
+
+        // Property lookup
+        async function lookupProperty() {
+            const address = document.getElementById('property_address').value;
+
+            if (!address) {
+                alert('Please enter a property address');
+                return;
+            }
+
+            // Show loading
+            showLoading('Looking up property...', 'Retrieving tax data and property information...');
+
+            try {
+                // Call real Property API
+                const response = await fetch(
+                    `http://localhost:8004/api/property/lookup?address=${encodeURIComponent(address)}`
+                );
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Calculate monthly costs based on property value
+                const propertyValue = parseFloat(document.getElementById('property_value').value) || 500000;
+
+                // Calculate property tax
+                let monthlyTax = data.monthly_property_tax;
+                if (!monthlyTax && data.tax_rate) {
+                    monthlyTax = (propertyValue * data.tax_rate) / 12;
+                } else if (!monthlyTax) {
+                    // Default estimate: 1.2% annually
+                    monthlyTax = (propertyValue * 0.012) / 12;
+                }
+
+                // Calculate insurance
+                let monthlyInsurance = data.insurance_estimate;
+                if (!monthlyInsurance) {
+                    // Default estimate: $650 per $100k annually
+                    monthlyInsurance = ((propertyValue / 100000) * 650) / 12;
+                }
+
+                // Store property data
+                propertyData = {
+                    address: data.address.formatted_address || address,
+                    county: data.address.county || 'Unknown',
+                    state: data.address.state || '',
+                    tax_rate: data.tax_rate || 0.012,
+                    monthly_property_tax: monthlyTax,
+                    monthly_insurance: monthlyInsurance,
+                    confidence: data.confidence_score || 50
+                };
+
+                // Display property details
+                displayPropertyDetails(propertyData);
+
+                // Auto-fill property costs in Step 2
+                document.getElementById('property_tax_monthly').value = propertyData.monthly_property_tax.toFixed(2);
+                document.getElementById('insurance_monthly').value = propertyData.monthly_insurance.toFixed(2);
+                document.getElementById('county-name').textContent = propertyData.county;
+                document.getElementById('auto-filled-notice').style.display = 'block';
+
+                // Show property details card and next button
+                document.getElementById('property-details-container').style.display = 'block';
+
+                hideLoading();
+
+            } catch (error) {
+                hideLoading();
+                alert('Error looking up property: ' + error.message);
+                console.error('Property lookup error:', error);
+            }
+        }
+
+        function displayPropertyDetails(data) {
+            const container = document.getElementById('property-details-content');
+            container.innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">Address:</span>
+                    <span class="detail-value">${data.address}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">County:</span>
+                    <span class="detail-value">${data.county} County, ${data.state}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Property Tax Rate:</span>
+                    <span class="detail-value">${(data.tax_rate * 100).toFixed(3)}%</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Est. Monthly Property Tax:</span>
+                    <span class="detail-value">$${data.monthly_property_tax.toFixed(2)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Est. Monthly Insurance:</span>
+                    <span class="detail-value">$${data.monthly_insurance.toFixed(2)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Data Confidence:</span>
+                    <span class="detail-value">${data.confidence}% ✓</span>
+                </div>
+            `;
+        }
+
+        // File upload handling
+        function handleFileUpload(type, files) {
+            uploadedFiles[type] = Array.from(files);
+
+            const zone = document.getElementById(`${type}-zone`);
+            const list = document.getElementById(`${type}-list`);
+
+            if (files.length > 0) {
+                zone.classList.add('has-files');
+                list.innerHTML = '';
+                Array.from(files).forEach((file, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'file-item';
+                    li.innerHTML = `
+                        <span>${file.name}</span>
+                        <span class="remove-file" onclick="removeFile('${type}', ${index})">✕</span>
+                    `;
+                    list.appendChild(li);
+                });
+            } else {
+                zone.classList.remove('has-files');
+            }
+        }
+
+        function removeFile(type, index) {
+            uploadedFiles[type].splice(index, 1);
+            const input = document.getElementById(`${type}-input`);
+            const dt = new DataTransfer();
+            uploadedFiles[type].forEach(file => dt.items.add(file));
+            input.files = dt.files;
+            handleFileUpload(type, uploadedFiles[type]);
+        }
+
+        // Calculate qualification
+        async function calculateQualification() {
+            // Validation
+            if (uploadedFiles.paystub.length === 0 || uploadedFiles.w2.length === 0) {
+                alert('Please upload at least one paystub and one W-2 form');
+                return;
+            }
+
+            // Show loading
+            showLoading('Processing Your Application', 'Extracting documents and calculating qualification...');
+
+            try {
+                // Step 1: Extract documents via OCR
+                // Step 2: Calculate income
+                // Step 3: Calculate DTI
+                // Step 4: Check qualification
+
+                // Simulate processing
+                await new Promise(resolve => setTimeout(resolve, 3000));
+
+                // Mock results (replace with actual calculation)
+                const results = {
+                    qualified: true,
+                    monthly_income: 8000,
+                    housing_payment: 2530,
+                    back_end_dti: 38.2,
+                    qualified_loan_types: ['fannie_mae', 'fha', 'va']
+                };
+
+                // Move to results step
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('completed');
+                currentStep = 5;
+                updateStepDisplay();
+
+                // Display results
+                displayResults(results);
+
+                hideLoading();
+
+            } catch (error) {
+                hideLoading();
+                alert('Error calculating qualification: ' + error.message);
+            }
+        }
+
+        function displayResults(results) {
+            const container = document.getElementById('results-container');
+            const statusClass = results.qualified ? 'success-box' : 'info-box';
+
+            container.innerHTML = `
+                <div class="${statusClass}">
+                    <h2>${results.qualified ? '✅ Congratulations! You Qualify' : '❌ Not Qualified'}</h2>
+                    <p>${results.qualified ? `You qualify for ${results.qualified_loan_types.length} loan type(s)` : 'Your DTI ratio exceeds maximum limits'}</p>
+                </div>
+
+                <div class="property-details-card">
+                    <h3>📊 Qualification Summary</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Monthly Income:</span>
+                        <span class="detail-value">$${results.monthly_income.toFixed(0)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Housing Payment:</span>
+                        <span class="detail-value">$${results.housing_payment.toFixed(0)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Back-End DTI:</span>
+                        <span class="detail-value">${results.back_end_dti.toFixed(2)}%</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Qualified Loan Types:</span>
+                        <span class="detail-value">${results.qualified_loan_types.join(', ')}</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; text-align: center;">
+                    <button class="btn btn-primary" onclick="window.print()">Print Results 🖨️</button>
+                    <button class="btn btn-secondary" onclick="location.reload()">New Application</button>
+                </div>
+            `;
+        }
+
+        // Transfer tax scenario display
+        function updateTransferTaxScenario() {
+            const propertyType = document.getElementById('property_type').value;
+            const isFirstTimeBuyer = document.getElementById('first_time_buyer').checked;
+            const infoBox = document.getElementById('transfer-tax-info');
+            const scenarioDiv = document.getElementById('transfer-tax-scenario');
+
+            let scenario = '';
+            let description = '';
+
+            if (propertyType === 'new_construction') {
+                if (isFirstTimeBuyer) {
+                    scenario = 'Scenario 4: New Construction (First-Time Buyer)';
+                    description = '• Buyer pays 100% of transfer taxes and recording fees<br>' +
+                                '• First-time buyer exemption does NOT apply to new construction<br>' +
+                                '• Includes: State transfer tax + County transfer tax + Recording fees + Recordation tax';
+                } else {
+                    scenario = 'Scenario 1: New Construction';
+                    description = '• Buyer pays 100% of transfer taxes and recording fees<br>' +
+                                '• Includes: State transfer tax + County transfer tax + Recording fees + Recordation tax';
+                }
+            } else {
+                if (isFirstTimeBuyer) {
+                    scenario = 'Scenario 3: Resale (First-Time Buyer)';
+                    description = '• 50/50 split on transfer taxes between buyer and seller<br>' +
+                                '• <strong>State transfer tax EXEMPT</strong> (up to $500k home value)<br>' +
+                                '• Buyer pays recording fees and recordation tax<br>' +
+                                '• <strong style="color: #10b981;">💰 You save on state transfer tax!</strong>';
+                } else {
+                    scenario = 'Scenario 2: Resale (Standard)';
+                    description = '• 50/50 split on transfer taxes between buyer and seller<br>' +
+                                '• Buyer pays recording fees and recordation tax<br>' +
+                                '• More affordable than new construction';
+                }
+            }
+
+            scenarioDiv.innerHTML = `<strong>${scenario}</strong><br><br>${description}`;
+            infoBox.style.display = 'block';
+        }
+
+        // Loading overlay
+        function showLoading(title, message) {
+            document.getElementById('loading-title').textContent = title;
+            document.getElementById('loading-message').textContent = message;
+            document.getElementById('loading-overlay').classList.add('show');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.remove('show');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTransferTaxScenario();
+        });
+    </script>
+</body>
+</html>

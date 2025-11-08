@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mortgage Tax Data Viewer - Test Frontend</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .selector-panel {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:hover {
+            border-color: #667eea;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-panel {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .results-panel.show {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            border: 2px solid #fcc;
+            padding: 20px;
+            border-radius: 6px;
+            color: #c33;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .data-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .data-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .data-row:last-child {
+            border-bottom: none;
+        }
+
+        .data-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .data-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .sources {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 6px;
+        }
+
+        .sources h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .sources a {
+            color: #667eea;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .sources a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Mortgage Tax Data Viewer</h1>
+            <p class="subtitle">View property tax, transfer tax, and recording fees by state and county</p>
+        </div>
+
+        <div class="selector-panel">
+            <div class="form-group">
+                <label for="state-select">Select State</label>
+                <select id="state-select">
+                    <option value="">-- Choose a state --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="county-select">Select County</label>
+                <select id="county-select" disabled>
+                    <option value="">-- First select a state --</option>
+                </select>
+            </div>
+
+            <button class="btn" id="load-btn" disabled>Load Tax Data</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading tax data...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="results-panel" id="results">
+            <!-- Results will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+        const stateSelect = document.getElementById('state-select');
+        const countySelect = document.getElementById('county-select');
+        const loadBtn = document.getElementById('load-btn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const results = document.getElementById('results');
+
+        // Load states on page load
+        async function loadStates() {
+            try {
+                const response = await fetch(`${API_BASE}/states/`);
+                const data = await response.json();
+
+                data.results.forEach(state => {
+                    const option = document.createElement('option');
+                    option.value = state.id;
+                    option.textContent = state.name;
+                    option.dataset.code = state.code;
+                    stateSelect.appendChild(option);
+                });
+            } catch (err) {
+                showError('Failed to load states: ' + err.message);
+            }
+        }
+
+        // Load counties when state is selected
+        stateSelect.addEventListener('change', async (e) => {
+            const stateId = e.target.value;
+
+            countySelect.innerHTML = '<option value="">-- Loading counties... --</option>';
+            countySelect.disabled = true;
+            loadBtn.disabled = true;
+
+            if (!stateId) {
+                countySelect.innerHTML = '<option value="">-- First select a state --</option>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/states/${stateId}/counties/`);
+                const counties = await response.json();
+
+                countySelect.innerHTML = '<option value="">-- Choose a county --</option>';
+
+                counties.forEach(county => {
+                    const option = document.createElement('option');
+                    option.value = county.name;
+                    option.textContent = county.name;
+                    option.dataset.id = county.id;
+                    countySelect.appendChild(option);
+                });
+
+                countySelect.disabled = false;
+            } catch (err) {
+                showError('Failed to load counties: ' + err.message);
+                countySelect.innerHTML = '<option value="">-- Error loading counties --</option>';
+            }
+        });
+
+        // Enable load button when county is selected
+        countySelect.addEventListener('change', (e) => {
+            loadBtn.disabled = !e.target.value;
+        });
+
+        // Load tax data
+        loadBtn.addEventListener('click', async () => {
+            const stateCode = stateSelect.selectedOptions[0].dataset.code;
+            const countyName = countySelect.value;
+
+            if (!stateCode || !countyName) return;
+
+            loading.classList.add('show');
+            error.classList.remove('show');
+            results.classList.remove('show');
+
+            try {
+                const response = await fetch(`${API_BASE}/tax-data/by-location/${stateCode}/${countyName}/`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                displayResults(data, stateCode, countyName);
+
+            } catch (err) {
+                showError('Failed to load tax data: ' + err.message);
+            } finally {
+                loading.classList.remove('show');
+            }
+        });
+
+        function displayResults(data, stateCode, countyName) {
+            // Extract the nested tax data
+            const taxData = data.data || {};
+
+            const html = `
+                <h2>${countyName} County, ${stateCode}</h2>
+                <p style="color: #666; margin-bottom: 20px;">
+                    Data Completeness: <span class="badge badge-success">${data.data_completeness || 'N/A'}%</span>
+                    Last Verified: ${data.last_verified ? new Date(data.last_verified).toLocaleDateString() : 'N/A'}
+                </p>
+
+                <div class="data-card">
+                    <h3>🏘️ Property Tax</h3>
+                    <div class="data-row">
+                        <span class="data-label">Total Rate</span>
+                        <span class="data-value">${formatRate(taxData.property_tax?.total_rate)} (${formatPercent(taxData.property_tax?.total_rate)})</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Assessment Ratio</span>
+                        <span class="data-value">${taxData.property_tax?.assessment_ratio || 'N/A'}%</span>
+                    </div>
+                    ${taxData.property_tax?.components ? `
+                    <div class="data-row">
+                        <span class="data-label">County Component</span>
+                        <span class="data-value">${formatRate(taxData.property_tax.components.county)} (${formatPercent(taxData.property_tax.components.county)})</span>
+                    </div>
+                    ${taxData.property_tax.components.state ? `
+                    <div class="data-row">
+                        <span class="data-label">State Component</span>
+                        <span class="data-value">${formatRate(taxData.property_tax.components.state)} (${formatPercent(taxData.property_tax.components.state)})</span>
+                    </div>
+                    ` : ''}
+                    <div class="data-row">
+                        <span class="data-label">School Component</span>
+                        <span class="data-value">${formatRate(taxData.property_tax.components.school)} (${formatPercent(taxData.property_tax.components.school)})</span>
+                    </div>
+                    ${taxData.property_tax.components.municipality ? `
+                    <div class="data-row">
+                        <span class="data-label">Municipality Component</span>
+                        <span class="data-value">${formatRate(taxData.property_tax.components.municipality)} (${formatPercent(taxData.property_tax.components.municipality)})</span>
+                    </div>
+                    ` : ''}
+                    ` : ''}
+                    ${taxData.property_tax?.reassessment_cycle ? `
+                    <div class="data-row">
+                        <span class="data-label">Reassessment Cycle</span>
+                        <span class="data-value">${taxData.property_tax.reassessment_cycle}</span>
+                    </div>
+                    ` : ''}
+                    ${taxData.property_tax?.homestead_cap ? `
+                    <div class="data-row">
+                        <span class="data-label">Homestead Cap</span>
+                        <span class="data-value">${taxData.property_tax.homestead_cap}</span>
+                    </div>
+                    ` : ''}
+                    ${taxData.property_tax?.billing_schedule ? `
+                    <div class="data-row">
+                        <span class="data-label">Billing Schedule</span>
+                        <span class="data-value">
+                            1st Half: ${taxData.property_tax.billing_schedule.first_half_due || 'N/A'},
+                            2nd Half: ${taxData.property_tax.billing_schedule.second_half_due || 'N/A'}
+                        </span>
+                    </div>
+                    ` : ''}
+                </div>
+
+                <div class="data-card">
+                    <h3>💰 Transfer Tax</h3>
+                    <div class="data-row">
+                        <span class="data-label">State Rate</span>
+                        <span class="data-value">${formatRate(taxData.transfer_tax?.state_rate)} (${formatPercent(taxData.transfer_tax?.state_rate)})</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">County Rate</span>
+                        <span class="data-value">${formatRate(taxData.transfer_tax?.county_rate)} (${formatPercent(taxData.transfer_tax?.county_rate)})</span>
+                    </div>
+                    ${taxData.transfer_tax?.buyer_seller_split ? `
+                    <div class="data-row">
+                        <span class="data-label">Payment Split</span>
+                        <span class="data-value">${taxData.transfer_tax.buyer_seller_split}</span>
+                    </div>
+                    ` : ''}
+                    ${taxData.transfer_tax?.first_time_buyer_exemption ? `
+                    <div class="data-row">
+                        <span class="data-label">First-Time Buyer Exemption</span>
+                        <span class="data-value">${taxData.transfer_tax.first_time_buyer_exemption}</span>
+                    </div>
+                    ` : ''}
+                    ${taxData.transfer_tax?.first_time_buyer_threshold ? `
+                    <div class="data-row">
+                        <span class="data-label">FTB Threshold</span>
+                        <span class="data-value">$${taxData.transfer_tax.first_time_buyer_threshold.toLocaleString()}</span>
+                    </div>
+                    ` : ''}
+                </div>
+
+                <div class="data-card">
+                    <h3>📝 Recording Fees</h3>
+                    ${taxData.recording_fees?.deed ? `
+                    <div class="data-row">
+                        <span class="data-label">Deed Recording</span>
+                        <span class="data-value">$${taxData.recording_fees.deed.flat} + $${taxData.recording_fees.deed.per_page}/page</span>
+                    </div>
+                    ` : ''}
+                    ${taxData.recording_fees?.mortgage ? `
+                    <div class="data-row">
+                        <span class="data-label">Mortgage Recording</span>
+                        <span class="data-value">$${taxData.recording_fees.mortgage.flat} + $${taxData.recording_fees.mortgage.per_page}/page</span>
+                    </div>
+                    ` : ''}
+                    ${taxData.recording_fees?.surcharge ? `
+                    <div class="data-row">
+                        <span class="data-label">Surcharge</span>
+                        <span class="data-value">$${taxData.recording_fees.surcharge}</span>
+                    </div>
+                    ` : ''}
+                </div>
+
+                ${taxData.recordation_tax?.tiers?.length ? `
+                <div class="data-card">
+                    <h3>📋 Recordation Tax</h3>
+                    ${taxData.recordation_tax.tiers.map((tier, idx) => `
+                    <div class="data-row">
+                        <span class="data-label">Tier ${idx + 1}</span>
+                        <span class="data-value">
+                            ${tier.min_value ? `Above $${tier.min_value.toLocaleString()}` : `Up to $${tier.max_value?.toLocaleString() || 'N/A'}`}:
+                            ${formatRate(tier.rate)} (${formatPercent(tier.rate)})
+                        </span>
+                    </div>
+                    `).join('')}
+                </div>
+                ` : ''}
+
+                ${taxData.insurance_estimate?.base_premium_per_100k ? `
+                <div class="data-card">
+                    <h3>🏠 Insurance Estimate</h3>
+                    <div class="data-row">
+                        <span class="data-label">Base Premium (per $100k coverage)</span>
+                        <span class="data-value">$${taxData.insurance_estimate.base_premium_per_100k}</span>
+                    </div>
+                    ${taxData.insurance_estimate.source ? `
+                    <div class="data-row">
+                        <span class="data-label">Source</span>
+                        <span class="data-value">${taxData.insurance_estimate.source}</span>
+                    </div>
+                    ` : ''}
+                </div>
+                ` : ''}
+
+                ${taxData.sources_used?.length ? `
+                <div class="sources">
+                    <h4>📚 Data Sources</h4>
+                    ${taxData.sources_used.map(url => `<a href="${url}" target="_blank">${url}</a>`).join('')}
+                </div>
+                ` : ''}
+
+                ${taxData.notes ? `
+                <div class="data-card">
+                    <h3>📝 Notes</h3>
+                    <p style="color: #666; line-height: 1.6;">${taxData.notes}</p>
+                </div>
+                ` : ''}
+
+                <div class="data-card" style="background: #f8f9fa;">
+                    <h3>ℹ️ Metadata</h3>
+                    <div class="data-row">
+                        <span class="data-label">Scraper Confidence</span>
+                        <span class="data-value">${data.scraper_confidence || 'N/A'}%</span>
+                    </div>
+                    ${taxData.effective_date ? `
+                    <div class="data-row">
+                        <span class="data-label">Effective Date</span>
+                        <span class="data-value">${taxData.effective_date}</span>
+                    </div>
+                    ` : ''}
+                    ${taxData.processing_time ? `
+                    <div class="data-row">
+                        <span class="data-label">Processing Time</span>
+                        <span class="data-value">${taxData.processing_time} seconds</span>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+
+            results.innerHTML = html;
+            results.classList.add('show');
+        }
+
+        function showError(message) {
+            error.textContent = message;
+            error.classList.add('show');
+            setTimeout(() => error.classList.remove('show'), 5000);
+        }
+
+        function formatRate(rate) {
+            if (rate === null || rate === undefined) return 'N/A';
+            return rate.toFixed(4);
+        }
+
+        function formatPercent(rate) {
+            if (rate === null || rate === undefined) return 'N/A';
+            return (rate * 100).toFixed(2) + '%';
+        }
+
+        // Initialize
+        loadStates();
+    </script>
+</body>
+</html>

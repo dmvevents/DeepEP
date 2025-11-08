@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mortgage Document Upload - OCR Extraction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .upload-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .document-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .document-type-selector button {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .document-type-selector button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .document-type-selector button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            background: #f8f9ff;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragover {
+            background: #e8edff;
+            border-color: #764ba2;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .upload-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .upload-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .confidence-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .confidence-high {
+            background: #10b981;
+            color: white;
+        }
+
+        .confidence-medium {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .confidence-low {
+            background: #ef4444;
+            color: white;
+        }
+
+        .extracted-data {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .data-field {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .data-field:last-child {
+            border-bottom: none;
+        }
+
+        .field-label {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .field-value {
+            color: #374151;
+            text-align: right;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .metadata {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📄 Mortgage Document Upload</h1>
+            <p>Extract structured data from mortgage documents using AI</p>
+        </header>
+
+        <div class="upload-section">
+            <h2 style="margin-bottom: 20px; color: #374151;">1. Select Document Type</h2>
+            <div class="document-type-selector">
+                <button onclick="selectDocType('paystub')" id="btn-paystub">
+                    💵 Pay Stub
+                </button>
+                <button onclick="selectDocType('w2')" id="btn-w2">
+                    📋 W-2 Form
+                </button>
+                <button onclick="selectDocType('bank-statement')" id="btn-bank-statement">
+                    🏦 Bank Statement
+                </button>
+                <button onclick="selectDocType('tax-return')" id="btn-tax-return">
+                    📝 Tax Return (1040)
+                </button>
+                <button onclick="selectDocType('schedule-c')" id="btn-schedule-c">
+                    💼 Schedule C
+                </button>
+            </div>
+
+            <h2 style="margin: 30px 0 20px; color: #374151;">2. Upload Document</h2>
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📤</div>
+                <h3>Click to upload or drag and drop</h3>
+                <p>Supports: PDF, JPG, PNG (Max 10MB)</p>
+                <p id="fileName" style="margin-top: 10px; color: #667eea; font-weight: 600;"></p>
+            </div>
+            <input type="file" id="fileInput" accept="image/*,application/pdf" onchange="handleFileSelect(event)">
+
+            <button class="upload-button" id="extractBtn" onclick="extractDocument()" disabled>
+                🚀 Extract Data
+            </button>
+
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <h3>Extracting document data...</h3>
+            <p>This may take a few seconds</p>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="result-header">
+                <h2>Extraction Results</h2>
+                <span class="confidence-badge" id="confidenceBadge"></span>
+            </div>
+
+            <div id="extractedDataContainer"></div>
+
+            <div class="metadata" id="metadata"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8003';
+        let selectedDocType = null;
+        let selectedFile = null;
+
+        // Select document type
+        function selectDocType(type) {
+            selectedDocType = type;
+
+            // Update button states
+            document.querySelectorAll('.document-type-selector button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`btn-${type}`).classList.add('active');
+
+            // Enable extract button if file is selected
+            updateExtractButton();
+        }
+
+        // Handle file selection
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('fileName').textContent = `Selected: ${file.name}`;
+                updateExtractButton();
+            }
+        }
+
+        // Update extract button state
+        function updateExtractButton() {
+            const btn = document.getElementById('extractBtn');
+            btn.disabled = !(selectedDocType && selectedFile);
+        }
+
+        // Drag and drop handlers
+        const uploadArea = document.getElementById('uploadArea');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('fileName').textContent = `Selected: ${file.name}`;
+                updateExtractButton();
+            }
+        });
+
+        // Extract document
+        async function extractDocument() {
+            if (!selectedDocType || !selectedFile) {
+                showError('Please select document type and upload a file');
+                return;
+            }
+
+            // Hide previous results and errors
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('errorMessage').classList.remove('show');
+
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+
+                const response = await fetch(`${API_BASE}/extract/${selectedDocType}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                // Hide loading
+                document.getElementById('loading').classList.remove('show');
+
+                // Display results
+                displayResults(result);
+
+            } catch (error) {
+                console.error('Extraction error:', error);
+                document.getElementById('loading').classList.remove('show');
+                showError(`Extraction failed: ${error.message}`);
+            }
+        }
+
+        // Display extraction results
+        function displayResults(result) {
+            // Set confidence badge
+            const confidenceBadge = document.getElementById('confidenceBadge');
+            const confidence = result.confidence_score;
+
+            if (confidence >= 90) {
+                confidenceBadge.className = 'confidence-badge confidence-high';
+                confidenceBadge.textContent = `✓ ${confidence}% Confidence`;
+            } else if (confidence >= 70) {
+                confidenceBadge.className = 'confidence-badge confidence-medium';
+                confidenceBadge.textContent = `⚠ ${confidence}% Confidence`;
+            } else {
+                confidenceBadge.className = 'confidence-badge confidence-low';
+                confidenceBadge.textContent = `⚠ ${confidence}% Confidence - Review Needed`;
+            }
+
+            // Display extracted data
+            const container = document.getElementById('extractedDataContainer');
+            container.innerHTML = '<div class="extracted-data">' +
+                formatExtractedData(result.extracted_data) +
+                '</div>';
+
+            // Display metadata
+            document.getElementById('metadata').innerHTML = `
+                <strong>Model Used:</strong> ${result.model_used}<br>
+                <strong>Processing Time:</strong> ${result.processing_time_ms.toFixed(0)}ms<br>
+                <strong>Document Type:</strong> ${result.document_type}
+            `;
+
+            // Show results section
+            document.getElementById('resultsSection').classList.add('show');
+        }
+
+        // Format extracted data for display
+        function formatExtractedData(data) {
+            let html = '';
+
+            for (const [key, value] of Object.entries(data)) {
+                if (value && typeof value === 'object' && !Array.isArray(value)) {
+                    // Nested object (like deductions)
+                    html += `<div class="data-field"><div class="field-label">${formatKey(key)}</div><div class="field-value"></div></div>`;
+                    for (const [subKey, subValue] of Object.entries(value)) {
+                        html += `<div class="data-field" style="padding-left: 20px;">
+                            <div class="field-label">${formatKey(subKey)}</div>
+                            <div class="field-value">${formatValue(subValue)}</div>
+                        </div>`;
+                    }
+                } else if (Array.isArray(value)) {
+                    // Array (like deposits, withdrawals)
+                    html += `<div class="data-field"><div class="field-label">${formatKey(key)}</div><div class="field-value">${value.length} items</div></div>`;
+                } else {
+                    html += `<div class="data-field">
+                        <div class="field-label">${formatKey(key)}</div>
+                        <div class="field-value">${formatValue(value)}</div>
+                    </div>`;
+                }
+            }
+
+            return html;
+        }
+
+        // Format key name (convert snake_case to Title Case)
+        function formatKey(key) {
+            return key
+                .replace(/_/g, ' ')
+                .replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        // Format value (handle numbers, currency, dates)
+        function formatValue(value) {
+            if (value === null || value === undefined || value === '') {
+                return 'N/A';
+            }
+
+            if (typeof value === 'number') {
+                // Assume currency if > 100 or has decimals
+                if (value > 100 || value % 1 !== 0) {
+                    return `$${value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
+                }
+                return value.toString();
+            }
+
+            return value.toString();
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+    </script>
+</body>
+</html>

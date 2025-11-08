@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mortgage Lending Guidelines 2025 - Complete Reference</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            padding: 10px;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            gap: 10px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .content {
+            background: white;
+            padding: 40px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-height: 500px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .guideline-section {
+            margin-bottom: 30px;
+        }
+
+        .guideline-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .guideline-section h3 {
+            color: #764ba2;
+            margin: 20px 0 10px 0;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-box h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        .info-box p {
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .link-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 10px 10px 0;
+            transition: transform 0.2s;
+        }
+
+        .link-button:hover {
+            transform: translateY(-2px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 2px;
+        }
+
+        .badge-max {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .badge-standard {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .badge-low {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Mortgage Lending Guidelines 2025</h1>
+            <p class="subtitle">Complete Reference for Income Qualification & Underwriting</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('overview')">Overview</button>
+            <button class="tab" onclick="showTab('fannie-mae')">Fannie Mae</button>
+            <button class="tab" onclick="showTab('freddie-mac')">Freddie Mac</button>
+            <button class="tab" onclick="showTab('fha')">FHA</button>
+            <button class="tab" onclick="showTab('usda')">USDA</button>
+            <button class="tab" onclick="showTab('va')">VA Loans</button>
+            <button class="tab" onclick="showTab('mgic')">MGIC</button>
+            <button class="tab" onclick="showTab('dti-calculator')">DTI Calculator</button>
+        </div>
+
+        <div class="content">
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <div class="guideline-section">
+                    <h2>🎯 Loan Type Comparison Matrix</h2>
+                    <table>
+                        <tr>
+                            <th>Loan Type</th>
+                            <th>Max DTI</th>
+                            <th>Min Credit Score</th>
+                            <th>Min Down Payment</th>
+                            <th>Income Verification</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Fannie Mae (Conventional)</strong></td>
+                            <td><span class="badge badge-max">50%</span> (DU) <span class="badge badge-standard">45%</span> (Manual)</td>
+                            <td>620</td>
+                            <td>3%</td>
+                            <td>2-year history</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Freddie Mac (Conventional)</strong></td>
+                            <td><span class="badge badge-standard">43%</span> (Auto) <span class="badge badge-standard">45%</span> (Manual)</td>
+                            <td>620</td>
+                            <td>3%</td>
+                            <td>2-year history</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FHA</strong></td>
+                            <td><span class="badge badge-max">56.99%</span> (Max) <span class="badge badge-standard">43%</span> (Typical)</td>
+                            <td>500-580</td>
+                            <td>3.5% (580+) / 10% (500-579)</td>
+                            <td>Steady employment</td>
+                        </tr>
+                        <tr>
+                            <td><strong>USDA</strong></td>
+                            <td><span class="badge badge-standard">41%</span></td>
+                            <td>640 (typical)</td>
+                            <td>0%</td>
+                            <td>Income limits apply</td>
+                        </tr>
+                        <tr>
+                            <td><strong>VA</strong></td>
+                            <td><span class="badge badge-standard">41%</span> (Flexible)</td>
+                            <td>None (620 typical)</td>
+                            <td>0%</td>
+                            <td>2-year history + residual income</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="guideline-section">
+                    <h2>📊 Key Income Types & Calculation Methods</h2>
+
+                    <div class="info-box">
+                        <h4>Base Salary/Hourly</h4>
+                        <p><strong>Calculation:</strong> Current monthly amount (or hourly × 40 × 52 / 12)</p>
+                        <p><strong>Documentation:</strong> Pay stubs (last 30 days), W-2s (2 years)</p>
+                        <p><strong>Continuity:</strong> Must be stable and likely to continue for 3 years</p>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>Bonus / Commission / Overtime</h4>
+                        <p><strong>Calculation:</strong> 2-year average (sum of 24 months / 24)</p>
+                        <p><strong>Documentation:</strong> W-2s (2 years), year-end pay stubs or VOE</p>
+                        <p><strong>Trending:</strong> If declining, may use lower amount or exclude</p>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>Self-Employment Income</h4>
+                        <p><strong>Calculation:</strong> (Year 1 net + Year 2 net) / 24 months</p>
+                        <p><strong>Documentation:</strong> Tax returns (2 years), Schedule C/1120S, P&L statement</p>
+                        <p><strong>Adjustments:</strong> Add back depreciation, depletion, one-time expenses</p>
+                        <p><strong>Ownership:</strong> 25%+ ownership = self-employed</p>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>Rental Income</h4>
+                        <p><strong>Calculation:</strong> 75% of gross monthly rent (Fannie/Freddie)</p>
+                        <p><strong>Documentation:</strong> Lease agreement or Schedule E</p>
+                        <p><strong>Note:</strong> Accounts for vacancies and maintenance</p>
+                    </div>
+                </div>
+
+                <div class="guideline-section">
+                    <h2>🔗 Official Resources</h2>
+                    <a href="https://selling-guide.fanniemae.com" target="_blank" class="link-button">Fannie Mae Selling Guide</a>
+                    <a href="https://sf.freddiemac.com" target="_blank" class="link-button">Freddie Mac Guide</a>
+                    <a href="https://www.hud.gov/program_offices/housing/sfh/handbook_4000-1" target="_blank" class="link-button">FHA Handbook 4000.1</a>
+                    <a href="https://www.rd.usda.gov" target="_blank" class="link-button">USDA Rural Development</a>
+                    <a href="https://www.benefits.va.gov/homeloans" target="_blank" class="link-button">VA Home Loans</a>
+                    <a href="https://www.mgic.com/underwriting" target="_blank" class="link-button">MGIC Underwriting</a>
+                </div>
+            </div>
+
+            <!-- Fannie Mae Tab -->
+            <div id="fannie-mae" class="tab-content">
+                <div class="guideline-section">
+                    <h2>🏦 Fannie Mae Conventional Loans</h2>
+
+                    <div class="info-box">
+                        <h4>2025 Loan Limits</h4>
+                        <p><strong>Standard Areas:</strong> $806,500 (single-family home)</p>
+                        <p><strong>High-Cost Areas:</strong> Up to $1,209,750</p>
+                        <p><strong>Increase:</strong> 5.21% over 2024 limits</p>
+                    </div>
+
+                    <h3>Debt-to-Income Requirements</h3>
+                    <div class="info-box">
+                        <h4>Desktop Underwriter (DU) - Automated</h4>
+                        <ul>
+                            <li><strong>Maximum DTI:</strong> 50%</li>
+                            <li>Can handle higher ratios with compensating factors</li>
+                            <li>Risk-based pricing adjusts for DTI levels</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>Manual Underwriting</h4>
+                        <ul>
+                            <li><strong>Standard Maximum:</strong> 36%</li>
+                            <li><strong>Can Exceed To:</strong> 45% with compensating factors:</li>
+                            <li style="margin-left: 40px;">✓ Credit score ≥ 720</li>
+                            <li style="margin-left: 40px;">✓ Reserves of 6+ months PITI</li>
+                            <li style="margin-left: 40px;">✓ Down payment ≥ 20%</li>
+                        </ul>
+                    </div>
+
+                    <h3>Income Calculation Methods</h3>
+                    <div class="info-box">
+                        <h4>Fannie Mae Income Calculator</h4>
+                        <p>Official tool available at <a href="https://singlefamily.fanniemae.com/applications-technology/income-calculator" target="_blank">singlefamily.fanniemae.com</a></p>
+                        <p><strong>Enforcement Relief:</strong> When lender's qualifying income ≤ Income Calculator amount, may receive rep & warranty relief</p>
+                        <p><strong>Supported Income Types:</strong></p>
+                        <ul>
+                            <li>Base salary/hourly wages</li>
+                            <li>Bonus, overtime, commission</li>
+                            <li>Self-employment (Schedule C, 1120S, 1065)</li>
+                            <li>Rental income</li>
+                            <li>Investment/retirement income</li>
+                        </ul>
+                    </div>
+
+                    <h3>Self-Employment Guidelines</h3>
+                    <div class="info-box">
+                        <h4>Definition</h4>
+                        <p><span class="highlight">25% or greater ownership</span> in business = Self-employed</p>
+
+                        <h4>Required Documentation</h4>
+                        <ul>
+                            <li>Personal tax returns (2 years with all schedules)</li>
+                            <li>Business tax returns (2 years - 1120, 1120S, or 1065)</li>
+                            <li>YTD Profit & Loss statement</li>
+                            <li>Balance sheet (for corporations/partnerships)</li>
+                        </ul>
+
+                        <h4>Income Calculation</h4>
+                        <p><strong>Formula:</strong> (Year 1 Net Income + Year 2 Net Income) / 24 months</p>
+                        <p><strong>Add-backs:</strong> Depreciation, depletion, amortization, one-time losses</p>
+                        <p><strong>Deductions:</strong> Business use of home, meals/entertainment (partially)</p>
+                        <p><strong>Trending Analysis Required:</strong> If income declining, use lower or exclude</p>
+                    </div>
+
+                    <h3>Bonus/Commission/Overtime Income</h3>
+                    <div class="info-box">
+                        <p><strong>Minimum History:</strong> 2 years</p>
+                        <p><strong>Calculation Method:</strong></p>
+                        <ul>
+                            <li>Option 1: Average last 2 years (24 months / 24)</li>
+                            <li>Option 2: If increasing, may use current year amount with justification</li>
+                        </ul>
+                        <p><strong>Documentation:</strong> W-2s (2 years) + year-end pay stubs OR written VOE</p>
+                        <p><strong>Continuity:</strong> Must demonstrate likelihood of continuation</p>
+                    </div>
+
+                    <h3>Credit & Reserve Requirements</h3>
+                    <div class="info-box">
+                        <h4>Minimum Credit Score</h4>
+                        <p>620 (typically) - varies by LTV and other risk factors</p>
+
+                        <h4>Reserve Requirements</h4>
+                        <table>
+                            <tr>
+                                <th>Property Type</th>
+                                <th>Number of Units</th>
+                                <th>Required Reserves</th>
+                            </tr>
+                            <tr>
+                                <td>Primary Residence</td>
+                                <td>1</td>
+                                <td>0-2 months (varies by LTV/credit)</td>
+                            </tr>
+                            <tr>
+                                <td>Primary Residence</td>
+                                <td>2-4</td>
+                                <td>6 months</td>
+                            </tr>
+                            <tr>
+                                <td>Investment Property</td>
+                                <td>1</td>
+                                <td>6 months</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <a href="https://selling-guide.fanniemae.com" target="_blank" class="link-button">📖 Full Fannie Mae Selling Guide</a>
+                </div>
+            </div>
+
+            <!-- Freddie Mac Tab -->
+            <div id="freddie-mac" class="tab-content">
+                <div class="guideline-section">
+                    <h2>🏦 Freddie Mac Conventional Loans</h2>
+
+                    <h3>Debt-to-Income Requirements</h3>
+                    <div class="info-box">
+                        <h4>Loan Product Advisor (LPA) - Automated</h4>
+                        <ul>
+                            <li><strong>Maximum DTI:</strong> 43%</li>
+                            <li>Automated system provides risk assessment</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>Manual Underwriting</h4>
+                        <ul>
+                            <li><strong>Maximum DTI:</strong> 45%</li>
+                            <li>Must meet all other guideline requirements</li>
+                        </ul>
+                    </div>
+
+                    <h3>Income Calculator</h3>
+                    <div class="info-box">
+                        <h4>Freddie Mac Income Calculator</h4>
+                        <p>Free online tool: <a href="https://sf.freddiemac.com/tools-learning/technology-tools/our-solutions/income-calculator" target="_blank">sf.freddiemac.com/income-calculator</a></p>
+                        <p><strong>Supported Types:</strong></p>
+                        <ul>
+                            <li>Base, bonus, overtime, commission (from paystubs/W-2s)</li>
+                            <li>Self-employment (Schedule C, Partnership, S-Corp)</li>
+                            <li>Rental income</li>
+                            <li>Retirement/investment income</li>
+                        </ul>
+                    </div>
+
+                    <h3>Part-Time & Fluctuating Income</h3>
+                    <div class="info-box">
+                        <h4>Non-Fluctuating vs Fluctuating</h4>
+                        <p><strong>Non-Fluctuating:</strong> Salaried employees with consistent pay</p>
+                        <p><strong>Fluctuating:</strong> Commissions, bonuses, overtime, tips, variable hourly</p>
+
+                        <h4>Requirements</h4>
+                        <ul>
+                            <li><strong>History:</strong> 2-year employment history without interruption</li>
+                            <li><strong>Calculation:</strong> Average of 24 months for fluctuating income</li>
+                            <li><strong>Continuity:</strong> Likely to continue for 3+ years</li>
+                        </ul>
+                    </div>
+
+                    <h3>Rental Income</h3>
+                    <div class="info-box">
+                        <h4>Lease Agreement Method</h4>
+                        <p><span class="highlight">75% of gross monthly rent</span></p>
+                        <p>Accounts for vacancies and maintenance expenses</p>
+
+                        <h4>Tax Return Method (Schedule E)</h4>
+                        <p>Use actual net rental income from Schedule E</p>
+                        <p>May add back depreciation and other non-cash expenses</p>
+                    </div>
+
+                    <h3>Asset Depletion Income</h3>
+                    <div class="info-box">
+                        <h4>Calculation Formula</h4>
+                        <p><strong>70%</strong> of investment account balance ÷ <strong>240 months</strong></p>
+                        <p>Result = Qualifying monthly income</p>
+
+                        <h4>Example</h4>
+                        <p>$500,000 in investments → ($500,000 × 0.70) / 240 = <span class="highlight">$1,458/month</span></p>
+
+                        <h4>Eligible Assets</h4>
+                        <ul>
+                            <li>Checking/savings accounts</li>
+                            <li>Investment accounts (stocks, bonds, mutual funds)</li>
+                            <li>Retirement accounts (IRA, 401k - with restrictions)</li>
+                        </ul>
+                    </div>
+
+                    <h3>Documentation Requirements</h3>
+                    <div class="info-box">
+                        <h4>IRS Tax Transcripts Required When:</h4>
+                        <ul>
+                            <li>Qualifying with self-employment income</li>
+                            <li>Using rental income (Schedule E)</li>
+                            <li>Employment by family-owned business</li>
+                            <li>Grossing up non-taxable income</li>
+                        </ul>
+                    </div>
+
+                    <a href="https://sf.freddiemac.com" target="_blank" class="link-button">📖 Freddie Mac Single-Family Guide</a>
+                </div>
+            </div>
+
+            <!-- FHA Tab -->
+            <div id="fha" class="tab-content">
+                <div class="guideline-section">
+                    <h2>🏠 FHA Loans (HUD Guidelines)</h2>
+
+                    <div class="info-box">
+                        <h4>2025 FHA Loan Limits</h4>
+                        <p><strong>Standard Areas:</strong> $524,225 (single-family)</p>
+                        <p><strong>High-Cost Areas:</strong> Up to $1,209,750</p>
+                    </div>
+
+                    <h3>Credit Score Requirements</h3>
+                    <table>
+                        <tr>
+                            <th>Credit Score</th>
+                            <th>Minimum Down Payment</th>
+                            <th>Max LTV</th>
+                        </tr>
+                        <tr>
+                            <td>580+</td>
+                            <td>3.5%</td>
+                            <td>96.5%</td>
+                        </tr>
+                        <tr>
+                            <td>500-579</td>
+                            <td>10%</td>
+                            <td>90%</td>
+                        </tr>
+                        <tr>
+                            <td>&lt;500</td>
+                            <td colspan="2">Not Eligible</td>
+                        </tr>
+                    </table>
+
+                    <h3>Debt-to-Income Requirements</h3>
+                    <div class="info-box">
+                        <h4>Standard DTI Limits</h4>
+                        <ul>
+                            <li><strong>Front-End (Housing) Ratio:</strong> 31%</li>
+                            <li><strong>Back-End (Total) Ratio:</strong> 43%</li>
+                        </ul>
+
+                        <h4>Maximum with Credit Score 580+</h4>
+                        <ul>
+                            <li><strong>PTI (Payment-to-Income):</strong> Up to 40%</li>
+                            <li><strong>DTI (Total Debt):</strong> Up to 50%</li>
+                            <li>Requires additional qualifications</li>
+                        </ul>
+
+                        <h4>Absolute Maximum (With Justification)</h4>
+                        <ul>
+                            <li><strong>Back-End DTI:</strong> Up to 56.99%</li>
+                            <li>Requires compensating factors:</li>
+                            <li style="margin-left: 40px;">✓ Large down payment (20%+)</li>
+                            <li style="margin-left: 40px;">✓ Significant cash reserves</li>
+                            <li style="margin-left: 40px;">✓ Excellent credit history</li>
+                            <li style="margin-left: 40px;">✓ Minimal increase in housing payment</li>
+                        </ul>
+                    </div>
+
+                    <h3>Income Requirements</h3>
+                    <div class="info-box">
+                        <h4>No Minimum Income</h4>
+                        <p>FHA does not set a minimum income requirement</p>
+                        <p>Income must be sufficient to meet DTI ratios</p>
+
+                        <h4>Documentation Requirements</h4>
+                        <ul>
+                            <li>Verifiable income through pay stubs, tax returns, bank statements</li>
+                            <li>Steady employment history</li>
+                            <li>Proof of employment (VOE)</li>
+                        </ul>
+
+                        <h4>Income Types Accepted</h4>
+                        <ul>
+                            <li>W-2 wage income (2-year history)</li>
+                            <li>Self-employment income (2-year tax returns)</li>
+                            <li>Social Security/disability income</li>
+                            <li>Retirement/pension income</li>
+                            <li>Alimony/child support (with 3+ years continuance)</li>
+                            <li>Part-time income (2-year history)</li>
+                        </ul>
+                    </div>
+
+                    <h3>Self-Employment Income</h3>
+                    <div class="info-box">
+                        <h4>Documentation Required</h4>
+                        <ul>
+                            <li>Personal tax returns (2 years with all schedules)</li>
+                            <li>Business tax returns (2 years if applicable)</li>
+                            <li>Year-to-date P&L statement</li>
+                            <li>CPA letter or business license</li>
+                        </ul>
+
+                        <h4>Calculation Method</h4>
+                        <p>Average of 2 years adjusted gross income from tax returns</p>
+                        <p>Add back non-cash deductions (depreciation, depletion)</p>
+                        <p>If declining trend, use lower amount or may not qualify</p>
+                    </div>
+
+                    <h3>Mortgage Insurance</h3>
+                    <div class="info-box">
+                        <h4>Upfront Mortgage Insurance Premium (UFMIP)</h4>
+                        <p><strong>Rate:</strong> 1.75% of base loan amount</p>
+                        <p>Can be financed into loan amount</p>
+
+                        <h4>Annual Mortgage Insurance Premium (MIP)</h4>
+                        <table>
+                            <tr>
+                                <th>Base Loan Amount</th>
+                                <th>LTV ≤ 95%</th>
+                                <th>LTV > 95%</th>
+                            </tr>
+                            <tr>
+                                <td>≤ $726,200</td>
+                                <td>0.50%</td>
+                                <td>0.55%</td>
+                            </tr>
+                            <tr>
+                                <td>> $726,200</td>
+                                <td>0.70%</td>
+                                <td>0.75%</td>
+                            </tr>
+                        </table>
+                        <p><strong>Duration:</strong> Life of loan (for most borrowers)</p>
+                    </div>
+
+                    <a href="https://www.hud.gov/program_offices/housing/sfh/handbook_4000-1" target="_blank" class="link-button">📖 FHA Handbook 4000.1</a>
+                </div>
+            </div>
+
+            <!-- USDA Tab -->
+            <div id="usda" class="tab-content">
+                <div class="guideline-section">
+                    <h2>🌾 USDA Rural Housing Loans</h2>
+
+                    <h3>Income Limits (2025)</h3>
+                    <div class="info-box">
+                        <h4>Household Income Limits</h4>
+                        <p><strong>1-4 Member Household:</strong> $119,850</p>
+                        <p><strong>5-8 Member Household:</strong> $158,250</p>
+                        <p><em>Effective June 18, 2025 (likely through 2026)</em></p>
+
+                        <h4>Calculation Method</h4>
+                        <p>Income limits set at <span class="highlight">115% of Area Median Income (AMI)</span></p>
+                        <p>Your annual income cannot exceed 15% above median income for your area</p>
+
+                        <h4>Regional Variations</h4>
+                        <p><strong>Most Counties:</strong> $112,450 (1-4) / $148,450 (5-8)</p>
+                        <p><strong>Rural Areas:</strong> Can be as low as $91,900 / $121,300</p>
+                        <p><strong>Higher Cost Areas:</strong> Up to limits shown above</p>
+                    </div>
+
+                    <h3>Household Income Definition</h3>
+                    <div class="info-box">
+                        <h4>What's Included</h4>
+                        <p><strong>All Adult Household Members:</strong> Income from all adults counted, whether on loan or not</p>
+                        <ul>
+                            <li>W-2 wage income</li>
+                            <li>Self-employment income</li>
+                            <li>Social Security benefits</li>
+                            <li>Retirement/pension income</li>
+                            <li>Rental income</li>
+                            <li>Alimony/child support received</li>
+                        </ul>
+
+                        <h4>What's Excluded</h4>
+                        <ul>
+                            <li>Income of household members under 18</li>
+                            <li>Foster care payments</li>
+                            <li>Student financial aid</li>
+                            <li>Temporary/seasonal income</li>
+                        </ul>
+                    </div>
+
+                    <h3>Income Deductions</h3>
+                    <div class="info-box">
+                        <h4>Allowed Adjustments</h4>
+                        <p>If your income slightly exceeds limits, you may deduct:</p>
+                        <ul>
+                            <li><strong>Childcare Expenses:</strong> Documented annual costs</li>
+                            <li><strong>Disability Expenses:</strong> Medical costs for disabled household members</li>
+                            <li><strong>Elderly Household Expenses:</strong> Medical costs for members 62+</li>
+                        </ul>
+                        <p>These deductions can bring you below the income limit threshold</p>
+                    </div>
+
+                    <h3>Debt-to-Income Requirements</h3>
+                    <div class="info-box">
+                        <h4>Standard DTI Limits</h4>
+                        <ul>
+                            <li><strong>Front-End (Housing) Ratio:</strong> 29%</li>
+                            <li><strong>Back-End (Total) Ratio:</strong> 41%</li>
+                        </ul>
+
+                        <h4>Exceptions with Compensating Factors</h4>
+                        <p>May exceed 41% with:</p>
+                        <ul>
+                            <li>Excellent credit history (700+ score)</li>
+                            <li>Cash reserves (6+ months)</li>
+                            <li>Minimal increase in housing expense</li>
+                            <li>Strong employment history</li>
+                        </ul>
+                    </div>
+
+                    <h3>Property Eligibility</h3>
+                    <div class="info-box">
+                        <h4>Location Requirements</h4>
+                        <p>Property must be in USDA-eligible rural area</p>
+                        <p><strong>Check Eligibility:</strong> <a href="https://eligibility.sc.egov.usda.gov/eligibility/welcome" target="_blank">USDA Eligibility Map</a></p>
+
+                        <h4>Generally Eligible</h4>
+                        <ul>
+                            <li>Communities with population < 35,000</li>
+                            <li>Rural areas outside metropolitan cities</li>
+                            <li>Some suburban areas qualify</li>
+                        </ul>
+                    </div>
+
+                    <h3>Credit Requirements</h3>
+                    <div class="info-box">
+                        <h4>Minimum Credit Score</h4>
+                        <p><strong>Typical:</strong> 640</p>
+                        <p>No absolute minimum, but lower scores require manual underwriting</p>
+
+                        <h4>Credit History</h4>
+                        <ul>
+                            <li>12 months payment history on all accounts</li>
+                            <li>No bankruptcies in last 3 years</li>
+                            <li>No foreclosures in last 3 years</li>
+                        </ul>
+                    </div>
+
+                    <h3>Loan Features</h3>
+                    <div class="info-box">
+                        <h4>Key Benefits</h4>
+                        <ul>
+                            <li><span class="highlight">0% Down Payment</span> required</li>
+                            <li>100% financing available</li>
+                            <li>Competitive interest rates</li>
+                            <li>30-year fixed terms</li>
+                        </ul>
+
+                        <h4>Guarantee Fee</h4>
+                        <ul>
+                            <li><strong>Upfront:</strong> 1% of loan amount (financed)</li>
+                            <li><strong>Annual:</strong> 0.35% of loan balance</li>
+                        </ul>
+                    </div>
+
+                    <a href="https://www.rd.usda.gov/programs-services/single-family-housing-programs/single-family-housing-guaranteed-loan-program" target="_blank" class="link-button">📖 USDA Rural Development Program</a>
+                    <a href="https://eligibility.sc.egov.usda.gov/eligibility/welcome" target="_blank" class="link-button">🗺️ Check Property Eligibility</a>
+                </div>
+            </div>
+
+            <!-- VA Loans Tab -->
+            <div id="va" class="tab-content">
+                <div class="guideline-section">
+                    <h2>🎖️ VA Home Loans</h2>
+
+                    <h3>Debt-to-Income Requirements</h3>
+                    <div class="info-box">
+                        <h4>Benchmark DTI Ratio</h4>
+                        <p><strong>Standard:</strong> <span class="highlight">41%</span></p>
+                        <p>VA allows flexibility above 41% with compensating factors</p>
+
+                        <h4>Compensating Factors for Higher DTI</h4>
+                        <ul>
+                            <li>Excellent credit history</li>
+                            <li>Down payment (even though not required)</li>
+                            <li>Cash reserves</li>
+                            <li>Long employment history</li>
+                            <li>Minimal increase in housing payment</li>
+                            <li>Strong residual income</li>
+                        </ul>
+                    </div>
+
+                    <h3>Residual Income (Unique to VA)</h3>
+                    <div class="info-box">
+                        <h4>What is Residual Income?</h4>
+                        <p>Money left over each month after paying debts and obligations</p>
+                        <p><strong>Formula:</strong> Gross Monthly Income - Monthly Expenses</p>
+
+                        <h4>Why It Matters</h4>
+                        <p>Residual income must <span class="highlight">exceed VA chart values</span> to qualify</p>
+                        <p>Ensures veteran has sufficient funds for family necessities</p>
+                    </div>
+
+                    <h3>2025 Residual Income Charts</h3>
+                    <div class="info-box">
+                        <h4>Loans Under $80,000</h4>
+                        <table>
+                            <tr>
+                                <th>Family Size</th>
+                                <th>Northeast</th>
+                                <th>Midwest</th>
+                                <th>South</th>
+                                <th>West</th>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>$390</td>
+                                <td>$382</td>
+                                <td>$382</td>
+                                <td>$425</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>$654</td>
+                                <td>$641</td>
+                                <td>$641</td>
+                                <td>$713</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>$788</td>
+                                <td>$772</td>
+                                <td>$772</td>
+                                <td>$859</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>$888</td>
+                                <td>$868</td>
+                                <td>$868</td>
+                                <td>$976</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>$921</td>
+                                <td>$902</td>
+                                <td>$902</td>
+                                <td>$1,004</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>Loans $80,000 and Above</h4>
+                        <table>
+                            <tr>
+                                <th>Family Size</th>
+                                <th>Northeast</th>
+                                <th>Midwest</th>
+                                <th>South</th>
+                                <th>West</th>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>$450</td>
+                                <td>$441</td>
+                                <td>$441</td>
+                                <td>$491</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>$755</td>
+                                <td>$738</td>
+                                <td>$738</td>
+                                <td>$823</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>$909</td>
+                                <td>$889</td>
+                                <td>$889</td>
+                                <td>$990</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>$1,025</td>
+                                <td>$1,003</td>
+                                <td>$1,003</td>
+                                <td>$1,117</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>$1,062</td>
+                                <td>$1,039</td>
+                                <td>$1,039</td>
+                                <td>$1,158</td>
+                            </tr>
+                        </table>
+                        <p><em>Add $80 for each additional family member over 5</em></p>
+                    </div>
+
+                    <h3>Employment & Income Verification</h3>
+                    <div class="info-box">
+                        <h4>Employment History</h4>
+                        <ul>
+                            <li><strong>Required:</strong> 2-year employment history</li>
+                            <li>Gaps explained and documented</li>
+                            <li>Military service counts toward history</li>
+                        </ul>
+
+                        <h4>Income Continuity</h4>
+                        <p>Lender must determine income is likely to continue through first 3 years of mortgage</p>
+
+                        <h4>Bonus/Overtime Income</h4>
+                        <ul>
+                            <li>Must be received for past 2 years</li>
+                            <li>Likely to continue</li>
+                            <li>Calculate using 2-year average</li>
+                        </ul>
+
+                        <h4>Part-Time Income</h4>
+                        <ul>
+                            <li>2-year employment history required</li>
+                            <li>No interruptions in employment</li>
+                            <li>Same or similar part-time work</li>
+                        </ul>
+                    </div>
+
+                    <h3>Credit Requirements</h3>
+                    <div class="info-box">
+                        <h4>No Minimum Credit Score</h4>
+                        <p>VA does not set a minimum credit score</p>
+                        <p><strong>Typical Lender Requirement:</strong> 620</p>
+
+                        <h4>Credit History Requirements</h4>
+                        <ul>
+                            <li>12 months satisfactory payment history</li>
+                            <li>No late payments in last 12 months</li>
+                            <li>Bankruptcy: 2+ years since discharge</li>
+                            <li>Foreclosure: 2+ years since completion</li>
+                        </ul>
+                    </div>
+
+                    <h3>VA Loan Features</h3>
+                    <div class="info-box">
+                        <h4>Key Benefits</h4>
+                        <ul>
+                            <li><span class="highlight">0% Down Payment</span> (100% financing)</li>
+                            <li>No Private Mortgage Insurance (PMI)</li>
+                            <li>Competitive interest rates</li>
+                            <li>Seller can pay all closing costs</li>
+                            <li>Assumption allowed (transferable)</li>
+                        </ul>
+
+                        <h4>VA Funding Fee</h4>
+                        <table>
+                            <tr>
+                                <th>Use</th>
+                                <th>Down Payment</th>
+                                <th>Fee %</th>
+                            </tr>
+                            <tr>
+                                <td>First Use</td>
+                                <td>0%</td>
+                                <td>2.15%</td>
+                            </tr>
+                            <tr>
+                                <td>First Use</td>
+                                <td>5%+</td>
+                                <td>1.50%</td>
+                            </tr>
+                            <tr>
+                                <td>First Use</td>
+                                <td>10%+</td>
+                                <td>1.25%</td>
+                            </tr>
+                            <tr>
+                                <td>Subsequent Use</td>
+                                <td>0%</td>
+                                <td>3.30%</td>
+                            </tr>
+                        </table>
+                        <p><strong>Exemptions:</strong> Veterans with service-connected disabilities</p>
+                    </div>
+
+                    <h3>Certificate of Eligibility</h3>
+                    <div class="info-box">
+                        <h4>Who's Eligible</h4>
+                        <ul>
+                            <li>Veterans with qualifying service</li>
+                            <li>Active-duty service members (after 90 days)</li>
+                            <li>National Guard/Reserve (6+ years)</li>
+                            <li>Surviving spouses</li>
+                        </ul>
+
+                        <h4>How to Obtain</h4>
+                        <p>Apply online at <a href="https://www.ebenefits.va.gov" target="_blank">eBenefits</a> or through lender</p>
+                    </div>
+
+                    <a href="https://www.benefits.va.gov/homeloans" target="_blank" class="link-button">📖 VA Home Loan Program</a>
+                    <a href="https://www.ebenefits.va.gov" target="_blank" class="link-button">🎖️ Get Certificate of Eligibility</a>
+                </div>
+            </div>
+
+            <!-- MGIC Tab -->
+            <div id="mgic" class="tab-content">
+                <div class="guideline-section">
+                    <h2>🛡️ MGIC - Mortgage Insurance Guidelines</h2>
+
+                    <div class="info-box">
+                        <h4>About MGIC</h4>
+                        <p><strong>Mortgage Guaranty Insurance Corporation</strong> is a leading private mortgage insurance provider</p>
+                        <p>Provides comprehensive underwriting guidelines and income calculation methodologies</p>
+                        <p><strong>Current Guide:</strong> Effective June 25, 2025</p>
+                    </div>
+
+                    <h3>Income & Employment Guidelines</h3>
+                    <div class="info-box">
+                        <h4>Key Sections</h4>
+                        <p><strong>Section 3.09.01:</strong> General Income Guidelines</p>
+                        <p><strong>Section 3.09.02:</strong> Income Eligibility</p>
+
+                        <h4>Core Principles</h4>
+                        <ul>
+                            <li>Income must be stable and continuous</li>
+                            <li>Likely to continue for at least 3 years</li>
+                            <li>Documented from reliable sources</li>
+                            <li>Calculated using standardized methods</li>
+                        </ul>
+                    </div>
+
+                    <h3>MGIC Income Calculators & Tools</h3>
+                    <div class="info-box">
+                        <h4>Self-Employed Income Calculator</h4>
+                        <p>All-in-one calculator with 4 worksheets to analyze borrowers' income:</p>
+                        <ul>
+                            <li>Schedule C (Sole Proprietorship)</li>
+                            <li>Form 1120 (Corporation)</li>
+                            <li>Form 1120S (S-Corporation)</li>
+                            <li>Form 1065 (Partnership)</li>
+                        </ul>
+                        <p><strong>Access:</strong> <a href="https://www.mgic.com/underwriting" target="_blank">mgic.com/underwriting</a></p>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>RSU (Restricted Stock Units) Calculator</h4>
+                        <p>Calculate income from stock compensation using:</p>
+                        <ul>
+                            <li>Fannie Mae methodology</li>
+                            <li>Freddie Mac methodology</li>
+                        </ul>
+                        <p><strong>Tool:</strong> <a href="https://www.mgic.com/mortgage-connects/rsu-review-and-calculation-tool" target="_blank">RSU Review and Calculation Tool</a></p>
+                    </div>
+
+                    <h3>Variable Income Calculation</h3>
+                    <div class="info-box">
+                        <h4>MGIC Training Available</h4>
+                        <p><strong>Topics Covered:</strong></p>
+                        <ul>
+                            <li>Documenting variable sources of income</li>
+                            <li>Calculating qualifying income for variable compensation</li>
+                            <li>Analyzing results for stability and trends</li>
+                            <li>Understanding Agency (Fannie Mae/Freddie Mac) guidelines</li>
+                        </ul>
+                        <p><strong>Resource:</strong> <a href="https://www.mgic.com/training/evaluating-and-calculating-variable-income" target="_blank">Evaluating & Calculating Variable Income</a></p>
+                    </div>
+
+                    <h3>DTI Calculation with MI</h3>
+                    <div class="info-box">
+                        <h4>Important Note</h4>
+                        <p>When qualifying borrowers for MGIC mortgage insurance:</p>
+                        <p><span class="highlight">Mortgage Insurance Premium does NOT need to be included in DTI calculation</span></p>
+                        <p>This provides additional qualifying flexibility for borrowers</p>
+                    </div>
+
+                    <h3>Coverage Requirements</h3>
+                    <div class="info-box">
+                        <h4>Mortgage Insurance Coverage</h4>
+                        <table>
+                            <tr>
+                                <th>LTV Range</th>
+                                <th>Standard Coverage</th>
+                                <th>Alternative Coverage</th>
+                            </tr>
+                            <tr>
+                                <td>95.01% - 97%</td>
+                                <td>30%</td>
+                                <td>35%</td>
+                            </tr>
+                            <tr>
+                                <td>90.01% - 95%</td>
+                                <td>25%</td>
+                                <td>30%</td>
+                            </tr>
+                            <tr>
+                                <td>85.01% - 90%</td>
+                                <td>12%</td>
+                                <td>25%</td>
+                            </tr>
+                            <tr>
+                                <td>80.01% - 85%</td>
+                                <td>6%</td>
+                                <td>12%</td>
+                            </tr>
+                        </table>
+                        <p>Coverage % represents portion of loan amount insured</p>
+                    </div>
+
+                    <h3>Recent Updates</h3>
+                    <div class="info-box">
+                        <h4>MGIC Bulletin 03-2025</h4>
+                        <p><strong>Effective Dates:</strong></p>
+                        <ul>
+                            <li>October 29, 2025</li>
+                            <li>November 16, 2025</li>
+                        </ul>
+                        <p>Check MGIC website for latest guideline updates and bulletins</p>
+                    </div>
+
+                    <h3>Underwriting Resources</h3>
+                    <div class="info-box">
+                        <h4>Available Documentation</h4>
+                        <ul>
+                            <li><strong>Underwriting Guide:</strong> Complete guidelines (PDF)</li>
+                            <li><strong>Guide Summaries:</strong> Quick reference by topic</li>
+                            <li><strong>Rate Cards:</strong> Current MI rates</li>
+                            <li><strong>Coverage Charts:</strong> Required coverage by LTV</li>
+                            <li><strong>Training Materials:</strong> Online courses and webinars</li>
+                        </ul>
+                    </div>
+
+                    <h3>Contact & Support</h3>
+                    <div class="info-box">
+                        <h4>MGIC Underwriting Support</h4>
+                        <p>For specific income calculation questions or complex scenarios</p>
+                        <p><strong>Website:</strong> <a href="https://www.mgic.com" target="_blank">mgic.com</a></p>
+                        <p><strong>Underwriting:</strong> <a href="https://www.mgic.com/underwriting" target="_blank">mgic.com/underwriting</a></p>
+                    </div>
+
+                    <a href="https://www.mgic.com/underwriting" target="_blank" class="link-button">📖 MGIC Underwriting Guide</a>
+                    <a href="https://www.mgic.com/training/evaluating-and-calculating-variable-income" target="_blank" class="link-button">🎓 Variable Income Training</a>
+                    <a href="https://www.mgic.com/mortgage-connects/rsu-review-and-calculation-tool" target="_blank" class="link-button">🧮 RSU Calculator</a>
+                </div>
+            </div>
+
+            <!-- DTI Calculator Tab -->
+            <div id="dti-calculator" class="tab-content">
+                <div class="guideline-section">
+                    <h2>🧮 Debt-to-Income (DTI) Calculator</h2>
+
+                    <div class="info-box">
+                        <h3>Calculate Your DTI Ratio</h3>
+                        <p>Enter your monthly gross income and monthly debt payments to calculate your DTI</p>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 30px; border-radius: 10px; margin: 20px 0;">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">Monthly Gross Income</label>
+                            <input type="number" id="grossIncome" placeholder="$5,000" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px;">
+                        </div>
+
+                        <h4 style="margin: 20px 0 10px 0;">Monthly Debt Payments</h4>
+
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">Proposed Mortgage Payment (PITI)</label>
+                            <input type="number" id="mortgagePayment" placeholder="$1,500" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px;">
+                            <small style="color: #666;">Principal, Interest, Taxes, Insurance</small>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">HOA Fees (if applicable)</label>
+                            <input type="number" id="hoaFees" placeholder="$0" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px;">
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">Car Payments</label>
+                            <input type="number" id="carPayments" placeholder="$400" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px;">
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">Credit Card Minimum Payments</label>
+                            <input type="number" id="creditCards" placeholder="$150" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px;">
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">Student Loans</label>
+                            <input type="number" id="studentLoans" placeholder="$200" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px;">
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">Other Monthly Debts</label>
+                            <input type="number" id="otherDebts" placeholder="$0" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px;">
+                        </div>
+
+                        <button onclick="calculateDTI()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 10px;">
+                            Calculate DTI
+                        </button>
+                    </div>
+
+                    <div id="dtiResults" style="display: none; margin-top: 30px;">
+                        <div class="info-box" style="background: #e8f5e9; border-left-color: #4caf50;">
+                            <h3>Your DTI Results</h3>
+                            <div style="font-size: 24px; font-weight: 600; color: #2e7d32; margin: 15px 0;">
+                                Front-End DTI: <span id="frontEndDTI">0%</span>
+                            </div>
+                            <div style="font-size: 24px; font-weight: 600; color: #2e7d32; margin: 15px 0;">
+                                Back-End DTI: <span id="backEndDTI">0%</span>
+                            </div>
+                            <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 5px;">
+                                <div style="margin: 10px 0;"><strong>Monthly Gross Income:</strong> $<span id="resultIncome">0</span></div>
+                                <div style="margin: 10px 0;"><strong>Housing Payment:</strong> $<span id="resultHousing">0</span></div>
+                                <div style="margin: 10px 0;"><strong>Total Monthly Debts:</strong> $<span id="resultTotal">0</span></div>
+                            </div>
+                        </div>
+
+                        <div id="qualificationAnalysis" class="info-box" style="margin-top: 20px;">
+                            <h4>Qualification Analysis by Loan Type</h4>
+                            <div id="analysisContent"></div>
+                        </div>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 30px;">
+                        <h4>Understanding Your DTI</h4>
+                        <p><strong>Front-End Ratio:</strong> Housing payment ÷ Gross income</p>
+                        <p><strong>Back-End Ratio:</strong> All monthly debts ÷ Gross income</p>
+
+                        <h4 style="margin-top: 20px;">General Guidelines</h4>
+                        <ul>
+                            <li><strong>Excellent:</strong> DTI under 36%</li>
+                            <li><strong>Good:</strong> DTI 36% - 43%</li>
+                            <li><strong>Acceptable:</strong> DTI 43% - 50% (depends on loan type)</li>
+                            <li><strong>Challenging:</strong> DTI over 50% (limited options)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active from all buttons
+            document.querySelectorAll('.tab').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Mark button as active
+            event.target.classList.add('active');
+        }
+
+        function calculateDTI() {
+            const grossIncome = parseFloat(document.getElementById('grossIncome').value) || 0;
+            const mortgage = parseFloat(document.getElementById('mortgagePayment').value) || 0;
+            const hoa = parseFloat(document.getElementById('hoaFees').value) || 0;
+            const car = parseFloat(document.getElementById('carPayments').value) || 0;
+            const credit = parseFloat(document.getElementById('creditCards').value) || 0;
+            const student = parseFloat(document.getElementById('studentLoans').value) || 0;
+            const other = parseFloat(document.getElementById('otherDebts').value) || 0;
+
+            if (grossIncome === 0) {
+                alert('Please enter your monthly gross income');
+                return;
+            }
+
+            const housingPayment = mortgage + hoa;
+            const totalDebts = housingPayment + car + credit + student + other;
+
+            const frontEndDTI = (housingPayment / grossIncome) * 100;
+            const backEndDTI = (totalDebts / grossIncome) * 100;
+
+            // Display results
+            document.getElementById('frontEndDTI').textContent = frontEndDTI.toFixed(2) + '%';
+            document.getElementById('backEndDTI').textContent = backEndDTI.toFixed(2) + '%';
+            document.getElementById('resultIncome').textContent = grossIncome.toLocaleString();
+            document.getElementById('resultHousing').textContent = housingPayment.toLocaleString();
+            document.getElementById('resultTotal').textContent = totalDebts.toLocaleString();
+            document.getElementById('dtiResults').style.display = 'block';
+
+            // Generate qualification analysis
+            let analysisHTML = '<table style="width: 100%; margin-top: 15px;"><tr><th>Loan Type</th><th>Max DTI</th><th>Status</th></tr>';
+
+            const loanTypes = [
+                { name: 'Fannie Mae (Auto)', maxDTI: 50, color: backEndDTI <= 50 ? '#4caf50' : '#f44336' },
+                { name: 'Fannie Mae (Manual)', maxDTI: 45, color: backEndDTI <= 45 ? '#4caf50' : '#f44336' },
+                { name: 'Freddie Mac (Auto)', maxDTI: 43, color: backEndDTI <= 43 ? '#4caf50' : '#f44336' },
+                { name: 'FHA (Standard)', maxDTI: 43, color: backEndDTI <= 43 ? '#4caf50' : '#f44336' },
+                { name: 'FHA (Maximum)', maxDTI: 56.99, color: backEndDTI <= 56.99 ? '#4caf50' : '#f44336' },
+                { name: 'USDA', maxDTI: 41, color: backEndDTI <= 41 ? '#4caf50' : '#f44336' },
+                { name: 'VA', maxDTI: 41, color: backEndDTI <= 41 ? '#4caf50' : '#f44336' }
+            ];
+
+            loanTypes.forEach(loan => {
+                const status = backEndDTI <= loan.maxDTI ? '✅ Qualifies' : '❌ Exceeds Limit';
+                analysisHTML += `<tr><td>${loan.name}</td><td>${loan.maxDTI}%</td><td style="color: ${loan.color}; font-weight: 600;">${status}</td></tr>`;
+            });
+
+            analysisHTML += '</table>';
+            document.getElementById('analysisContent').innerHTML = analysisHTML;
+
+            // Scroll to results
+            document.getElementById('dtiResults').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>

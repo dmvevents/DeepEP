@@ -1,0 +1,294 @@
+"""
+Serializers for API models
+"""
+from rest_framework import serializers
+from django.contrib.auth.models import User
+from .models import (
+    State, County, TaxData, Municipality,
+    ScraperLog, UserProfile, LoanEstimate
+)
+
+
+class StateSerializer(serializers.ModelSerializer):
+    """Serializer for State model"""
+    county_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = State
+        fields = ['id', 'code', 'name', 'active', 'county_count', 'created_at']
+        read_only_fields = ['created_at']
+
+    def get_county_count(self, obj):
+        return obj.counties.filter(active=True).count()
+
+
+class CountySerializer(serializers.ModelSerializer):
+    """Serializer for County model"""
+    state_name = serializers.CharField(source='state.name', read_only=True)
+    state_code = serializers.CharField(source='state.code', read_only=True)
+    has_tax_data = serializers.SerializerMethodField()
+
+    class Meta:
+        model = County
+        fields = [
+            'id', 'name', 'state', 'state_name', 'state_code',
+            'fips_code', 'active', 'has_tax_data', 'created_at'
+        ]
+        read_only_fields = ['created_at']
+
+    def get_has_tax_data(self, obj):
+        return obj.tax_data.filter(is_current=True).exists()
+
+
+class CountyDetailSerializer(CountySerializer):
+    """Detailed County serializer with municipalities"""
+    municipalities = serializers.SerializerMethodField()
+
+    class Meta(CountySerializer.Meta):
+        fields = CountySerializer.Meta.fields + ['municipalities']
+
+    def get_municipalities(self, obj):
+        return MunicipalitySerializer(
+            obj.municipalities.filter(active=True),
+            many=True
+        ).data
+
+
+class MunicipalitySerializer(serializers.ModelSerializer):
+    """Serializer for Municipality model"""
+
+    class Meta:
+        model = Municipality
+        fields = ['id', 'name', 'millage_rate', 'zip_codes', 'active']
+
+
+class TaxDataSerializer(serializers.ModelSerializer):
+    """Serializer for TaxData model"""
+    state_code = serializers.CharField(source='state.code', read_only=True)
+    state_name = serializers.CharField(source='state.name', read_only=True)
+    county_name = serializers.CharField(source='county.name', read_only=True)
+    is_stale = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = TaxData
+        fields = [
+            'id', 'state', 'state_code', 'state_name',
+            'county', 'county_name', 'version', 'is_current',
+            'data_completeness', 'scraper_confidence',
+            'data', 'effective_date', 'last_verified',
+            'is_stale', 'sources', 'notes',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = [
+            'version', 'last_verified', 'created_at', 'updated_at'
+        ]
+
+
+class TaxDataListSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for listing tax data (without full data JSON)"""
+    state_code = serializers.CharField(source='state.code', read_only=True)
+    county_name = serializers.CharField(source='county.name', read_only=True)
+    is_stale = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = TaxData
+        fields = [
+            'id', 'state_code', 'county_name', 'version',
+            'is_current', 'data_completeness', 'scraper_confidence',
+            'effective_date', 'last_verified', 'is_stale'
+        ]
+
+
+class ScraperLogSerializer(serializers.ModelSerializer):
+    """Serializer for ScraperLog model"""
+    state_code = serializers.CharField(source='state.code', read_only=True)
+    county_name = serializers.CharField(source='county.name', read_only=True)
+    triggered_by_username = serializers.CharField(
+        source='triggered_by.username',
+        read_only=True,
+        allow_null=True
+    )
+
+    class Meta:
+        model = ScraperLog
+        fields = [
+            'id', 'state', 'state_code', 'county', 'county_name',
+            'status', 'started_at', 'completed_at', 'processing_time',
+            'data_completeness', 'confidence_score', 'sources_found',
+            'error_message', 'retry_count',
+            'llm_provider', 'llm_model', 'tokens_used',
+            'triggered_by', 'triggered_by_username', 'trigger_type'
+        ]
+        read_only_fields = ['started_at', 'completed_at', 'processing_time']
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """Serializer for User model"""
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined']
+        read_only_fields = ['id', 'date_joined']
+
+
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    """Serializer for user registration"""
+    password = serializers.CharField(write_only=True, min_length=8)
+    password_confirm = serializers.CharField(write_only=True, min_length=8)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password', 'password_confirm', 'first_name', 'last_name']
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password_confirm']:
+            raise serializers.ValidationError({"password": "Passwords do not match."})
+        return attrs
+
+    def create(self, validated_data):
+        validated_data.pop('password_confirm')
+        user = User.objects.create_user(**validated_data)
+        # Create associated profile
+        UserProfile.objects.create(user=user)
+        return user
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    """Serializer for UserProfile model"""
+    username = serializers.CharField(source='user.username', read_only=True)
+    email = serializers.CharField(source='user.email', read_only=True)
+
+    class Meta:
+        model = UserProfile
+        fields = [
+            'id', 'username', 'email',
+            'default_state', 'default_county',
+            'annual_income', 'credit_score',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['created_at', 'updated_at']
+
+
+class LoanEstimateSerializer(serializers.ModelSerializer):
+    """Serializer for LoanEstimate model"""
+    county_name = serializers.CharField(source='county.name', read_only=True)
+    state_code = serializers.CharField(source='county.state.code', read_only=True)
+    username = serializers.CharField(source='user.username', read_only=True)
+    loan_to_value = serializers.FloatField(read_only=True)
+    monthly_payment = serializers.DecimalField(
+        max_digits=12, decimal_places=2, read_only=True
+    )
+
+    class Meta:
+        model = LoanEstimate
+        fields = [
+            'id', 'user', 'username', 'name', 'is_saved',
+            'property_address', 'county', 'county_name', 'state_code',
+            'property_value', 'property_type',
+            'loan_amount', 'down_payment', 'interest_rate',
+            'loan_term_years', 'loan_type', 'first_time_homebuyer',
+            'closing_date', 'calculation_results', 'tax_data',
+            'loan_to_value', 'monthly_payment',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['user', 'created_at', 'updated_at', 'calculation_results']
+
+    def validate_down_payment(self, value):
+        """Ensure down payment is not negative"""
+        if value < 0:
+            raise serializers.ValidationError("Down payment cannot be negative.")
+        return value
+
+    def validate_interest_rate(self, value):
+        """Ensure interest rate is reasonable"""
+        if value < 0 or value > 20:
+            raise serializers.ValidationError("Interest rate must be between 0% and 20%.")
+        return value
+
+    def validate(self, attrs):
+        """Cross-field validation"""
+        if 'loan_amount' in attrs and 'property_value' in attrs:
+            if attrs['loan_amount'] > attrs['property_value']:
+                raise serializers.ValidationError({
+                    "loan_amount": "Loan amount cannot exceed property value."
+                })
+
+        if 'down_payment' in attrs and 'property_value' in attrs and 'loan_amount' in attrs:
+            expected_loan = attrs['property_value'] - attrs['down_payment']
+            if abs(attrs['loan_amount'] - expected_loan) > 1:  # Allow for rounding
+                raise serializers.ValidationError({
+                    "loan_amount": "Loan amount should equal property value minus down payment."
+                })
+
+        return attrs
+
+
+class LoanEstimateListSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for listing loan estimates"""
+    county_name = serializers.CharField(source='county.name', read_only=True)
+    state_code = serializers.CharField(source='county.state.code', read_only=True)
+    monthly_payment = serializers.DecimalField(
+        max_digits=12, decimal_places=2, read_only=True
+    )
+
+    class Meta:
+        model = LoanEstimate
+        fields = [
+            'id', 'name', 'is_saved', 'property_address',
+            'county_name', 'state_code', 'property_value',
+            'loan_amount', 'loan_type', 'monthly_payment',
+            'created_at'
+        ]
+
+
+class LoanEstimateCreateSerializer(serializers.Serializer):
+    """Serializer for creating a new loan estimate calculation"""
+    # Property information
+    property_address = serializers.CharField(required=False, allow_blank=True)
+    county_id = serializers.IntegerField()
+    property_value = serializers.DecimalField(max_digits=12, decimal_places=2)
+    property_type = serializers.ChoiceField(choices=LoanEstimate.PROPERTY_TYPE_CHOICES)
+
+    # Loan details
+    loan_amount = serializers.DecimalField(max_digits=12, decimal_places=2)
+    down_payment = serializers.DecimalField(max_digits=12, decimal_places=2)
+    interest_rate = serializers.DecimalField(max_digits=5, decimal_places=3)
+    loan_term_years = serializers.IntegerField(default=30)
+    loan_type = serializers.ChoiceField(choices=LoanEstimate.LOAN_TYPE_CHOICES)
+
+    # Buyer information
+    first_time_homebuyer = serializers.BooleanField(default=False)
+    closing_date = serializers.DateField()
+
+    # Optional: ZIP code for municipality tax overlay
+    zip_code = serializers.CharField(max_length=10, required=False, allow_blank=True)
+
+    # Save preference
+    save_estimate = serializers.BooleanField(default=False)
+    estimate_name = serializers.CharField(required=False, allow_blank=True)
+
+    def validate_county_id(self, value):
+        """Ensure county exists"""
+        if not County.objects.filter(id=value, active=True).exists():
+            raise serializers.ValidationError("Invalid county ID.")
+        return value
+
+    def validate(self, attrs):
+        """Cross-field validation"""
+        if attrs['loan_amount'] > attrs['property_value']:
+            raise serializers.ValidationError({
+                "loan_amount": "Loan amount cannot exceed property value."
+            })
+
+        expected_loan = attrs['property_value'] - attrs['down_payment']
+        if abs(attrs['loan_amount'] - expected_loan) > 1:
+            raise serializers.ValidationError({
+                "loan_amount": "Loan amount should equal property value minus down payment."
+            })
+
+        if attrs['interest_rate'] < 0 or attrs['interest_rate'] > 20:
+            raise serializers.ValidationError({
+                "interest_rate": "Interest rate must be between 0% and 20%."
+            })
+
+        return attrs
