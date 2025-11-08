@@ -5,6 +5,7 @@ import MortgageApplication from './pages/MortgageApplication';
 import AdminDashboard from './pages/AdminDashboard';
 import DocumentUpload from './pages/DocumentUpload';
 import Home from './pages/Home';
+import Login from './pages/Login';
 
 const theme = createTheme({
   palette: {
@@ -44,6 +45,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/mortgage-application" element={<MortgageApplication />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/documents" element={<DocumentUpload />} />

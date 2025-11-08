@@ -319,6 +319,14 @@ async def estimate_insurance(request: InsuranceEstimateRequest):
         raise HTTPException(status_code=500, detail=f"Insurance estimation failed: {str(e)}")
 
 
+# Include authentication routes
+try:
+    from auth_endpoints import router as auth_router
+    app.include_router(auth_router)
+except ImportError as e:
+    print(f"Warning: Could not import authentication endpoints: {e}")
+
+
 # Development server
 if __name__ == "__main__":
     import uvicorn

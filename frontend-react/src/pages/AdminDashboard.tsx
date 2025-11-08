@@ -224,19 +224,42 @@ const AdminDashboard = () => {
     <Box
       sx={{
         minHeight: '100vh',
+        width: '100%',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        py: 4,
+        py: { xs: 2, sm: 3, md: 4 },
+        px: { xs: 1, sm: 2, md: 3 },
       }}
     >
-      <Container maxWidth="xl">
+      <Container maxWidth="xl" disableGutters sx={{ width: '100%', px: { xs: 1, sm: 2, md: 3 } }}>
         {/* Header */}
-        <Paper sx={{ p: 3, mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h4" component="h1" sx={{ color: '#667eea', fontWeight: 700 }}>
+        <Paper sx={{
+          p: { xs: 2, sm: 3 },
+          mb: { xs: 2, sm: 3 },
+          display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between',
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          gap: { xs: 2, sm: 0 },
+        }}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              color: '#667eea',
+              fontWeight: 700,
+              fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' },
+            }}
+          >
             🏦 Admin Dashboard
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography>👤 Admin User</Typography>
-            <Button variant="outlined" color="secondary">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: { xs: '100%', sm: 'auto' } }}>
+            <Typography sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>👤 Admin User</Typography>
+            <Button
+              variant="outlined"
+              color="secondary"
+              size={{ xs: 'small', sm: 'medium' }}
+              sx={{ whiteSpace: 'nowrap' }}
+            >
               Logout
             </Button>
           </Box>
@@ -296,24 +319,46 @@ const AdminDashboard = () => {
 
         {/* Tabs */}
         <Paper>
-          <Tabs value={tabValue} onChange={handleTabChange} sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tab label="📋 Manage Borrowers" />
-            <Tab label="📄 View Documents" />
-            <Tab label="⚠️ DTI Warnings" />
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
+            sx={{ borderBottom: 1, borderColor: 'divider' }}
+          >
+            <Tab label="📋 Manage Borrowers" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }} />
+            <Tab label="📄 View Documents" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }} />
+            <Tab label="⚠️ DTI Warnings" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }} />
           </Tabs>
 
           {/* Tab 1: Manage Borrowers */}
           <TabPanel value={tabValue} index={0}>
-            <Box sx={{ p: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-                <Typography variant="h5">Borrower Profiles</Typography>
-                <Button variant="contained" color="secondary" onClick={() => handleOpenModal()}>
+            <Box sx={{ p: { xs: 2, sm: 3 } }}>
+              <Box sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                justifyContent: 'space-between',
+                alignItems: { xs: 'flex-start', sm: 'center' },
+                gap: 2,
+                mb: 3,
+              }}>
+                <Typography variant="h5" sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
+                  Borrower Profiles
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => handleOpenModal()}
+                  fullWidth={{ xs: true, sm: false }}
+                  sx={{ whiteSpace: 'nowrap' }}
+                >
                   + Create New Borrower
                 </Button>
               </Box>
 
-              <TableContainer>
-                <Table>
+              <TableContainer sx={{ overflowX: 'auto' }}>
+                <Table sx={{ minWidth: 650 }}>
                   <TableHead>
                     <TableRow>
                       <TableCell>Loan Number</TableCell>
@@ -357,8 +402,8 @@ const AdminDashboard = () => {
 
           {/* Tab 2: View Documents */}
           <TabPanel value={tabValue} index={1}>
-            <Box sx={{ p: 3 }}>
-              <Typography variant="h5" gutterBottom>
+            <Box sx={{ p: { xs: 2, sm: 3 } }}>
+              <Typography variant="h5" gutterBottom sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                 Uploaded Documents by Borrower
               </Typography>
               <FormControl fullWidth sx={{ mb: 3, maxWidth: 400 }}>
@@ -413,8 +458,8 @@ const AdminDashboard = () => {
 
           {/* Tab 3: DTI Warnings */}
           <TabPanel value={tabValue} index={2}>
-            <Box sx={{ p: 3 }}>
-              <Typography variant="h5" gutterBottom>
+            <Box sx={{ p: { xs: 2, sm: 3 } }}>
+              <Typography variant="h5" gutterBottom sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                 DTI Ratio Warnings
               </Typography>
               <Typography color="text.secondary" sx={{ mb: 3 }}>

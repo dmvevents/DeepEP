@@ -13,6 +13,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DescriptionIcon from '@mui/icons-material/Description';
 import CalculateIcon from '@mui/icons-material/Calculate';
+import LoginIcon from '@mui/icons-material/Login';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -45,34 +46,69 @@ const Home = () => {
     <Box
       sx={{
         minHeight: '100vh',
+        width: '100%',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        py: 8,
+        py: { xs: 4, sm: 6, md: 8 },
+        px: { xs: 2, sm: 3, md: 4 },
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      <Container maxWidth="lg">
-        <Box textAlign="center" mb={8}>
+      <Container
+        maxWidth="xl"
+        disableGutters
+        sx={{
+          width: '100%',
+          px: { xs: 1, sm: 2, md: 3 },
+        }}
+      >
+        <Box textAlign="center" mb={{ xs: 4, sm: 6, md: 8 }}>
           <Typography
             variant="h2"
             component="h1"
             gutterBottom
-            sx={{ color: 'white', fontWeight: 700, mb: 2 }}
+            sx={{
+              color: 'white',
+              fontWeight: 700,
+              mb: 2,
+              fontSize: { xs: '2rem', sm: '2.75rem', md: '3.75rem' },
+            }}
           >
             🏠 Real Estate Mortgage Calculator
           </Typography>
-          <Typography variant="h5" sx={{ color: 'white', opacity: 0.9, mb: 4 }}>
+          <Typography
+            variant="h5"
+            sx={{
+              color: 'white',
+              opacity: 0.9,
+              mb: 4,
+              fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
+              px: { xs: 1, sm: 2 },
+            }}
+          >
             Smart qualification system with automatic property lookup and AI-powered document processing
           </Typography>
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: 2,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
             <Button
               variant="contained"
               size="large"
               onClick={() => navigate('/mortgage-application')}
+              fullWidth={false}
               sx={{
                 bgcolor: 'white',
                 color: '#667eea',
-                px: 4,
-                py: 1.5,
-                fontSize: '1.1rem',
+                px: { xs: 3, sm: 4 },
+                py: { xs: 1.5, sm: 1.5 },
+                fontSize: { xs: '1rem', sm: '1.1rem' },
+                minWidth: { xs: '100%', sm: 220 },
                 '&:hover': {
                   bgcolor: 'rgba(255,255,255,0.9)',
                   transform: 'translateY(-2px)',
@@ -82,12 +118,34 @@ const Home = () => {
             >
               Start Application
             </Button>
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={() => navigate('/login')}
+              fullWidth={false}
+              sx={{
+                borderColor: 'white',
+                color: 'white',
+                px: { xs: 3, sm: 4 },
+                py: { xs: 1.5, sm: 1.5 },
+                fontSize: { xs: '1rem', sm: '1.1rem' },
+                minWidth: { xs: '100%', sm: 220 },
+                '&:hover': {
+                  borderColor: 'white',
+                  bgcolor: 'rgba(255,255,255,0.1)',
+                  transform: 'translateY(-2px)',
+                },
+              }}
+              startIcon={<LoginIcon />}
+            >
+              Login
+            </Button>
           </Box>
         </Box>
 
-        <Grid container spacing={4}>
+        <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
           {features.map((feature) => (
-            <Grid item xs={12} md={4} key={feature.title}>
+            <Grid item xs={12} sm={6} md={4} key={feature.title}>
               <Card
                 sx={{
                   height: '100%',
@@ -100,22 +158,39 @@ const Home = () => {
                   },
                 }}
               >
-                <CardContent sx={{ flexGrow: 1, textAlign: 'center', p: 4 }}>
+                <CardContent
+                  sx={{
+                    flexGrow: 1,
+                    textAlign: 'center',
+                    p: { xs: 3, sm: 3, md: 4 },
+                  }}
+                >
                   <Box mb={2}>{feature.icon}</Box>
-                  <Typography variant="h5" component="h2" gutterBottom fontWeight={600}>
+                  <Typography
+                    variant="h5"
+                    component="h2"
+                    gutterBottom
+                    fontWeight={600}
+                    sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}
+                  >
                     {feature.title}
                   </Typography>
-                  <Typography variant="body1" color="text.secondary">
+                  <Typography
+                    variant="body1"
+                    color="text.secondary"
+                    sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
+                  >
                     {feature.description}
                   </Typography>
                 </CardContent>
-                <CardActions sx={{ p: 3, pt: 0 }}>
+                <CardActions sx={{ p: { xs: 2, sm: 3 }, pt: 0 }}>
                   <Button
                     fullWidth
                     variant="contained"
                     onClick={() => navigate(feature.path)}
                     sx={{
                       bgcolor: feature.color,
+                      py: { xs: 1.25, sm: 1.5 },
                       '&:hover': {
                         bgcolor: feature.color,
                         opacity: 0.9,

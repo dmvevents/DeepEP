@@ -88,7 +88,7 @@ const MortgageApplication = () => {
     }
 
     setLoading(true);
-    setLoadingMessage('Looking up property...');
+    setLoadingMessage('Looking up property data... This may take 10-20 seconds if we need to search government websites.');
 
     try {
       const data = await propertyApi.lookup(propertyAddress);
@@ -109,12 +109,11 @@ const MortgageApplication = () => {
       setPropertyData(data);
       setPropertyTaxMonthly(monthlyTax);
       setInsuranceMonthly(monthlyInsurance);
-
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
       alert('Error looking up property: ' + (error as Error).message);
       console.error('Property lookup error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -141,7 +140,7 @@ const MortgageApplication = () => {
     }
 
     setLoading(true);
-    setLoadingMessage('Processing your application...');
+    setLoadingMessage('Processing your application and calculating qualification...');
 
     try {
       // Mock monthly income (in production, this would come from OCR extraction)
@@ -165,10 +164,10 @@ const MortgageApplication = () => {
 
       setQualificationResults(result);
       setActiveStep(4);
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
       alert('Error calculating qualification: ' + (error as Error).message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -238,9 +237,22 @@ const MortgageApplication = () => {
               sx={{ mb: 3 }}
             />
 
-            <Alert severity="info" sx={{ mb: 3 }}>
+            <Alert
+              severity="info"
+              sx={{
+                mb: 3,
+                '& ul': {
+                  marginTop: 1,
+                  marginBottom: 0,
+                  paddingLeft: { xs: 2, sm: 3 },
+                },
+                '& li': {
+                  fontSize: { xs: '0.875rem', sm: '1rem' },
+                },
+              }}
+            >
               <strong>💡 Smart Lookup:</strong> Enter the property address and we'll automatically retrieve:
-              <ul style={{ marginTop: 10, marginLeft: 20 }}>
+              <ul>
                 <li>Property tax rates</li>
                 <li>Transfer tax rates</li>
                 <li>Recording fees</li>
@@ -249,52 +261,88 @@ const MortgageApplication = () => {
               </ul>
             </Alert>
 
-            <Button variant="contained" size="large" onClick={lookupProperty} sx={{ mb: 3 }}>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={lookupProperty}
+              disabled={!propertyAddress.trim()}
+              fullWidth={true}
+              sx={{
+                mb: 3,
+                py: { xs: 1.5, sm: 2 },
+                fontSize: { xs: '1rem', sm: '1.125rem' },
+              }}
+            >
               🔍 Look Up Property
             </Button>
 
             {propertyData && (
-              <Card sx={{ mt: 3 }}>
+              <Card sx={{ mt: 3, bgcolor: '#f8fdf9' }}>
                 <CardContent>
-                  <Typography variant="h6" gutterBottom color="primary">
-                    📍 Property Information
+                  <Typography variant="h6" gutterBottom color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <span>📍</span>
+                    <span>Property Information</span>
                   </Typography>
                   <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <Typography variant="body2" color="text.secondary">Address:</Typography>
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 1, height: '100%' }}>
+                        <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                          Address
+                        </Typography>
+                        <Typography variant="body2" fontWeight={600}>
+                          {propertyData.address.formatted_address}
+                        </Typography>
+                      </Box>
                     </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body2">{propertyData.address.formatted_address}</Typography>
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 1, height: '100%' }}>
+                        <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                          County
+                        </Typography>
+                        <Typography variant="body2" fontWeight={600}>
+                          {propertyData.address.county} County, {propertyData.address.state}
+                        </Typography>
+                      </Box>
                     </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body2" color="text.secondary">County:</Typography>
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 1, height: '100%' }}>
+                        <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                          Property Tax Rate
+                        </Typography>
+                        <Typography variant="h6" color="primary" fontWeight={700}>
+                          {(propertyData.tax_rate * 100).toFixed(3)}%
+                        </Typography>
+                      </Box>
                     </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body2">{propertyData.address.county} County, {propertyData.address.state}</Typography>
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 1, height: '100%' }}>
+                        <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                          Monthly Property Tax
+                        </Typography>
+                        <Typography variant="h6" color="success.main" fontWeight={700}>
+                          ${propertyTaxMonthly.toFixed(2)}
+                        </Typography>
+                      </Box>
                     </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body2" color="text.secondary">Property Tax Rate:</Typography>
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 1, height: '100%' }}>
+                        <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                          Monthly Insurance
+                        </Typography>
+                        <Typography variant="h6" color="success.main" fontWeight={700}>
+                          ${insuranceMonthly.toFixed(2)}
+                        </Typography>
+                      </Box>
                     </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body2">{(propertyData.tax_rate * 100).toFixed(3)}%</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body2" color="text.secondary">Est. Monthly Property Tax:</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body2">${propertyTaxMonthly.toFixed(2)}</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body2" color="text.secondary">Est. Monthly Insurance:</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body2">${insuranceMonthly.toFixed(2)}</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body2" color="text.secondary">Data Confidence:</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body2">{propertyData.confidence_score}% ✓</Typography>
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 1, height: '100%' }}>
+                        <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                          Data Confidence
+                        </Typography>
+                        <Typography variant="h6" color="primary" fontWeight={700}>
+                          {propertyData.confidence_score}% ✓
+                        </Typography>
+                      </Box>
                     </Grid>
                   </Grid>
                 </CardContent>
@@ -303,7 +351,16 @@ const MortgageApplication = () => {
 
             {propertyData && (
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-                <Button variant="contained" size="large" onClick={handleNext}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={handleNext}
+                  fullWidth={true}
+                  sx={{
+                    py: { xs: 1.5, sm: 2 },
+                    fontSize: { xs: '1rem', sm: '1.125rem' },
+                  }}
+                >
                   Next: Loan Details →
                 </Button>
               </Box>
@@ -459,9 +516,34 @@ const MortgageApplication = () => {
               </Alert>
             )}
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-              <Button onClick={handleBack}>← Back</Button>
-              <Button variant="contained" size="large" onClick={handleNext}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                justifyContent: 'space-between',
+                gap: 2,
+                mt: 4,
+              }}
+            >
+              <Button
+                onClick={handleBack}
+                sx={{
+                  order: { xs: 2, sm: 1 },
+                  py: { xs: 1.5, sm: 1 },
+                }}
+              >
+                ← Back
+              </Button>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={handleNext}
+                sx={{
+                  order: { xs: 1, sm: 2 },
+                  py: { xs: 1.5, sm: 2 },
+                  fontSize: { xs: '1rem', sm: '1.125rem' },
+                }}
+              >
                 Next: Upload Documents →
               </Button>
             </Box>
@@ -528,9 +610,34 @@ const MortgageApplication = () => {
               automatically. All data is encrypted and secure.
             </Alert>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-              <Button onClick={handleBack}>← Back</Button>
-              <Button variant="contained" size="large" onClick={handleNext}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                justifyContent: 'space-between',
+                gap: 2,
+                mt: 4,
+              }}
+            >
+              <Button
+                onClick={handleBack}
+                sx={{
+                  order: { xs: 2, sm: 1 },
+                  py: { xs: 1.5, sm: 1 },
+                }}
+              >
+                ← Back
+              </Button>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={handleNext}
+                sx={{
+                  order: { xs: 1, sm: 2 },
+                  py: { xs: 1.5, sm: 2 },
+                  fontSize: { xs: '1rem', sm: '1.125rem' },
+                }}
+              >
                 Next: Other Debts →
               </Button>
             </Box>
@@ -540,10 +647,10 @@ const MortgageApplication = () => {
       case 3:
         return (
           <Box>
-            <Typography variant="h5" gutterBottom>
+            <Typography variant="h5" gutterBottom sx={{ fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' } }}>
               Step 4: Other Monthly Debts
             </Typography>
-            <Typography color="text.secondary" sx={{ mb: 4 }}>
+            <Typography color="text.secondary" sx={{ mb: 4, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
               Enter your monthly debt obligations
             </Typography>
 
@@ -555,6 +662,7 @@ const MortgageApplication = () => {
                   type="number"
                   value={carPayments}
                   onChange={(e) => setCarPayments(Number(e.target.value))}
+                  inputProps={{ min: 0, step: 1 }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -564,6 +672,7 @@ const MortgageApplication = () => {
                   type="number"
                   value={studentLoans}
                   onChange={(e) => setStudentLoans(Number(e.target.value))}
+                  inputProps={{ min: 0, step: 1 }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -573,6 +682,7 @@ const MortgageApplication = () => {
                   type="number"
                   value={creditCards}
                   onChange={(e) => setCreditCards(Number(e.target.value))}
+                  inputProps={{ min: 0, step: 1 }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -582,6 +692,7 @@ const MortgageApplication = () => {
                   type="number"
                   value={personalLoans}
                   onChange={(e) => setPersonalLoans(Number(e.target.value))}
+                  inputProps={{ min: 0, step: 1 }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -591,18 +702,44 @@ const MortgageApplication = () => {
                   type="number"
                   value={otherDebts}
                   onChange={(e) => setOtherDebts(Number(e.target.value))}
+                  inputProps={{ min: 0, step: 1 }}
                 />
               </Grid>
             </Grid>
 
-            <Alert severity="info" sx={{ mt: 3 }}>
+            <Alert severity="info" sx={{ mt: 3, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
               <strong>Important:</strong> Include all recurring monthly payments. These are used to calculate your
               debt-to-income ratio.
             </Alert>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-              <Button onClick={handleBack}>← Back</Button>
-              <Button variant="contained" size="large" onClick={calculateQualificationResult}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                justifyContent: 'space-between',
+                gap: 2,
+                mt: 4,
+              }}
+            >
+              <Button
+                onClick={handleBack}
+                sx={{
+                  order: { xs: 2, sm: 1 },
+                  py: { xs: 1.5, sm: 1 },
+                }}
+              >
+                ← Back
+              </Button>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={calculateQualificationResult}
+                sx={{
+                  order: { xs: 1, sm: 2 },
+                  py: { xs: 1.5, sm: 2 },
+                  fontSize: { xs: '1rem', sm: '1.125rem' },
+                }}
+              >
                 Submit Application 🚀
               </Button>
             </Box>
@@ -671,11 +808,35 @@ const MortgageApplication = () => {
                   </CardContent>
                 </Card>
 
-                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 4 }}>
-                  <Button variant="contained" onClick={() => window.print()}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: 2,
+                    justifyContent: 'center',
+                    mt: 4,
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    onClick={() => window.print()}
+                    fullWidth={false}
+                    sx={{
+                      py: { xs: 1.5, sm: 1 },
+                      minWidth: { sm: 200 },
+                    }}
+                  >
                     Print Results 🖨️
                   </Button>
-                  <Button variant="outlined" onClick={() => window.location.reload()}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => window.location.reload()}
+                    fullWidth={false}
+                    sx={{
+                      py: { xs: 1.5, sm: 1 },
+                      minWidth: { sm: 200 },
+                    }}
+                  >
                     New Application
                   </Button>
                 </Box>
@@ -693,21 +854,57 @@ const MortgageApplication = () => {
     <Box
       sx={{
         minHeight: '100vh',
+        width: '100%',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        py: 4,
+        py: { xs: 2, sm: 3, md: 4 },
+        px: { xs: 1, sm: 2, md: 3 },
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      <Container maxWidth="lg">
-        <Box textAlign="center" mb={4}>
-          <Typography variant="h3" component="h1" gutterBottom sx={{ color: 'white', fontWeight: 700 }}>
+      <Container
+        maxWidth="xl"
+        disableGutters
+        sx={{
+          width: '100%',
+          px: { xs: 1, sm: 2, md: 3 },
+        }}
+      >
+        <Box textAlign="center" mb={{ xs: 2, sm: 3, md: 4 }}>
+          <Typography
+            variant="h3"
+            component="h1"
+            gutterBottom
+            sx={{
+              color: 'white',
+              fontWeight: 700,
+              fontSize: { xs: '1.75rem', sm: '2.5rem', md: '3rem' },
+            }}
+          >
             🏠 Mortgage Application
           </Typography>
-          <Typography variant="h6" sx={{ color: 'white', opacity: 0.9 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              color: 'white',
+              opacity: 0.9,
+              fontSize: { xs: '0.875rem', sm: '1rem', md: '1.25rem' },
+            }}
+          >
             Smart qualification system with automatic property lookup
           </Typography>
         </Box>
 
-        <Stepper activeStep={activeStep} sx={{ mb: 4, bgcolor: 'white', borderRadius: 2, p: 3 }}>
+        <Stepper
+          activeStep={activeStep}
+          sx={{
+            mb: { xs: 2, sm: 3, md: 4 },
+            bgcolor: 'white',
+            borderRadius: 2,
+            p: { xs: 1.5, sm: 2, md: 3 },
+            display: { xs: 'none', sm: 'flex' },
+          }}
+        >
           {steps.map((label) => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
@@ -715,16 +912,78 @@ const MortgageApplication = () => {
           ))}
         </Stepper>
 
-        <Paper sx={{ p: 4, minHeight: '600px' }}>{renderStepContent()}</Paper>
+        {/* Mobile Step Indicator */}
+        <Box
+          sx={{
+            display: { xs: 'block', sm: 'none' },
+            mb: 2,
+            bgcolor: 'white',
+            borderRadius: 2,
+            p: 2,
+            textAlign: 'center',
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            Step {activeStep + 1} of {steps.length}
+          </Typography>
+          <Typography variant="h6" color="primary">
+            {steps[activeStep]}
+          </Typography>
+        </Box>
+
+        <Paper
+          sx={{
+            p: { xs: 2, sm: 3, md: 4 },
+            minHeight: { xs: '400px', sm: '500px', md: '600px' },
+            width: '100%',
+          }}
+        >
+          {renderStepContent()}
+        </Paper>
       </Container>
 
-      <Dialog open={loading} PaperProps={{ sx: { p: 4, textAlign: 'center' } }}>
+      <Dialog
+        open={loading}
+        PaperProps={{
+          sx: {
+            p: { xs: 2, sm: 4 },
+            textAlign: 'center',
+            minWidth: { xs: '90%', sm: 400 },
+            maxWidth: { xs: '95%', sm: 500 },
+          },
+        }}
+      >
         <DialogContent>
-          <CircularProgress size={60} sx={{ mb: 2 }} />
-          <Typography variant="h6" gutterBottom>
+          <CircularProgress size={60} sx={{ mb: 3, color: '#667eea' }} />
+          <Typography
+            variant="h6"
+            gutterBottom
+            color="primary"
+            sx={{ fontSize: { xs: '1.125rem', sm: '1.25rem' } }}
+          >
             Processing...
           </Typography>
-          <Typography color="text.secondary">{loadingMessage}</Typography>
+          <Typography
+            color="text.secondary"
+            sx={{
+              mb: 2,
+              fontSize: { xs: '0.875rem', sm: '1rem' },
+              px: { xs: 1, sm: 0 },
+            }}
+          >
+            {loadingMessage}
+          </Typography>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{
+              display: 'block',
+              mt: 2,
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+            }}
+          >
+            🤖 Using AI to search government databases...
+          </Typography>
         </DialogContent>
       </Dialog>
     </Box>

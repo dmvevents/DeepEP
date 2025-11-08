@@ -134,23 +134,32 @@ class PropertyLookupService:
         zip_match = re.search(r'\b(\d{5})(?:-\d{4})?\b', address_string)
         zip_code = zip_match.group(1) if zip_match else None
 
-        # Try to extract state (2-letter code)
-        state_match = re.search(r'\b([A-Z]{2})\b', address_string.upper())
-        state = state_match.group(1) if state_match else None
-
-        # Split remaining address
+        # Split address by commas first
         parts = address_string.split(',')
+
+        street_address = None
+        city = None
+        state = None
 
         if len(parts) >= 3:
             street_address = parts[0].strip()
             city = parts[1].strip()
             state_zip = parts[2].strip()
+
+            # Extract state from the state/zip part (e.g., "MD 20850" or "MD")
+            state_match = re.search(r'\b([A-Z]{2})\b', state_zip)
+            state = state_match.group(1) if state_match else None
         elif len(parts) == 2:
             street_address = parts[0].strip()
             city = parts[1].strip()
+            # Try to find state in second part
+            state_match = re.search(r'\b([A-Z]{2})\b', parts[1].upper())
+            state = state_match.group(1) if state_match else None
         else:
             street_address = address_string
-            city = None
+            # Last resort - try to find state anywhere
+            state_match = re.search(r'\b([A-Z]{2})\s+\d{5}', address_string.upper())
+            state = state_match.group(1) if state_match else None
 
         return PropertyAddress(
             street_address=street_address,
@@ -229,22 +238,32 @@ class PropertyLookupService:
         Get tax data from scraper database.
 
         Calls tax scraper service to get current tax rates and fees.
+        The scraper will automatically use LLM to search the web if data doesn't exist.
         """
         try:
-            # Call tax scraper API
+            # Call tax scraper API - it will automatically search with LLM if needed
+            # Timeout set to 60s to allow for LLM web search (typically takes 18-20 seconds)
             response = requests.get(
                 f"{self.tax_scraper_url}/scrape/{state}/{county}",
-                timeout=10
+                timeout=60
             )
 
             if response.status_code == 200:
-                return response.json()
+                response_data = response.json()
+
+                # Extract the 'data' field from the scraper response
+                # Scraper returns: {"success": true, "data": {...}}
+                if isinstance(response_data, dict) and 'data' in response_data:
+                    return response_data['data']
+                else:
+                    # If response is already in the correct format
+                    return response_data
             else:
                 # Return empty dict if not found
                 return {}
 
         except Exception as e:
-            print(f"Error fetching tax data: {e}")
+            print(f"Error fetching tax data from scraper: {e}")
             return {}
 
     def _get_property_details(self, address: PropertyAddress) -> Dict:

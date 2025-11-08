@@ -142,24 +142,43 @@ const DocumentUpload = () => {
     <Box
       sx={{
         minHeight: '100vh',
+        width: '100%',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        py: 4,
+        py: { xs: 2, sm: 3, md: 4 },
+        px: { xs: 1, sm: 2, md: 3 },
       }}
     >
-      <Container maxWidth="lg">
-        <Box textAlign="center" mb={4}>
-          <Typography variant="h3" component="h1" gutterBottom sx={{ color: 'white', fontWeight: 700 }}>
+      <Container maxWidth="xl" disableGutters sx={{ width: '100%', px: { xs: 1, sm: 2, md: 3 } }}>
+        <Box textAlign="center" mb={{ xs: 3, sm: 4 }}>
+          <Typography
+            variant="h3"
+            component="h1"
+            gutterBottom
+            sx={{
+              color: 'white',
+              fontWeight: 700,
+              fontSize: { xs: '1.75rem', sm: '2.5rem', md: '3rem' },
+            }}
+          >
             📄 Document Upload & OCR
           </Typography>
-          <Typography variant="h6" sx={{ color: 'white', opacity: 0.9 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              color: 'white',
+              opacity: 0.9,
+              fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
+              px: { xs: 2, sm: 0 },
+            }}
+          >
             Upload income documents for AI-powered data extraction
           </Typography>
         </Box>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={{ xs: 2, sm: 3 }}>
           <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 4 }}>
-              <Typography variant="h5" gutterBottom>
+            <Paper sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+              <Typography variant="h5" gutterBottom sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                 Upload Documents
               </Typography>
 
@@ -169,7 +188,7 @@ const DocumentUpload = () => {
                   border: '3px dashed',
                   borderColor: isDragActive ? 'primary.main' : '#667eea',
                   borderRadius: 2,
-                  p: 6,
+                  p: { xs: 3, sm: 4, md: 6 },
                   textAlign: 'center',
                   cursor: 'pointer',
                   bgcolor: isDragActive ? 'action.hover' : 'transparent',
@@ -182,11 +201,11 @@ const DocumentUpload = () => {
                 }}
               >
                 <input {...getInputProps()} />
-                <CloudUploadIcon sx={{ fontSize: 60, color: '#667eea', mb: 2 }} />
-                <Typography variant="h6" gutterBottom>
+                <CloudUploadIcon sx={{ fontSize: { xs: 48, sm: 60 }, color: '#667eea', mb: 2 }} />
+                <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' } }}>
                   {isDragActive ? 'Drop files here...' : 'Drag & drop documents here'}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                   or click to select files
                 </Typography>
                 <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 2 }}>
@@ -268,8 +287,8 @@ const DocumentUpload = () => {
           </Grid>
 
           <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 4, height: '100%' }}>
-              <Typography variant="h5" gutterBottom>
+            <Paper sx={{ p: { xs: 2, sm: 3, md: 4 }, height: '100%' }}>
+              <Typography variant="h5" gutterBottom sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                 Extracted Data
               </Typography>
 
@@ -354,12 +373,19 @@ const DocumentUpload = () => {
           </Grid>
         </Grid>
 
-        <Box textAlign="center" mt={4}>
+        <Box textAlign="center" mt={{ xs: 3, sm: 4 }}>
           <Button
             variant="contained"
             size="large"
             href="/"
-            sx={{ bgcolor: 'white', color: '#667eea', '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' } }}
+            fullWidth={{ xs: true, sm: false }}
+            sx={{
+              bgcolor: 'white',
+              color: '#667eea',
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' },
+              maxWidth: { xs: '100%', sm: 240 },
+              py: { xs: 1.5, sm: 1 },
+            }}
           >
             Back to Home
           </Button>
