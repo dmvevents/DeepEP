@@ -42,6 +42,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { propertyApi, calculateQualification } from '../services/api';
 import type { PropertyLookupResponse } from '../services/api';
 import Navbar from '../components/Navbar';
+import AddressAutocomplete from '../components/AddressAutocomplete';
 import {
   formatCurrency,
   formatPercentage,
@@ -447,14 +448,16 @@ const MortgageApplication = () => {
               We'll automatically look up property taxes and fees
             </Typography>
 
-            <TextField
-              fullWidth
-              label="Property Address"
+            <AddressAutocomplete
               value={propertyAddress}
-              onChange={(e) => setPropertyAddress(e.target.value)}
-              placeholder="123 Main Street, Rockville, MD 20850"
-              helperText="Include street address, city, state, and ZIP code for accurate results"
-              sx={{ mb: 3 }}
+              onChange={setPropertyAddress}
+              textFieldProps={{
+                fullWidth: true,
+                label: "Property Address",
+                placeholder: "123 Main Street, Rockville, MD 20850",
+                helperText: "Start typing and select from suggestions for complete address",
+                sx: { mb: 3 },
+              }}
             />
 
             <Alert
