@@ -24,7 +24,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import Navbar from '../components/Navbar';
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { getInitials, formatPhoneNumber, isValidEmail, isValidPhone } from '../utils/formatters';
+import { getInitials, formatPhoneNumber, isValidEmail, isValidPhone, isValidName, formatName } from '../utils/formatters';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -49,6 +49,7 @@ const Profile = () => {
     email: '',
     phone: '',
     first_name: '',
+    middle_name: '',
     last_name: '',
   });
 
@@ -73,6 +74,7 @@ const Profile = () => {
       email: userData.email || '',
       phone: userData.phone || '',
       first_name: userData.first_name || '',
+      middle_name: userData.middle_name || '',
       last_name: userData.last_name || '',
     });
   }, [navigate]);
@@ -85,6 +87,7 @@ const Profile = () => {
         email: user.email || '',
         phone: user.phone || '',
         first_name: user.first_name || '',
+        middle_name: user.middle_name || '',
         last_name: user.last_name || '',
       });
     }
@@ -92,6 +95,24 @@ const Profile = () => {
   };
 
   const handleSaveProfile = async () => {
+    // Validate first name (required)
+    if (!formData.first_name || !isValidName(formData.first_name)) {
+      setErrorMessage('Please enter a valid first name (letters only, 2-50 characters)');
+      return;
+    }
+
+    // Validate last name (required)
+    if (!formData.last_name || !isValidName(formData.last_name)) {
+      setErrorMessage('Please enter a valid last name (letters only, 2-50 characters)');
+      return;
+    }
+
+    // Validate middle name (optional, but must be valid if provided)
+    if (formData.middle_name && !isValidName(formData.middle_name)) {
+      setErrorMessage('Please enter a valid middle name (letters only, 2-50 characters)');
+      return;
+    }
+
     // Validate email
     if (!isValidEmail(formData.email)) {
       setErrorMessage('Please enter a valid email address');
@@ -343,22 +364,39 @@ const Profile = () => {
                   helperText={editing && formData.email && !isValidEmail(formData.email) ? 'Invalid email' : ''}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
                   label="First Name"
+                  required
                   value={formData.first_name}
-                  onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, first_name: formatName(e.target.value) })}
                   disabled={!editing}
+                  error={editing && formData.first_name && !isValidName(formData.first_name)}
+                  helperText={editing && formData.first_name && !isValidName(formData.first_name) ? 'Letters only, 2-50 chars' : ''}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  label="Middle Name"
+                  value={formData.middle_name}
+                  onChange={(e) => setFormData({ ...formData, middle_name: formatName(e.target.value) })}
+                  disabled={!editing}
+                  error={editing && formData.middle_name && !isValidName(formData.middle_name)}
+                  helperText={editing && formData.middle_name && !isValidName(formData.middle_name) ? 'Letters only, 2-50 chars' : 'Optional'}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
                   label="Last Name"
+                  required
                   value={formData.last_name}
-                  onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, last_name: formatName(e.target.value) })}
                   disabled={!editing}
+                  error={editing && formData.last_name && !isValidName(formData.last_name)}
+                  helperText={editing && formData.last_name && !isValidName(formData.last_name) ? 'Letters only, 2-50 chars' : ''}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>

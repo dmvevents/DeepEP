@@ -245,13 +245,15 @@ export const formatDTI = (dti: number): { formatted: string; risk: 'low' | 'medi
 };
 
 /**
- * Validate email format
+ * Validate email format using validator package
  * @param email - Email address to validate
  * @returns True if valid email format
  */
 export const isValidEmail = (email: string): boolean => {
+  if (!email || typeof email !== 'string') return false;
+  // Use validator package for robust email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+  return emailRegex.test(email.trim());
 };
 
 /**
@@ -308,4 +310,57 @@ export const formatStatus = (status: string): string => {
     .split('_')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+};
+
+/**
+ * Validate name field (letters, spaces, hyphens, apostrophes only)
+ * @param name - Name to validate
+ * @returns True if valid name format
+ */
+export const isValidName = (name: string): boolean => {
+  if (!name || typeof name !== 'string') return false;
+  const trimmed = name.trim();
+  if (trimmed.length < 2 || trimmed.length > 50) return false;
+  // Allow letters, spaces, hyphens, apostrophes (for names like O'Brien, Mary-Jane)
+  const nameRegex = /^[a-zA-Z\s'-]+$/;
+  return nameRegex.test(trimmed);
+};
+
+/**
+ * Format name with proper capitalization
+ * @param name - Name to format
+ * @returns Formatted name (e.g., "john doe" → "John Doe")
+ */
+export const formatName = (name: string): string => {
+  if (!name) return '';
+  return name
+    .trim()
+    .split(/\s+/)
+    .map(word => {
+      // Handle hyphenated names (Mary-Jane)
+      if (word.includes('-')) {
+        return word.split('-').map(part =>
+          part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+        ).join('-');
+      }
+      // Handle names with apostrophes (O'Brien)
+      if (word.includes("'")) {
+        return word.split("'").map(part =>
+          part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+        ).join("'");
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
+};
+
+/**
+ * Validate full name (first and last name required)
+ * @param fullName - Full name to validate
+ * @returns True if contains at least 2 words
+ */
+export const isValidFullName = (fullName: string): boolean => {
+  if (!fullName || typeof fullName !== 'string') return false;
+  const parts = fullName.trim().split(/\s+/);
+  return parts.length >= 2 && parts.every(part => isValidName(part));
 };
