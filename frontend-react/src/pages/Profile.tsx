@@ -51,6 +51,11 @@ const Profile = () => {
     first_name: '',
     middle_name: '',
     last_name: '',
+    date_of_birth: '',
+    address: '',
+    city: '',
+    state: '',
+    zip_code: '',
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -76,6 +81,11 @@ const Profile = () => {
       first_name: userData.first_name || '',
       middle_name: userData.middle_name || '',
       last_name: userData.last_name || '',
+      date_of_birth: userData.date_of_birth || '',
+      address: userData.address || '',
+      city: userData.city || '',
+      state: userData.state || '',
+      zip_code: userData.zip_code || '',
     });
   }, [navigate]);
 
@@ -89,6 +99,11 @@ const Profile = () => {
         first_name: user.first_name || '',
         middle_name: user.middle_name || '',
         last_name: user.last_name || '',
+        date_of_birth: user.date_of_birth || '',
+        address: user.address || '',
+        city: user.city || '',
+        state: user.state || '',
+        zip_code: user.zip_code || '',
       });
     }
     setEditing(!editing);
@@ -408,6 +423,55 @@ const Profile = () => {
                   disabled={!editing}
                   error={editing && formData.phone && !isValidPhone(formData.phone)}
                   helperText={editing && formData.phone && !isValidPhone(formData.phone) ? 'Enter 10-digit phone' : undefined}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Date of Birth"
+                  type="date"
+                  value={formData.date_of_birth}
+                  onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
+                  disabled={!editing}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Street Address"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  disabled={!editing}
+                />
+              </Grid>
+              <Grid item xs={12} sm={5}>
+                <TextField
+                  fullWidth
+                  label="City"
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  disabled={!editing}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  label="State"
+                  value={formData.state}
+                  onChange={(e) => setFormData({ ...formData, state: e.target.value.toUpperCase() })}
+                  disabled={!editing}
+                  inputProps={{ maxLength: 2 }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <TextField
+                  fullWidth
+                  label="ZIP Code"
+                  value={formData.zip_code}
+                  onChange={(e) => setFormData({ ...formData, zip_code: e.target.value.replace(/\D/g, '') })}
+                  disabled={!editing}
+                  inputProps={{ maxLength: 5 }}
                 />
               </Grid>
             </Grid>
