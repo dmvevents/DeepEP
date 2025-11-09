@@ -309,6 +309,53 @@ const MortgageApplication = () => {
     }
   };
 
+  const handleSubmitApplication = async () => {
+    if (!qualificationResults) {
+      alert('Please calculate qualification first');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setLoadingMessage('Submitting your application...');
+
+      // TODO: Replace with actual API call when backend is ready
+      // const response = await fetch('http://localhost:8004/api/loan-estimates/', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+      //   },
+      //   body: JSON.stringify({
+      //     property_address: propertyAddress,
+      //     property_value: propertyValue,
+      //     loan_amount: loanAmount,
+      //     status: 'submitted',
+      //     calculation_results: qualificationResults
+      //   })
+      // });
+
+      // Mock successful submission
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Clear draft from localStorage
+      localStorage.removeItem('mortgage_application_draft');
+      localStorage.removeItem('mortgage_application_draft_timestamp');
+
+      // Show success message
+      setSnackbarMessage('Application submitted successfully!');
+      setSnackbarOpen(true);
+
+      // Navigate to My Applications after a short delay
+      setTimeout(() => {
+        navigate('/my-applications');
+      }, 1500);
+    } catch (error) {
+      alert('Error submitting application: ' + (error as Error).message);
+      setLoading(false);
+    }
+  };
+
   const getTransferTaxScenario = () => {
     if (propertyType === 'new_construction') {
       if (firstTimeBuyer) {
@@ -955,6 +1002,22 @@ const MortgageApplication = () => {
                     mt: 4,
                   }}
                 >
+                  <Button
+                    variant="contained"
+                    color="success"
+                    size="large"
+                    onClick={handleSubmitApplication}
+                    disabled={loading}
+                    fullWidth={false}
+                    sx={{
+                      py: { xs: 1.5, sm: 1.5 },
+                      minWidth: { sm: 240 },
+                      fontSize: { xs: '1rem', sm: '1.125rem' },
+                      fontWeight: 600,
+                    }}
+                  >
+                    Submit Application ✓
+                  </Button>
                   <Button
                     variant="contained"
                     onClick={() => window.print()}
