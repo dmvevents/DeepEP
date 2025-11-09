@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Box,
@@ -20,18 +21,24 @@ import {
   CircularProgress,
   Dialog,
   DialogContent,
+  DialogTitle,
+  DialogActions,
   Card,
   CardContent,
   Chip,
   Tooltip,
   IconButton,
   LinearProgress,
+  Snackbar,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import SaveIcon from '@mui/icons-material/Save';
+import RestoreIcon from '@mui/icons-material/Restore';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { propertyApi, calculateQualification } from '../services/api';
 import type { PropertyLookupResponse } from '../services/api';
 
@@ -43,10 +50,19 @@ interface UploadedFiles {
 
 const steps = ['Property Address', 'Loan Details', 'Upload Documents', 'Other Debts', 'Results'];
 
+const DRAFT_KEY = 'mortgage_application_draft';
+const DRAFT_TIMESTAMP_KEY = 'mortgage_application_draft_timestamp';
+
 const MortgageApplication = () => {
+  const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
+
+  // Save/Resume state
+  const [showResumeDialog, setShowResumeDialog] = useState(false);
+  const [showSaveNotification, setShowSaveNotification] = useState(false);
+  const [draftLastSaved, setDraftLastSaved] = useState<Date | null>(null);
 
   // Step 1: Property Address
   const [propertyAddress, setPropertyAddress] = useState('');
@@ -81,6 +97,118 @@ const MortgageApplication = () => {
 
   // Step 5: Results
   const [qualificationResults, setQualificationResults] = useState<any>(null);
+
+  // Check for existing draft on mount
+  useEffect(() => {
+    const draftData = localStorage.getItem(DRAFT_KEY);
+    const draftTimestamp = localStorage.getItem(DRAFT_TIMESTAMP_KEY);
+
+    if (draftData && draftTimestamp) {
+      const savedDate = new Date(draftTimestamp);
+      const hoursSinceSave = (Date.now() - savedDate.getTime()) / (1000 * 60 * 60);
+
+      // Only show resume dialog if draft is less than 7 days old
+      if (hoursSinceSave < 168) {
+        setDraftLastSaved(savedDate);
+        setShowResumeDialog(true);
+      } else {
+        // Clear old drafts
+        localStorage.removeItem(DRAFT_KEY);
+        localStorage.removeItem(DRAFT_TIMESTAMP_KEY);
+      }
+    }
+  }, []);
+
+  // Auto-save draft whenever form data changes
+  useEffect(() => {
+    // Don't auto-save if we're on the results step or if form is empty
+    if (activeStep === steps.length - 1 || !propertyAddress) {
+      return;
+    }
+
+    const draftData = {
+      activeStep,
+      propertyAddress,
+      propertyValue,
+      loanAmount,
+      interestRate,
+      loanTerm,
+      loanType,
+      creditScore,
+      propertyType,
+      firstTimeBuyer,
+      propertyTaxMonthly,
+      insuranceMonthly,
+      hoaFees,
+      carPayments,
+      studentLoans,
+      creditCards,
+      personalLoans,
+      otherDebts,
+    };
+
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
+    localStorage.setItem(DRAFT_TIMESTAMP_KEY, new Date().toISOString());
+  }, [
+    activeStep,
+    propertyAddress,
+    propertyValue,
+    loanAmount,
+    interestRate,
+    loanTerm,
+    loanType,
+    creditScore,
+    propertyType,
+    firstTimeBuyer,
+    propertyTaxMonthly,
+    insuranceMonthly,
+    hoaFees,
+    carPayments,
+    studentLoans,
+    creditCards,
+    personalLoans,
+    otherDebts,
+  ]);
+
+  const loadDraft = () => {
+    const draftData = localStorage.getItem(DRAFT_KEY);
+    if (draftData) {
+      const draft = JSON.parse(draftData);
+      setActiveStep(draft.activeStep || 0);
+      setPropertyAddress(draft.propertyAddress || '');
+      setPropertyValue(draft.propertyValue || 500000);
+      setLoanAmount(draft.loanAmount || 400000);
+      setInterestRate(draft.interestRate || 6.5);
+      setLoanTerm(draft.loanTerm || 30);
+      setLoanType(draft.loanType || 'fannie_mae');
+      setCreditScore(draft.creditScore || 740);
+      setPropertyType(draft.propertyType || 'resale');
+      setFirstTimeBuyer(draft.firstTimeBuyer || false);
+      setPropertyTaxMonthly(draft.propertyTaxMonthly || 0);
+      setInsuranceMonthly(draft.insuranceMonthly || 0);
+      setHoaFees(draft.hoaFees || 0);
+      setCarPayments(draft.carPayments || 0);
+      setStudentLoans(draft.studentLoans || 0);
+      setCreditCards(draft.creditCards || 0);
+      setPersonalLoans(draft.personalLoans || 0);
+      setOtherDebts(draft.otherDebts || 0);
+    }
+    setShowResumeDialog(false);
+  };
+
+  const clearDraft = () => {
+    localStorage.removeItem(DRAFT_KEY);
+    localStorage.removeItem(DRAFT_TIMESTAMP_KEY);
+    setDraftLastSaved(null);
+    setShowResumeDialog(false);
+  };
+
+  const handleSaveAndExit = () => {
+    setShowSaveNotification(true);
+    setTimeout(() => {
+      navigate('/');
+    }, 1500);
+  };
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -910,6 +1038,7 @@ const MortgageApplication = () => {
               flexWrap: 'wrap',
               gap: 2,
               justifyContent: 'center',
+              alignItems: 'center',
               mt: 3,
             }}
           >
@@ -943,6 +1072,28 @@ const MortgageApplication = () => {
                 fontWeight: 600,
               }}
             />
+
+            {/* Save & Exit Button */}
+            {propertyAddress && activeStep < steps.length - 1 && (
+              <Tooltip title="Save your progress and exit">
+                <Button
+                  onClick={handleSaveAndExit}
+                  startIcon={<SaveIcon />}
+                  size="small"
+                  sx={{
+                    bgcolor: 'rgba(255,255,255,0.25)',
+                    color: 'white',
+                    backdropFilter: 'blur(10px)',
+                    fontWeight: 600,
+                    '&:hover': {
+                      bgcolor: 'rgba(255,255,255,0.35)',
+                    },
+                  }}
+                >
+                  Save & Exit
+                </Button>
+              </Tooltip>
+            )}
           </Box>
         </Box>
 
@@ -1070,6 +1221,67 @@ const MortgageApplication = () => {
           </Typography>
         </DialogContent>
       </Dialog>
+
+      {/* Resume Draft Dialog */}
+      <Dialog
+        open={showResumeDialog}
+        onClose={() => setShowResumeDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box display="flex" alignItems="center" gap={1}>
+            <RestoreIcon color="primary" />
+            <Typography variant="h6">Resume Application?</Typography>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" gutterBottom>
+            We found a saved application from{' '}
+            <strong>
+              {draftLastSaved?.toLocaleDateString()} at {draftLastSaved?.toLocaleTimeString()}
+            </strong>
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+            Would you like to continue where you left off or start fresh?
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button
+            onClick={clearDraft}
+            startIcon={<DeleteIcon />}
+            variant="outlined"
+            color="error"
+          >
+            Start Fresh
+          </Button>
+          <Button
+            onClick={loadDraft}
+            startIcon={<RestoreIcon />}
+            variant="contained"
+            sx={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #5568d3 0%, #63408b 100%)',
+              },
+            }}
+          >
+            Resume Application
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Save Notification */}
+      <Snackbar
+        open={showSaveNotification}
+        autoHideDuration={1500}
+        onClose={() => setShowSaveNotification(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="success" sx={{ width: '100%' }}>
+          Progress saved! Redirecting to home...
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
