@@ -8,12 +8,21 @@ import {
   Card,
   CardContent,
   CardActions,
+  Avatar,
+  Chip,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DescriptionIcon from '@mui/icons-material/Description';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import LoginIcon from '@mui/icons-material/Login';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import LockIcon from '@mui/icons-material/Lock';
+import SpeedIcon from '@mui/icons-material/Speed';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import SearchIcon from '@mui/icons-material/Search';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import HomeWorkIcon from '@mui/icons-material/HomeWork';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -150,6 +159,165 @@ const Home = () => {
               Login
             </Button>
           </Box>
+
+          {/* Trust Badges */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: { xs: 2, sm: 3 },
+              justifyContent: 'center',
+              alignItems: 'center',
+              mt: 4,
+            }}
+          >
+            <Chip
+              icon={<VerifiedUserIcon />}
+              label="Bank-Level Security"
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                backdropFilter: 'blur(10px)',
+                px: 2,
+                py: 2.5,
+                fontSize: '0.95rem',
+                fontWeight: 600,
+              }}
+            />
+            <Chip
+              icon={<LockIcon />}
+              label="256-bit Encryption"
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                backdropFilter: 'blur(10px)',
+                px: 2,
+                py: 2.5,
+                fontSize: '0.95rem',
+                fontWeight: 600,
+              }}
+            />
+            <Chip
+              icon={<SpeedIcon />}
+              label="Instant Results"
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                backdropFilter: 'blur(10px)',
+                px: 2,
+                py: 2.5,
+                fontSize: '0.95rem',
+                fontWeight: 600,
+              }}
+            />
+            <Chip
+              icon={<SupportAgentIcon />}
+              label="Expert Support"
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                backdropFilter: 'blur(10px)',
+                px: 2,
+                py: 2.5,
+                fontSize: '0.95rem',
+                fontWeight: 600,
+              }}
+            />
+          </Box>
+        </Box>
+
+        {/* How It Works Section */}
+        <Box
+          sx={{
+            bgcolor: 'rgba(255,255,255,0.15)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: 4,
+            border: '1px solid rgba(255,255,255,0.2)',
+            p: { xs: 3, sm: 4, md: 5 },
+            mb: { xs: 4, sm: 6 },
+          }}
+        >
+          <Typography
+            variant="h4"
+            align="center"
+            gutterBottom
+            sx={{
+              color: 'white',
+              fontWeight: 700,
+              mb: 4,
+              fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' },
+            }}
+          >
+            How It Works - 3 Simple Steps
+          </Typography>
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={4}>
+              <Box textAlign="center">
+                <Avatar
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    margin: '0 auto 16px',
+                    bgcolor: 'white',
+                    color: '#667eea',
+                  }}
+                >
+                  <SearchIcon sx={{ fontSize: 40 }} />
+                </Avatar>
+                <Typography variant="h5" gutterBottom sx={{ color: 'white', fontWeight: 600 }}>
+                  1. Enter Property
+                </Typography>
+                <Typography sx={{ color: 'white', opacity: 0.9 }}>
+                  Simply enter the property address. We'll automatically fetch property taxes, insurance, and all
+                  associated fees from official government sources.
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Box textAlign="center">
+                <Avatar
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    margin: '0 auto 16px',
+                    bgcolor: 'white',
+                    color: '#667eea',
+                  }}
+                >
+                  <CalculateIcon sx={{ fontSize: 40 }} />
+                </Avatar>
+                <Typography variant="h5" gutterBottom sx={{ color: 'white', fontWeight: 600 }}>
+                  2. Get Instant Calculation
+                </Typography>
+                <Typography sx={{ color: 'white', opacity: 0.9 }}>
+                  Our advanced calculator provides accurate monthly payments, DTI ratios, and closing costs. See 4
+                  transfer tax scenarios with first-time buyer exemptions.
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Box textAlign="center">
+                <Avatar
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    margin: '0 auto 16px',
+                    bgcolor: 'white',
+                    color: '#667eea',
+                  }}
+                >
+                  <AssignmentTurnedInIcon sx={{ fontSize: 40 }} />
+                </Avatar>
+                <Typography variant="h5" gutterBottom sx={{ color: 'white', fontWeight: 600 }}>
+                  3. Upload Documents
+                </Typography>
+                <Typography sx={{ color: 'white', opacity: 0.9 }}>
+                  Upload income documents and let our AI-powered OCR extract data automatically. W-2s, pay stubs, and
+                  tax returns processed in seconds.
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
         </Box>
 
         <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
@@ -285,6 +453,113 @@ const Home = () => {
               <Typography sx={{ color: 'white', mb: 1 }}>
                 ✓ <strong>DTI Monitoring:</strong> Real-time warnings for high debt-to-income ratios
               </Typography>
+            </Grid>
+          </Grid>
+        </Box>
+
+        {/* Testimonials Section */}
+        <Box mt={{ xs: 6, sm: 8 }}>
+          <Typography
+            variant="h4"
+            align="center"
+            gutterBottom
+            sx={{
+              color: 'white',
+              fontWeight: 700,
+              mb: 4,
+              fontSize: { xs: '1.75rem', sm: '2.125rem' },
+            }}
+          >
+            What Our Customers Say
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={4}>
+              <Card
+                sx={{
+                  height: '100%',
+                  bgcolor: 'rgba(255,255,255,0.15)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box display="flex" alignItems="center" mb={2}>
+                    <Avatar sx={{ bgcolor: '#667eea', mr: 2 }}>E</Avatar>
+                    <Box>
+                      <Typography variant="h6" sx={{ color: 'white', fontWeight: 600 }}>
+                        Emily R.
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'white', opacity: 0.8 }}>
+                        First-Time Homebuyer
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Typography sx={{ color: 'white', opacity: 0.9, lineHeight: 1.6 }}>
+                    "This calculator made my first home purchase so much easier! The automatic tax lookup saved me
+                    hours of research, and seeing all the costs upfront gave me confidence in my decision."
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Card
+                sx={{
+                  height: '100%',
+                  bgcolor: 'rgba(255,255,255,0.15)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box display="flex" alignItems="center" mb={2}>
+                    <Avatar sx={{ bgcolor: '#764ba2', mr: 2 }}>M</Avatar>
+                    <Box>
+                      <Typography variant="h6" sx={{ color: 'white', fontWeight: 600 }}>
+                        Michael T.
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'white', opacity: 0.8 }}>
+                        Real Estate Investor
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Typography sx={{ color: 'white', opacity: 0.9, lineHeight: 1.6 }}>
+                    "As an investor analyzing multiple properties, the speed and accuracy of this tool is
+                    incredible. The DTI calculations and transfer tax scenarios help me make quick, informed
+                    decisions."
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Card
+                sx={{
+                  height: '100%',
+                  bgcolor: 'rgba(255,255,255,0.15)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box display="flex" alignItems="center" mb={2}>
+                    <Avatar sx={{ bgcolor: '#10b981', mr: 2 }}>S</Avatar>
+                    <Box>
+                      <Typography variant="h6" sx={{ color: 'white', fontWeight: 600 }}>
+                        Sarah L.
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'white', opacity: 0.8 }}>
+                        Mortgage Broker
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Typography sx={{ color: 'white', opacity: 0.9, lineHeight: 1.6 }}>
+                    "The admin dashboard is a game-changer for managing multiple clients. The AI document extraction
+                    saves us so much time, and clients love the transparency of the detailed breakdowns."
+                  </Typography>
+                </CardContent>
+              </Card>
             </Grid>
           </Grid>
         </Box>
