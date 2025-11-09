@@ -254,6 +254,16 @@ class LoanEstimate(models.Model):
         ('multi_family', 'Multi-Family'),
     ]
 
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('submitted', 'Submitted'),
+        ('under_review', 'Under Review'),
+        ('needs_correction', 'Needs Correction'),
+        ('resubmitted', 'Resubmitted'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='loan_estimates')
 
     # Property information
@@ -286,6 +296,32 @@ class LoanEstimate(models.Model):
         help_text="Version of tax data used in this calculation"
     )
 
+    # Application status and workflow
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='draft',
+        help_text="Current application status"
+    )
+    submitted_at = models.DateTimeField(null=True, blank=True, help_text="When user submitted application")
+    reviewed_at = models.DateTimeField(null=True, blank=True, help_text="When admin reviewed application")
+    reviewed_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='reviewed_loan_estimates',
+        help_text="Admin who reviewed this application"
+    )
+    admin_feedback = models.TextField(
+        blank=True,
+        help_text="Admin feedback for corrections or rejection reason"
+    )
+    correction_count = models.IntegerField(
+        default=0,
+        help_text="Number of times application was sent back for corrections"
+    )
+
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -298,6 +334,8 @@ class LoanEstimate(models.Model):
             models.Index(fields=['user', '-created_at']),
             models.Index(fields=['county']),
             models.Index(fields=['is_saved']),
+            models.Index(fields=['status', '-created_at']),
+            models.Index(fields=['submitted_at']),
         ]
 
     def __str__(self):
