@@ -3,6 +3,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MortgageApplication from './pages/MortgageApplication';
 import AdminDashboard from './pages/AdminDashboard';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import DocumentUpload from './pages/DocumentUpload';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -50,6 +51,7 @@ function App() {
           <Route path="/mortgage-application" element={<MortgageApplication />} />
           <Route path="/my-applications" element={<MyApplications />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/super-admin" element={<SuperAdminDashboard />} />
           <Route path="/documents" element={<DocumentUpload />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

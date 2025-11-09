@@ -19,6 +19,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
 import HomeIcon from '@mui/icons-material/Home';
+import ShieldIcon from '@mui/icons-material/Shield';
 
 interface NavbarProps {
   title?: string;
@@ -204,7 +205,16 @@ const Navbar = ({ title = 'Mortgage Calculator', showUserMenu = true }: NavbarPr
                 </MenuItem>
               )}
 
-              {user.is_admin && (
+              {user.is_super_admin && (
+                <MenuItem onClick={() => handleNavigation('/super-admin')}>
+                  <ListItemIcon>
+                    <ShieldIcon fontSize="small" />
+                  </ListItemIcon>
+                  Super Admin
+                </MenuItem>
+              )}
+
+              {user.is_admin && !user.is_super_admin && (
                 <MenuItem onClick={() => handleNavigation('/admin')}>
                   <ListItemIcon>
                     <AssignmentIcon fontSize="small" />
