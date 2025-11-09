@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -29,12 +29,15 @@ import {
   Card,
   CardContent,
   Alert,
+  Link,
+  Divider,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ToggleOffIcon from '@mui/icons-material/ToggleOff';
 import ToggleOnIcon from '@mui/icons-material/ToggleOn';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import Navbar from '../components/Navbar';
 import { formatCurrency, formatDate, formatDTI } from '../utils/formatters';
 
 interface Borrower {
@@ -233,50 +236,19 @@ const AdminDashboard = () => {
   const dtiWarnings = borrowers.filter((b) => b.dtiRatio > 43);
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        width: '100%',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        py: { xs: 2, sm: 3, md: 4 },
-        px: { xs: 1, sm: 2, md: 3 },
-      }}
-    >
-      <Container maxWidth="xl" disableGutters sx={{ width: '100%', px: { xs: 1, sm: 2, md: 3 } }}>
-        {/* Header */}
-        <Paper sx={{
-          p: { xs: 2, sm: 3 },
-          mb: { xs: 2, sm: 3 },
-          display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          gap: { xs: 2, sm: 0 },
-        }}>
-          <Typography
-            variant="h4"
-            component="h1"
-            sx={{
-              color: '#667eea',
-              fontWeight: 700,
-              fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' },
-            }}
-          >
-            🏦 Admin Dashboard
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: { xs: '100%', sm: 'auto' } }}>
-            <Typography sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>👤 Admin User</Typography>
-            <Button
-              variant="outlined"
-              color="secondary"
-              size="small"
-              onClick={handleLogout}
-              sx={{ whiteSpace: 'nowrap' }}
-            >
-              Logout
-            </Button>
-          </Box>
-        </Paper>
+    <>
+      <Navbar title="Admin Dashboard" />
+
+      <Box
+        sx={{
+          minHeight: 'calc(100vh - 64px)',
+          width: '100%',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          py: { xs: 2, sm: 3, md: 4 },
+          px: { xs: 1, sm: 2, md: 3 },
+        }}
+      >
+        <Container maxWidth="xl" disableGutters sx={{ width: '100%', px: { xs: 1, sm: 2, md: 3 } }}>
 
         {/* Stats */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
@@ -510,7 +482,35 @@ const AdminDashboard = () => {
             </Box>
           </TabPanel>
         </Paper>
+
+        {/* Footer */}
+        <Paper sx={{ mt: 4, p: 3, textAlign: 'center' }}>
+          <Divider sx={{ mb: 2 }} />
+          <Grid container spacing={2} justifyContent="center">
+            <Grid item xs={12} sm="auto">
+              <Link href="/" underline="hover" sx={{ mx: 1, color: 'text.secondary' }}>
+                Home
+              </Link>
+              <Link href="/admin-profile" underline="hover" sx={{ mx: 1, color: 'text.secondary' }}>
+                My Profile
+              </Link>
+              <Link href="/documents" underline="hover" sx={{ mx: 1, color: 'text.secondary' }}>
+                Documents
+              </Link>
+              <Link href="#" underline="hover" sx={{ mx: 1, color: 'text.secondary' }}>
+                Help Center
+              </Link>
+            </Grid>
+          </Grid>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+            © {new Date().getFullYear()} Real Estate Mortgage Application. All rights reserved.
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Version 1.0.0 | Powered by Claude Code
+          </Typography>
+        </Paper>
       </Container>
+      </Box>
 
       {/* Create/Edit Borrower Modal */}
       <Dialog open={openModal} onClose={handleCloseModal} maxWidth="sm" fullWidth>
@@ -584,7 +584,7 @@ const AdminDashboard = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </>
   );
 };
 
