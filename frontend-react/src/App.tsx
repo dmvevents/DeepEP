@@ -9,6 +9,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import MyApplications from './pages/MyApplications';
 import Profile from './pages/Profile';
+import AdminProfile from './pages/AdminProfile';
 
 const theme = createTheme({
   palette: {
@@ -52,6 +53,7 @@ function App() {
           <Route path="/mortgage-application" element={<MortgageApplication />} />
           <Route path="/my-applications" element={<MyApplications />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/admin-profile" element={<AdminProfile />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/super-admin" element={<SuperAdminDashboard />} />
           <Route path="/documents" element={<DocumentUpload />} />

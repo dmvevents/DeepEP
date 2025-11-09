@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -15,18 +15,42 @@ import {
   DialogTitle,
   DialogActions,
   Alert,
-  Divider,
+  Chip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  OutlinedInput,
+  type SelectChangeEvent,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
+import ShieldIcon from '@mui/icons-material/Shield';
+import BusinessIcon from '@mui/icons-material/Business';
 import Navbar from '../components/Navbar';
 import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { getInitials, formatPhoneNumber, isValidEmail, isValidPhone, isValidName, formatName } from '../utils/formatters';
+import {
+  getInitials,
+  formatPhoneNumber,
+  isValidEmail,
+  isValidPhone,
+  isValidName,
+  formatName
+} from '../utils/formatters';
 
-const Profile = () => {
+// US States for territory selection
+const US_STATES = [
+  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+  'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+  'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+  'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+  'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', 'DC'
+];
+
+const AdminProfile = () => {
   const navigate = useNavigate();
   const imgRef = useRef<HTMLImageElement>(null);
   const [user, setUser] = useState<any>(null);
@@ -51,6 +75,9 @@ const Profile = () => {
     first_name: '',
     middle_name: '',
     last_name: '',
+    license_number: '',
+    nmls_id: '',
+    territory: [] as string[],
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -68,6 +95,13 @@ const Profile = () => {
     }
 
     const userData = JSON.parse(userStr);
+
+    // Check if user is admin
+    if (!userData.is_admin) {
+      navigate('/profile'); // Redirect regular users to regular profile
+      return;
+    }
+
     setUser(userData);
     setFormData({
       username: userData.username || '',
@@ -76,6 +110,9 @@ const Profile = () => {
       first_name: userData.first_name || '',
       middle_name: userData.middle_name || '',
       last_name: userData.last_name || '',
+      license_number: userData.license_number || '',
+      nmls_id: userData.nmls_id || '',
+      territory: userData.territory || [],
     });
   }, [navigate]);
 
@@ -89,6 +126,9 @@ const Profile = () => {
         first_name: user.first_name || '',
         middle_name: user.middle_name || '',
         last_name: user.last_name || '',
+        license_number: user.license_number || '',
+        nmls_id: user.nmls_id || '',
+        territory: user.territory || [],
       });
     }
     setEditing(!editing);
@@ -125,9 +165,27 @@ const Profile = () => {
       return;
     }
 
+    // Validate license number (required for admins)
+    if (!formData.license_number || formData.license_number.length < 5) {
+      setErrorMessage('Please enter a valid MLO license number (minimum 5 characters)');
+      return;
+    }
+
+    // Validate NMLS ID (required for admins)
+    if (!formData.nmls_id || !/^\d{5,}$/.test(formData.nmls_id)) {
+      setErrorMessage('Please enter a valid NMLS ID (minimum 5 digits)');
+      return;
+    }
+
+    // Validate territory (at least one state)
+    if (formData.territory.length === 0) {
+      setErrorMessage('Please select at least one state for your territory');
+      return;
+    }
+
     try {
       // TODO: Replace with actual API call
-      // await fetch('/api/profile/update/', {
+      // await fetch('/api/admin/profile/update/', {
       //   method: 'PATCH',
       //   headers: {
       //     'Content-Type': 'application/json',
@@ -141,7 +199,7 @@ const Profile = () => {
       localStorage.setItem('user', JSON.stringify(updatedUser));
       setUser(updatedUser);
       setEditing(false);
-      setSuccessMessage('Profile updated successfully!');
+      setSuccessMessage('Admin profile updated successfully!');
       setErrorMessage('');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
@@ -170,7 +228,7 @@ const Profile = () => {
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
 
-    const size = 200; // Target size for avatar
+    const size = 200;
     canvas.width = size;
     canvas.height = size;
 
@@ -196,17 +254,6 @@ const Profile = () => {
     try {
       const croppedImageUrl = await getCroppedImg();
       if (croppedImageUrl) {
-        // TODO: Replace with actual API call to upload image
-        // const formData = new FormData();
-        // const blob = await fetch(croppedImageUrl).then(r => r.blob());
-        // formData.append('profile_picture', blob, 'avatar.jpg');
-        // await fetch('/api/profile/upload-picture/', {
-        //   method: 'POST',
-        //   headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-        //   body: formData
-        // });
-
-        // Save to localStorage for now
         const updatedUser = { ...user, profile_picture: croppedImageUrl };
         localStorage.setItem('user', JSON.stringify(updatedUser));
         setUser(updatedUser);
@@ -232,18 +279,6 @@ const Profile = () => {
 
     try {
       // TODO: Replace with actual API call
-      // await fetch('/api/profile/change-password/', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-      //   },
-      //   body: JSON.stringify({
-      //     current_password: passwordData.current_password,
-      //     new_password: passwordData.new_password
-      //   })
-      // });
-
       setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
       setSuccessMessage('Password changed successfully!');
       setErrorMessage('');
@@ -253,18 +288,26 @@ const Profile = () => {
     }
   };
 
+  const handleTerritoryChange = (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value;
+    setFormData({
+      ...formData,
+      territory: typeof value === 'string' ? value.split(',') : value,
+    });
+  };
+
   if (!user) {
     return null;
   }
 
   return (
     <>
-      <Navbar title="My Profile" />
+      <Navbar title="Admin Profile" />
 
       <Box
         sx={{
           minHeight: 'calc(100vh - 64px)',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: 'linear-gradient(135deg, #1a237e 0%, #4a148c 100%)',
           py: 4,
         }}
       >
@@ -289,7 +332,7 @@ const Profile = () => {
                   width: 150,
                   height: 150,
                   fontSize: '3rem',
-                  bgcolor: '#667eea',
+                  bgcolor: '#1a237e',
                   mx: 'auto',
                 }}
                 src={user.profile_picture}
@@ -320,18 +363,19 @@ const Profile = () => {
             <Typography variant="h5" sx={{ mt: 2, fontWeight: 600 }}>
               {user.username || user.email}
             </Typography>
-            {user.is_admin && (
-              <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
-                {user.is_super_admin ? 'Super Admin' : 'Admin'} Account
-              </Typography>
-            )}
+            <Chip
+              icon={user.is_super_admin ? <ShieldIcon /> : <BusinessIcon />}
+              label={user.is_super_admin ? 'Super Admin' : 'Admin'}
+              color={user.is_super_admin ? 'error' : 'primary'}
+              sx={{ mt: 1 }}
+            />
           </Paper>
 
-          {/* Profile Information */}
+          {/* Professional Information */}
           <Paper sx={{ p: 4, mb: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Profile Information
+                Professional Information
               </Typography>
               <Button
                 variant={editing ? 'outlined' : 'contained'}
@@ -357,10 +401,11 @@ const Profile = () => {
                   fullWidth
                   label="Email"
                   type="email"
+                  required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   disabled={!editing}
-                  error={editing && formData.email && !isValidEmail(formData.email)}
+                  error={editing && !!formData.email && !isValidEmail(formData.email)}
                   helperText={editing && formData.email && !isValidEmail(formData.email) ? 'Invalid email' : undefined}
                 />
               </Grid>
@@ -372,7 +417,7 @@ const Profile = () => {
                   value={formData.first_name}
                   onChange={(e) => setFormData({ ...formData, first_name: formatName(e.target.value) })}
                   disabled={!editing}
-                  error={editing && formData.first_name && !isValidName(formData.first_name)}
+                  error={editing && !!formData.first_name && !isValidName(formData.first_name)}
                   helperText={editing && formData.first_name && !isValidName(formData.first_name) ? 'Letters only, 2-50 chars' : undefined}
                 />
               </Grid>
@@ -383,8 +428,8 @@ const Profile = () => {
                   value={formData.middle_name}
                   onChange={(e) => setFormData({ ...formData, middle_name: formatName(e.target.value) })}
                   disabled={!editing}
-                  error={editing && formData.middle_name && !isValidName(formData.middle_name)}
-                  helperText={editing && formData.middle_name && !isValidName(formData.middle_name) ? 'Letters only, 2-50 chars' : 'Optional'}
+                  error={editing && !!formData.middle_name && !isValidName(formData.middle_name)}
+                  helperText={editing && formData.middle_name && !isValidName(formData.middle_name) ? 'Letters only' : 'Optional'}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
@@ -395,7 +440,7 @@ const Profile = () => {
                   value={formData.last_name}
                   onChange={(e) => setFormData({ ...formData, last_name: formatName(e.target.value) })}
                   disabled={!editing}
-                  error={editing && formData.last_name && !isValidName(formData.last_name)}
+                  error={editing && !!formData.last_name && !isValidName(formData.last_name)}
                   helperText={editing && formData.last_name && !isValidName(formData.last_name) ? 'Letters only, 2-50 chars' : undefined}
                 />
               </Grid>
@@ -406,9 +451,57 @@ const Profile = () => {
                   value={editing ? formData.phone : formatPhoneNumber(formData.phone)}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   disabled={!editing}
-                  error={editing && formData.phone && !isValidPhone(formData.phone)}
+                  error={editing && !!formData.phone && !isValidPhone(formData.phone)}
                   helperText={editing && formData.phone && !isValidPhone(formData.phone) ? 'Enter 10-digit phone' : undefined}
                 />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="MLO License Number"
+                  required
+                  value={formData.license_number}
+                  onChange={(e) => setFormData({ ...formData, license_number: e.target.value.toUpperCase() })}
+                  disabled={!editing}
+                  error={editing && !!formData.license_number && formData.license_number.length < 5}
+                  helperText={editing && formData.license_number && formData.license_number.length < 5 ? 'Minimum 5 characters' : 'Mortgage Loan Originator License'}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="NMLS ID"
+                  required
+                  value={formData.nmls_id}
+                  onChange={(e) => setFormData({ ...formData, nmls_id: e.target.value.replace(/\D/g, '') })}
+                  disabled={!editing}
+                  error={editing && !!formData.nmls_id && !/^\d{5,}$/.test(formData.nmls_id)}
+                  helperText={editing && formData.nmls_id && !/^\d{5,}$/.test(formData.nmls_id) ? 'Minimum 5 digits' : 'Nationwide Multistate Licensing System'}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth disabled={!editing}>
+                  <InputLabel>Territory (States)</InputLabel>
+                  <Select
+                    multiple
+                    value={formData.territory}
+                    onChange={handleTerritoryChange}
+                    input={<OutlinedInput label="Territory (States)" />}
+                    renderValue={(selected) => (
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selected.map((value) => (
+                          <Chip key={value} label={value} size="small" />
+                        ))}
+                      </Box>
+                    )}
+                  >
+                    {US_STATES.map((state) => (
+                      <MenuItem key={state} value={state}>
+                        {state}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
             </Grid>
 
@@ -509,4 +602,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default AdminProfile;

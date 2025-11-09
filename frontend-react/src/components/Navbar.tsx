@@ -217,11 +217,11 @@ const Navbar = ({ title = 'Mortgage Calculator', showUserMenu = true }: NavbarPr
                 </MenuItem>
               )}
 
-              <MenuItem onClick={() => handleNavigation('/profile')}>
+              <MenuItem onClick={() => handleNavigation(user.is_admin ? '/admin-profile' : '/profile')}>
                 <ListItemIcon>
                   <PersonIcon fontSize="small" />
                 </ListItemIcon>
-                Profile
+                {user.is_admin ? 'Admin Profile' : 'Profile'}
               </MenuItem>
 
               <Divider />
