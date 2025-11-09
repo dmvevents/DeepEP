@@ -26,6 +26,7 @@ import ErrorIcon from '@mui/icons-material/Error';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import Navbar from '../components/Navbar';
+import { formatCurrency, formatDate, formatRelativeTime, formatStatus } from '../utils/formatters';
 
 interface Application {
   id: string;
@@ -109,57 +110,40 @@ const MyApplications = () => {
       draft: {
         color: 'default',
         icon: <EditIcon fontSize="small" />,
-        label: 'Draft',
+        label: formatStatus('draft'),
       },
       submitted: {
         color: 'info',
         icon: <SendIcon fontSize="small" />,
-        label: 'Submitted',
+        label: formatStatus('submitted'),
       },
       under_review: {
         color: 'warning',
         icon: <HourglassEmptyIcon fontSize="small" />,
-        label: 'Under Review',
+        label: formatStatus('under_review'),
       },
       needs_correction: {
         color: 'error',
         icon: <ErrorIcon fontSize="small" />,
-        label: 'Needs Correction',
+        label: formatStatus('needs_correction'),
       },
       resubmitted: {
         color: 'info',
         icon: <RefreshIcon fontSize="small" />,
-        label: 'Resubmitted',
+        label: formatStatus('resubmitted'),
       },
       approved: {
         color: 'success',
         icon: <CheckCircleIcon fontSize="small" />,
-        label: 'Approved',
+        label: formatStatus('approved'),
       },
       rejected: {
         color: 'error',
         icon: <ErrorIcon fontSize="small" />,
-        label: 'Rejected',
+        label: formatStatus('rejected'),
       },
     };
     return configs[status] || configs.draft;
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
   };
 
   const handleNewApplication = () => {
@@ -382,7 +366,7 @@ const MyApplications = () => {
                               )}
                             </Box>
                             <Typography variant="caption" color="text.secondary">
-                              Created: {formatDate(app.created_at)} | Updated: {formatDate(app.updated_at)}
+                              Created: {formatDate(app.created_at)} | Last updated: {formatRelativeTime(app.updated_at)}
                             </Typography>
                           </Box>
                           <Chip

@@ -42,6 +42,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { propertyApi, calculateQualification } from '../services/api';
 import type { PropertyLookupResponse } from '../services/api';
 import Navbar from '../components/Navbar';
+import { formatCurrency, formatPercentage } from '../utils/formatters';
 
 interface UploadedFiles {
   paystub: File[];
@@ -961,25 +962,25 @@ const MortgageApplication = () => {
                         <Typography variant="body2" color="text.secondary">Monthly Income:</Typography>
                       </Grid>
                       <Grid item xs={6}>
-                        <Typography variant="body2">${qualificationResults.monthly_income.toFixed(0)}</Typography>
+                        <Typography variant="body2">{formatCurrency(qualificationResults.monthly_income)}</Typography>
                       </Grid>
                       <Grid item xs={6}>
                         <Typography variant="body2" color="text.secondary">Housing Payment:</Typography>
                       </Grid>
                       <Grid item xs={6}>
-                        <Typography variant="body2">${qualificationResults.housing_payment.toFixed(0)}</Typography>
+                        <Typography variant="body2">{formatCurrency(qualificationResults.housing_payment)}</Typography>
                       </Grid>
                       <Grid item xs={6}>
                         <Typography variant="body2" color="text.secondary">Front-End DTI:</Typography>
                       </Grid>
                       <Grid item xs={6}>
-                        <Typography variant="body2">{qualificationResults.front_end_dti.toFixed(2)}%</Typography>
+                        <Typography variant="body2">{formatPercentage(qualificationResults.front_end_dti, 2)}</Typography>
                       </Grid>
                       <Grid item xs={6}>
                         <Typography variant="body2" color="text.secondary">Back-End DTI:</Typography>
                       </Grid>
                       <Grid item xs={6}>
-                        <Typography variant="body2">{qualificationResults.back_end_dti.toFixed(2)}%</Typography>
+                        <Typography variant="body2">{formatPercentage(qualificationResults.back_end_dti, 2)}</Typography>
                       </Grid>
                       <Grid item xs={12}>
                         <Typography variant="body2" color="text.secondary">Qualified Loan Types:</Typography>

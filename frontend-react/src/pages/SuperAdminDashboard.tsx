@@ -46,6 +46,14 @@ import WarningIcon from '@mui/icons-material/Warning';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Navbar from '../components/Navbar';
 import type { AdminProfile, AuditLog } from '../types/admin';
+import {
+  formatPhoneNumber,
+  formatDate,
+  formatDateTime,
+  formatRelativeTime,
+  formatNumber,
+  formatPercentage,
+} from '../utils/formatters';
 
 const SuperAdminDashboard = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -279,28 +287,6 @@ const SuperAdminDashboard = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const formatRelativeTime = (dateString: string) => {
-    const now = new Date();
-    const then = new Date(dateString);
-    const diffMs = now.getTime() - then.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffMins < 60) return `${diffMins} minutes ago`;
-    if (diffHours < 24) return `${diffHours} hours ago`;
-    return `${diffDays} days ago`;
-  };
 
   const getStats = () => {
     const activeAdmins = admins.filter(a => a.is_active).length;
@@ -544,7 +530,7 @@ const SuperAdminDashboard = () => {
                         <TableCell>
                           <Typography variant="body2">{admin.email}</Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {admin.phone}
+                            {formatPhoneNumber(admin.phone)}
                           </Typography>
                         </TableCell>
                         <TableCell>
@@ -561,9 +547,9 @@ const SuperAdminDashboard = () => {
                           </Box>
                         </TableCell>
                         <TableCell>
-                          <Typography variant="body2">{admin.applications_reviewed} reviews</Typography>
+                          <Typography variant="body2">{formatNumber(admin.applications_reviewed || 0)} reviews</Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {admin.approval_rate}% approval • {admin.avg_review_time_hours}h avg
+                            {formatPercentage(admin.approval_rate || 0, 0)} approval • {admin.avg_review_time_hours}h avg
                           </Typography>
                         </TableCell>
                         <TableCell>
@@ -647,7 +633,7 @@ const SuperAdminDashboard = () => {
                     {auditLogs.map((log) => (
                       <TableRow key={log.id} hover>
                         <TableCell>
-                          <Typography variant="body2">{formatDate(log.timestamp)}</Typography>
+                          <Typography variant="body2">{formatDateTime(log.timestamp)}</Typography>
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2" sx={{ fontWeight: 600 }}>

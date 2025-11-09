@@ -35,6 +35,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ToggleOffIcon from '@mui/icons-material/ToggleOff';
 import ToggleOnIcon from '@mui/icons-material/ToggleOn';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { formatCurrency, formatDate, formatDTI } from '../utils/formatters';
 
 interface Borrower {
   id: number;
@@ -387,8 +388,14 @@ const AdminDashboard = () => {
                         <TableCell>{borrower.loanNumber}</TableCell>
                         <TableCell>{borrower.name}</TableCell>
                         <TableCell>{borrower.propertyAddress}</TableCell>
-                        <TableCell>${borrower.maxLoanAmount.toLocaleString()}</TableCell>
-                        <TableCell>{borrower.dtiRatio.toFixed(1)}%</TableCell>
+                        <TableCell>{formatCurrency(borrower.maxLoanAmount)}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={formatDTI(borrower.dtiRatio).formatted}
+                            color={formatDTI(borrower.dtiRatio).risk === 'high' ? 'error' : formatDTI(borrower.dtiRatio).risk === 'medium' ? 'warning' : 'success'}
+                            size="small"
+                          />
+                        </TableCell>
                         <TableCell>
                           <Chip label={borrower.status} color={getStatusColor(borrower.status)} size="small" />
                         </TableCell>
@@ -444,7 +451,7 @@ const AdminDashboard = () => {
                             {doc.name}
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
-                            Type: {doc.type} | Uploaded: {doc.uploadDate}
+                            Type: {doc.type} | Uploaded: {formatDate(doc.uploadDate)}
                           </Typography>
                         </Box>
                         <Box>
@@ -484,7 +491,7 @@ const AdminDashboard = () => {
                       {borrower.name} ({borrower.loanNumber})
                     </Typography>
                     <Typography variant="body2">
-                      DTI Ratio: <strong>{borrower.dtiRatio.toFixed(1)}%</strong> | Max Loan Amount: ${borrower.maxLoanAmount.toLocaleString()}
+                      DTI Ratio: <strong>{formatDTI(borrower.dtiRatio).formatted}</strong> | Max Loan Amount: {formatCurrency(borrower.maxLoanAmount)}
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>
                       <strong>Suggestions:</strong>
