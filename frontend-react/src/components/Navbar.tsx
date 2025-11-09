@@ -20,6 +20,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
 import HomeIcon from '@mui/icons-material/Home';
 import ShieldIcon from '@mui/icons-material/Shield';
+import { getInitials } from '../utils/formatters';
 
 interface NavbarProps {
   title?: string;
@@ -63,14 +64,6 @@ const Navbar = ({ title = 'Mortgage Calculator', showUserMenu = true }: NavbarPr
     navigate(path);
   };
 
-  const getInitials = (name: string) => {
-    if (!name) return 'U';
-    const parts = name.split(' ');
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    }
-    return name[0].toUpperCase();
-  };
 
   return (
     <AppBar
@@ -143,8 +136,9 @@ const Navbar = ({ title = 'Mortgage Calculator', showUserMenu = true }: NavbarPr
                     fontSize: '0.875rem',
                     fontWeight: 600,
                   }}
+                  src={user.profile_picture}
                 >
-                  {getInitials(user.username || user.email || 'User')}
+                  {!user.profile_picture && getInitials(user.username || user.email || 'User')}
                 </Avatar>
               </IconButton>
             </Box>
