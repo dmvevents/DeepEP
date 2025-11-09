@@ -88,6 +88,14 @@ const MortgageApplication = () => {
   const [phone, setPhone] = useState('');
   const [ssn, setSsn] = useState('');
 
+  // Employment & Income
+  const [employmentStatus, setEmploymentStatus] = useState('employed');
+  const [employer, setEmployer] = useState('');
+  const [jobTitle, setJobTitle] = useState('');
+  const [employmentYears, setEmploymentYears] = useState(0);
+  const [annualIncome, setAnnualIncome] = useState(0);
+  const [additionalIncome, setAdditionalIncome] = useState(0);
+
   // Step 2: Loan Details
   const [propertyValue, setPropertyValue] = useState(500000);
   const [loanAmount, setLoanAmount] = useState(400000);
@@ -159,6 +167,12 @@ const MortgageApplication = () => {
       email,
       phone,
       ssn,
+      employmentStatus,
+      employer,
+      jobTitle,
+      employmentYears,
+      annualIncome,
+      additionalIncome,
       propertyValue,
       loanAmount,
       interestRate,
@@ -212,6 +226,12 @@ const MortgageApplication = () => {
       setEmail(draft.email || '');
       setPhone(draft.phone || '');
       setSsn(draft.ssn || '');
+      setEmploymentStatus(draft.employmentStatus || 'employed');
+      setEmployer(draft.employer || '');
+      setJobTitle(draft.jobTitle || '');
+      setEmploymentYears(draft.employmentYears || 0);
+      setAnnualIncome(draft.annualIncome || 0);
+      setAdditionalIncome(draft.additionalIncome || 0);
       setPropertyValue(draft.propertyValue || 500000);
       setLoanAmount(draft.loanAmount || 400000);
       setInterestRate(draft.interestRate || 6.5);
@@ -695,6 +715,85 @@ const MortgageApplication = () => {
                     helperText={ssn && !isValidSSN(ssn) ? 'Enter 9-digit SSN' : 'Numbers only (9 digits)'}
                     inputProps={{ maxLength: 9 }}
                     placeholder="123456789"
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+
+            {/* Employment & Income Section */}
+            <Paper sx={{ p: 3, mb: 4, bgcolor: '#f8f9fa' }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+                Employment & Income
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Employment Status</InputLabel>
+                    <Select
+                      value={employmentStatus}
+                      label="Employment Status"
+                      onChange={(e) => setEmploymentStatus(e.target.value)}
+                    >
+                      <MenuItem value="employed">Employed</MenuItem>
+                      <MenuItem value="self_employed">Self-Employed</MenuItem>
+                      <MenuItem value="retired">Retired</MenuItem>
+                      <MenuItem value="unemployed">Unemployed</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Years at Current Employment"
+                    type="number"
+                    value={employmentYears}
+                    onChange={(e) => setEmploymentYears(Number(e.target.value))}
+                    inputProps={{ min: 0, step: 0.5 }}
+                    helperText="Include months as decimals (e.g., 2.5 years)"
+                  />
+                </Grid>
+                {employmentStatus !== 'unemployed' && employmentStatus !== 'retired' && (
+                  <>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Employer Name"
+                        value={employer}
+                        onChange={(e) => setEmployer(e.target.value)}
+                        required={employmentStatus === 'employed' || employmentStatus === 'self_employed'}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Job Title / Position"
+                        value={jobTitle}
+                        onChange={(e) => setJobTitle(e.target.value)}
+                      />
+                    </Grid>
+                  </>
+                )}
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Annual Gross Income"
+                    type="number"
+                    required
+                    value={annualIncome}
+                    onChange={(e) => setAnnualIncome(Number(e.target.value))}
+                    inputProps={{ min: 0 }}
+                    helperText={annualIncome > 0 ? `${formatCurrency(annualIncome)}/year` : 'Before taxes'}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Additional Monthly Income"
+                    type="number"
+                    value={additionalIncome}
+                    onChange={(e) => setAdditionalIncome(Number(e.target.value))}
+                    inputProps={{ min: 0 }}
+                    helperText={additionalIncome > 0 ? `${formatCurrency(additionalIncome)}/month` : 'Bonuses, rental, etc. (optional)'}
                   />
                 </Grid>
               </Grid>
