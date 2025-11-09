@@ -453,6 +453,7 @@ const MortgageApplication = () => {
               value={propertyAddress}
               onChange={(e) => setPropertyAddress(e.target.value)}
               placeholder="123 Main Street, Rockville, MD 20850"
+              helperText="Include street address, city, state, and ZIP code for accurate results"
               sx={{ mb: 3 }}
             />
 
@@ -519,7 +520,9 @@ const MortgageApplication = () => {
                           County
                         </Typography>
                         <Typography variant="body2" fontWeight={600}>
-                          {propertyData.address.county} County, {propertyData.address.state}
+                          {propertyData.address.county
+                            ? `${propertyData.address.county} County, ${propertyData.address.state}`
+                            : `${propertyData.address.state || 'Unknown'} (County not found)`}
                         </Typography>
                       </Box>
                     </Grid>
@@ -566,6 +569,24 @@ const MortgageApplication = () => {
                   </Grid>
                 </CardContent>
               </Card>
+            )}
+
+            {/* Low Confidence Warning */}
+            {propertyData && propertyData.confidence_score < 70 && (
+              <Alert severity="warning" sx={{ mt: 3 }}>
+                <strong>⚠️ Incomplete Address Data</strong>
+                <br />
+                The property lookup returned low confidence results ({propertyData.confidence_score}%).
+                This usually means the address is incomplete or ambiguous.
+                <br /><br />
+                <strong>Tips for better results:</strong>
+                <ul style={{ marginTop: 8, marginBottom: 0 }}>
+                  <li>Include the complete street address</li>
+                  <li>Add the city name</li>
+                  <li>Include the ZIP code</li>
+                  <li>Example: "12575 Indian Hill Dr, Rockville, MD 20850"</li>
+                </ul>
+              </Alert>
             )}
 
             {propertyData && (
