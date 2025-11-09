@@ -6,6 +6,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import DocumentUpload from './pages/DocumentUpload';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import MyApplications from './pages/MyApplications';
 
 const theme = createTheme({
   palette: {
@@ -47,6 +48,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/mortgage-application" element={<MortgageApplication />} />
+          <Route path="/my-applications" element={<MyApplications />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/documents" element={<DocumentUpload />} />
           <Route path="*" element={<Navigate to="/" replace />} />
