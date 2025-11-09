@@ -15,6 +15,7 @@ interface AddressSuggestion {
     state?: string;
     postcode?: string;
     country?: string;
+    countrycode?: string;
   };
   geometry: {
     coordinates: [number, number];
@@ -43,10 +44,17 @@ const AddressAutocomplete = ({ value, onChange, textFieldProps }: AddressAutocom
     setLoading(true);
     try {
       const response = await fetch(
-        `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&countrycodes=us`
+        `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5`
       );
       const data = await response.json();
-      setOptions(data.features || []);
+
+      // Filter for US addresses only
+      const usAddresses = (data.features || []).filter(
+        (feature: AddressSuggestion) =>
+          feature.properties.countrycode === 'US' || feature.properties.country === 'United States'
+      );
+
+      setOptions(usAddresses);
     } catch (error) {
       console.error('Error fetching address suggestions:', error);
       setOptions([]);
@@ -88,6 +96,7 @@ const AddressAutocomplete = ({ value, onChange, textFieldProps }: AddressAutocom
   return (
     <MuiAutocomplete
       freeSolo
+      open={loading || options.length > 0}
       options={options}
       loading={loading}
       inputValue={inputValue}
@@ -104,6 +113,12 @@ const AddressAutocomplete = ({ value, onChange, textFieldProps }: AddressAutocom
           setInputValue(formatted);
           onChange(formatted);
           setOptions([]); // Clear options after selection
+        }
+      }}
+      onClose={() => {
+        // Only clear options when closing, not during loading
+        if (!loading) {
+          setOptions([]);
         }
       }}
       getOptionLabel={(option) => {
