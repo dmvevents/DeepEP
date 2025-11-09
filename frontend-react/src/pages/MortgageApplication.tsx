@@ -42,7 +42,16 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { propertyApi, calculateQualification } from '../services/api';
 import type { PropertyLookupResponse } from '../services/api';
 import Navbar from '../components/Navbar';
-import { formatCurrency, formatPercentage } from '../utils/formatters';
+import {
+  formatCurrency,
+  formatPercentage,
+  formatName,
+  formatSSN,
+  isValidName,
+  isValidEmail,
+  isValidPhone,
+  isValidSSN,
+} from '../utils/formatters';
 
 interface UploadedFiles {
   paystub: File[];
@@ -69,6 +78,14 @@ const MortgageApplication = () => {
   // Step 1: Property Address
   const [propertyAddress, setPropertyAddress] = useState('');
   const [propertyData, setPropertyData] = useState<PropertyLookupResponse | null>(null);
+
+  // Borrower Information
+  const [firstName, setFirstName] = useState('');
+  const [middleName, setMiddleName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [ssn, setSsn] = useState('');
 
   // Step 2: Loan Details
   const [propertyValue, setPropertyValue] = useState(500000);
@@ -135,6 +152,12 @@ const MortgageApplication = () => {
     const draftData = {
       activeStep,
       propertyAddress,
+      firstName,
+      middleName,
+      lastName,
+      email,
+      phone,
+      ssn,
       propertyValue,
       loanAmount,
       interestRate,
@@ -182,6 +205,12 @@ const MortgageApplication = () => {
       const draft = JSON.parse(draftData);
       setActiveStep(draft.activeStep || 0);
       setPropertyAddress(draft.propertyAddress || '');
+      setFirstName(draft.firstName || '');
+      setMiddleName(draft.middleName || '');
+      setLastName(draft.lastName || '');
+      setEmail(draft.email || '');
+      setPhone(draft.phone || '');
+      setSsn(draft.ssn || '');
       setPropertyValue(draft.propertyValue || 500000);
       setLoanAmount(draft.loanAmount || 400000);
       setInterestRate(draft.interestRate || 6.5);
@@ -569,6 +598,88 @@ const MortgageApplication = () => {
               Property costs are auto-filled from our database
             </Typography>
 
+            {/* Borrower Information Section */}
+            <Paper sx={{ p: 3, mb: 4, bgcolor: '#f8f9fa' }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+                Borrower Information
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    fullWidth
+                    label="First Name"
+                    required
+                    value={firstName}
+                    onChange={(e) => setFirstName(formatName(e.target.value))}
+                    error={!!firstName && !isValidName(firstName)}
+                    helperText={firstName && !isValidName(firstName) ? 'Letters only, 2-50 chars' : undefined}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    fullWidth
+                    label="Middle Name"
+                    value={middleName}
+                    onChange={(e) => setMiddleName(formatName(e.target.value))}
+                    error={!!middleName && !isValidName(middleName)}
+                    helperText={middleName && !isValidName(middleName) ? 'Letters only' : 'Optional'}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    fullWidth
+                    label="Last Name"
+                    required
+                    value={lastName}
+                    onChange={(e) => setLastName(formatName(e.target.value))}
+                    error={!!lastName && !isValidName(lastName)}
+                    helperText={lastName && !isValidName(lastName) ? 'Letters only, 2-50 chars' : undefined}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    error={!!email && !isValidEmail(email)}
+                    helperText={email && !isValidEmail(email) ? 'Invalid email address' : undefined}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Phone"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                    error={!!phone && !isValidPhone(phone)}
+                    helperText={phone && !isValidPhone(phone) ? 'Enter 10-digit phone' : 'Numbers only'}
+                    inputProps={{ maxLength: 10 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Social Security Number (SSN)"
+                    required
+                    value={ssn}
+                    onChange={(e) => setSsn(e.target.value.replace(/\D/g, ''))}
+                    error={!!ssn && !isValidSSN(ssn)}
+                    helperText={ssn && !isValidSSN(ssn) ? 'Enter 9-digit SSN' : 'Numbers only (9 digits)'}
+                    inputProps={{ maxLength: 9 }}
+                    placeholder="123456789"
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+
+            {/* Loan Details Section */}
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+              Loan Details
+            </Typography>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6}>
                 <TextField
