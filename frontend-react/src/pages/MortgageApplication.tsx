@@ -96,6 +96,15 @@ const MortgageApplication = () => {
   const [annualIncome, setAnnualIncome] = useState(0);
   const [additionalIncome, setAdditionalIncome] = useState(0);
 
+  // Assets & Down Payment
+  const [downPaymentSource, setDownPaymentSource] = useState('savings');
+  const [checkingBalance, setCheckingBalance] = useState(0);
+  const [savingsBalance, setSavingsBalance] = useState(0);
+  const [investmentBalance, setInvestmentBalance] = useState(0);
+  const [retirementBalance, setRetirementBalance] = useState(0);
+  const [giftFunds, setGiftFunds] = useState(0);
+  const [otherAssets, setOtherAssets] = useState(0);
+
   // Step 2: Loan Details
   const [propertyValue, setPropertyValue] = useState(500000);
   const [loanAmount, setLoanAmount] = useState(400000);
@@ -173,6 +182,13 @@ const MortgageApplication = () => {
       employmentYears,
       annualIncome,
       additionalIncome,
+      downPaymentSource,
+      checkingBalance,
+      savingsBalance,
+      investmentBalance,
+      retirementBalance,
+      giftFunds,
+      otherAssets,
       propertyValue,
       loanAmount,
       interestRate,
@@ -232,6 +248,13 @@ const MortgageApplication = () => {
       setEmploymentYears(draft.employmentYears || 0);
       setAnnualIncome(draft.annualIncome || 0);
       setAdditionalIncome(draft.additionalIncome || 0);
+      setDownPaymentSource(draft.downPaymentSource || 'savings');
+      setCheckingBalance(draft.checkingBalance || 0);
+      setSavingsBalance(draft.savingsBalance || 0);
+      setInvestmentBalance(draft.investmentBalance || 0);
+      setRetirementBalance(draft.retirementBalance || 0);
+      setGiftFunds(draft.giftFunds || 0);
+      setOtherAssets(draft.otherAssets || 0);
       setPropertyValue(draft.propertyValue || 500000);
       setLoanAmount(draft.loanAmount || 400000);
       setInterestRate(draft.interestRate || 6.5);
@@ -797,6 +820,109 @@ const MortgageApplication = () => {
                   />
                 </Grid>
               </Grid>
+            </Paper>
+
+            {/* Assets & Down Payment Section */}
+            <Paper sx={{ p: 3, mb: 4, bgcolor: '#f8f9fa' }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+                Assets & Down Payment
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <FormControl fullWidth>
+                    <InputLabel>Down Payment Source</InputLabel>
+                    <Select
+                      value={downPaymentSource}
+                      label="Down Payment Source"
+                      onChange={(e) => setDownPaymentSource(e.target.value)}
+                    >
+                      <MenuItem value="savings">Savings/Checking</MenuItem>
+                      <MenuItem value="investment">Investment Accounts</MenuItem>
+                      <MenuItem value="gift">Gift Funds</MenuItem>
+                      <MenuItem value="sale">Sale of Current Property</MenuItem>
+                      <MenuItem value="combination">Combination of Sources</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Checking Account Balance"
+                    type="number"
+                    value={checkingBalance}
+                    onChange={(e) => setCheckingBalance(Number(e.target.value))}
+                    inputProps={{ min: 0 }}
+                    helperText={checkingBalance > 0 ? formatCurrency(checkingBalance) : 'Liquid cash available'}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Savings Account Balance"
+                    type="number"
+                    value={savingsBalance}
+                    onChange={(e) => setSavingsBalance(Number(e.target.value))}
+                    inputProps={{ min: 0 }}
+                    helperText={savingsBalance > 0 ? formatCurrency(savingsBalance) : 'Emergency and down payment funds'}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Investment Accounts"
+                    type="number"
+                    value={investmentBalance}
+                    onChange={(e) => setInvestmentBalance(Number(e.target.value))}
+                    inputProps={{ min: 0 }}
+                    helperText={investmentBalance > 0 ? formatCurrency(investmentBalance) : 'Stocks, bonds, mutual funds (optional)'}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Retirement Accounts (401k, IRA)"
+                    type="number"
+                    value={retirementBalance}
+                    onChange={(e) => setRetirementBalance(Number(e.target.value))}
+                    inputProps={{ min: 0 }}
+                    helperText={retirementBalance > 0 ? formatCurrency(retirementBalance) : 'For reserves calculation (optional)'}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Gift Funds"
+                    type="number"
+                    value={giftFunds}
+                    onChange={(e) => setGiftFunds(Number(e.target.value))}
+                    inputProps={{ min: 0 }}
+                    helperText={giftFunds > 0 ? formatCurrency(giftFunds) : 'From family members (requires gift letter)'}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Other Liquid Assets"
+                    type="number"
+                    value={otherAssets}
+                    onChange={(e) => setOtherAssets(Number(e.target.value))}
+                    inputProps={{ min: 0 }}
+                    helperText={otherAssets > 0 ? formatCurrency(otherAssets) : 'CDs, money market, etc. (optional)'}
+                  />
+                </Grid>
+              </Grid>
+
+              {/* Total Assets Summary */}
+              <Box sx={{ mt: 3, p: 2, bgcolor: '#e3f2fd', borderRadius: 1 }}>
+                <Typography variant="body1" sx={{ fontWeight: 600, color: '#1976d2' }}>
+                  Total Liquid Assets: {formatCurrency(
+                    checkingBalance + savingsBalance + investmentBalance + giftFunds + otherAssets
+                  )}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Lenders typically require 2-6 months of reserves (mortgage + taxes + insurance + HOA)
+                </Typography>
+              </Box>
             </Paper>
 
             {/* Loan Details Section */}
