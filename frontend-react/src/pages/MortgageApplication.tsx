@@ -22,7 +22,16 @@ import {
   DialogContent,
   Card,
   CardContent,
+  Chip,
+  Tooltip,
+  IconButton,
+  LinearProgress,
 } from '@mui/material';
+import HomeIcon from '@mui/icons-material/Home';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { propertyApi, calculateQualification } from '../services/api';
 import type { PropertyLookupResponse } from '../services/api';
 
@@ -893,6 +902,81 @@ const MortgageApplication = () => {
           >
             Smart qualification system with automatic property lookup
           </Typography>
+
+          {/* Trust Badges */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 2,
+              justifyContent: 'center',
+              mt: 3,
+            }}
+          >
+            <Chip
+              icon={<VerifiedUserIcon />}
+              label="Secure & Confidential"
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                backdropFilter: 'blur(10px)',
+                fontWeight: 600,
+              }}
+            />
+            <Chip
+              icon={<HomeIcon />}
+              label="All 50 States"
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                backdropFilter: 'blur(10px)',
+                fontWeight: 600,
+              }}
+            />
+            <Chip
+              icon={<TrendingUpIcon />}
+              label="Real-Time Data"
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                backdropFilter: 'blur(10px)',
+                fontWeight: 600,
+              }}
+            />
+          </Box>
+        </Box>
+
+        {/* Progress Indicator with Percentage */}
+        <Box
+          sx={{
+            bgcolor: 'rgba(255,255,255,0.15)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: 2,
+            p: 2,
+            mb: 3,
+          }}
+        >
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+            <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+              Application Progress
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+              {Math.round(((activeStep + 1) / steps.length) * 100)}% Complete
+            </Typography>
+          </Box>
+          <LinearProgress
+            variant="determinate"
+            value={((activeStep + 1) / steps.length) * 100}
+            sx={{
+              height: 8,
+              borderRadius: 4,
+              bgcolor: 'rgba(255,255,255,0.3)',
+              '& .MuiLinearProgress-bar': {
+                bgcolor: 'white',
+                borderRadius: 4,
+              },
+            }}
+          />
         </Box>
 
         <Stepper
