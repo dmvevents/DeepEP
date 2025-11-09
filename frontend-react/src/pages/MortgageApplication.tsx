@@ -41,6 +41,7 @@ import RestoreIcon from '@mui/icons-material/Restore';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { propertyApi, calculateQualification } from '../services/api';
 import type { PropertyLookupResponse } from '../services/api';
+import Navbar from '../components/Navbar';
 
 interface UploadedFiles {
   paystub: File[];
@@ -988,38 +989,42 @@ const MortgageApplication = () => {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        width: '100%',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        py: { xs: 2, sm: 3, md: 4 },
-        px: { xs: 1, sm: 2, md: 3 },
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <Container
-        maxWidth="xl"
-        disableGutters
+    <>
+      {/* Navigation Bar */}
+      <Navbar title="Mortgage Application" />
+
+      <Box
         sx={{
+          minHeight: 'calc(100vh - 64px)', // Subtract navbar height
           width: '100%',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          py: { xs: 2, sm: 3, md: 4 },
           px: { xs: 1, sm: 2, md: 3 },
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        <Box textAlign="center" mb={{ xs: 2, sm: 3, md: 4 }}>
-          <Typography
-            variant="h3"
-            component="h1"
-            gutterBottom
-            sx={{
-              color: 'white',
-              fontWeight: 700,
-              fontSize: { xs: '1.75rem', sm: '2.5rem', md: '3rem' },
-            }}
-          >
-            🏠 Mortgage Application
-          </Typography>
+        <Container
+          maxWidth="xl"
+          disableGutters
+          sx={{
+            width: '100%',
+            px: { xs: 1, sm: 2, md: 3 },
+          }}
+        >
+          <Box textAlign="center" mb={{ xs: 2, sm: 3, md: 4 }}>
+            <Typography
+              variant="h3"
+              component="h1"
+              gutterBottom
+              sx={{
+                color: 'white',
+                fontWeight: 700,
+                fontSize: { xs: '1.75rem', sm: '2.5rem', md: '3rem' },
+              }}
+            >
+              🏠 Mortgage Application
+            </Typography>
           <Typography
             variant="h6"
             sx={{
@@ -1282,7 +1287,8 @@ const MortgageApplication = () => {
           Progress saved! Redirecting to home...
         </Alert>
       </Snackbar>
-    </Box>
+      </Box>
+    </>
   );
 };
 
