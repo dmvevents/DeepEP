@@ -7,6 +7,7 @@ import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import DocumentUpload from './pages/DocumentUpload';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import MyApplications from './pages/MyApplications';
 import Profile from './pages/Profile';
 import AdminProfile from './pages/AdminProfile';
@@ -50,6 +51,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/mortgage-application" element={<MortgageApplication />} />
           <Route path="/my-applications" element={<MyApplications />} />
           <Route path="/profile" element={<Profile />} />

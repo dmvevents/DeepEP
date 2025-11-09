@@ -188,6 +188,22 @@ const Login = () => {
             </Typography>
           </Box>
 
+          <Divider sx={{ my: 3 }} />
+
+          <Box textAlign="center">
+            <Typography variant="body2">
+              Don't have an account?{' '}
+              <Link
+                component="button"
+                variant="body2"
+                onClick={() => navigate('/register')}
+                sx={{ textDecoration: 'none', fontWeight: 600 }}
+              >
+                Sign Up
+              </Link>
+            </Typography>
+          </Box>
+
           <Box mt={3} textAlign="center">
             <Button
               variant="outlined"
