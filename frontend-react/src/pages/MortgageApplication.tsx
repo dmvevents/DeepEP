@@ -99,6 +99,10 @@ const MortgageApplication = () => {
   // Step 5: Results
   const [qualificationResults, setQualificationResults] = useState<any>(null);
 
+  // Snackbar state
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
   // Check for existing draft on mount
   useEffect(() => {
     const draftData = localStorage.getItem(DRAFT_KEY);
