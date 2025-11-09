@@ -91,15 +91,19 @@ const AddressAutocomplete = ({ value, onChange, textFieldProps }: AddressAutocom
       options={options}
       loading={loading}
       inputValue={inputValue}
-      onInputChange={(_, newValue) => {
-        setInputValue(newValue);
-        onChange(newValue);
+      onInputChange={(event, newValue, reason) => {
+        // Only update if user is typing (not when selecting from dropdown)
+        if (reason === 'input') {
+          setInputValue(newValue);
+          onChange(newValue);
+        }
       }}
       onChange={(_, newValue) => {
         if (newValue && typeof newValue === 'object') {
           const formatted = formatSuggestion(newValue as AddressSuggestion);
           setInputValue(formatted);
           onChange(formatted);
+          setOptions([]); // Clear options after selection
         }
       }}
       getOptionLabel={(option) => {
@@ -122,6 +126,8 @@ const AddressAutocomplete = ({ value, onChange, textFieldProps }: AddressAutocom
         />
       )}
       filterOptions={(x) => x} // Don't filter, use API results as-is
+      blurOnSelect
+      clearOnBlur={false}
     />
   );
 };
