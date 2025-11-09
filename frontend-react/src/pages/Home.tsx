@@ -23,6 +23,7 @@ import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import SearchIcon from '@mui/icons-material/Search';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import HomeWorkIcon from '@mui/icons-material/HomeWork';
+import Navbar from '../components/Navbar';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -52,17 +53,19 @@ const Home = () => {
   ];
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        width: '100%',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        py: { xs: 4, sm: 6, md: 8 },
-        px: { xs: 2, sm: 3, md: 4 },
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
+    <>
+      <Navbar title="Home" showUserMenu={true} />
+      <Box
+        sx={{
+          minHeight: 'calc(100vh - 64px)',
+          width: '100%',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          py: { xs: 4, sm: 6, md: 8 },
+          px: { xs: 2, sm: 3, md: 4 },
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
       <Container
         maxWidth="xl"
         disableGutters
@@ -570,7 +573,8 @@ const Home = () => {
           </Typography>
         </Box>
       </Container>
-    </Box>
+      </Box>
+    </>
   );
 };
 

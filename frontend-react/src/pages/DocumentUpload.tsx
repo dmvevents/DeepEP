@@ -24,6 +24,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import { ocrApi } from '../services/api';
+import Navbar from '../components/Navbar';
 
 interface UploadedDocument {
   id: string;
@@ -139,15 +140,17 @@ const DocumentUpload = () => {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        width: '100%',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        py: { xs: 2, sm: 3, md: 4 },
-        px: { xs: 1, sm: 2, md: 3 },
-      }}
-    >
+    <>
+      <Navbar title="Document Upload" />
+      <Box
+        sx={{
+          minHeight: 'calc(100vh - 64px)',
+          width: '100%',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          py: { xs: 2, sm: 3, md: 4 },
+          px: { xs: 1, sm: 2, md: 3 },
+        }}
+      >
       <Container maxWidth="xl" disableGutters sx={{ width: '100%', px: { xs: 1, sm: 2, md: 3 } }}>
         <Box textAlign="center" mb={{ xs: 3, sm: 4 }}>
           <Typography
@@ -392,6 +395,7 @@ const DocumentUpload = () => {
         </Box>
       </Container>
     </Box>
+    </>
   );
 };
 
