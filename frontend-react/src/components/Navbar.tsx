@@ -19,6 +19,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
 import HomeIcon from '@mui/icons-material/Home';
 import ShieldIcon from '@mui/icons-material/Shield';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import { getInitials } from '../utils/formatters';
 
 interface NavbarProps {
@@ -195,6 +196,15 @@ const Navbar = ({ title = 'Mortgage Calculator', showUserMenu = true }: NavbarPr
                     <AssignmentIcon fontSize="small" />
                   </ListItemIcon>
                   My Applications
+                </MenuItem>
+              )}
+
+              {!user.is_admin && (
+                <MenuItem onClick={() => handleNavigation('/scenario-desk')}>
+                  <ListItemIcon>
+                    <CompareArrowsIcon fontSize="small" />
+                  </ListItemIcon>
+                  Scenario Desk
                 </MenuItem>
               )}
 
