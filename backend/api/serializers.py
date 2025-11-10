@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from .models import (
     State, County, TaxData, Municipality,
     ScraperLog, UserProfile, LoanEstimate,
-    CreditReport, Tradeline, AuditEvent, DocTask
+    CreditReport, Tradeline, AuditEvent, DocTask, PreApproval
 )
 
 
@@ -575,3 +575,67 @@ class DocTaskAdminUpdateSerializer(serializers.ModelSerializer):
             # Allow admin to reopen tasks if needed
             pass
         return value
+
+
+class PreApprovalSerializer(serializers.ModelSerializer):
+    """Serializer for PreApproval model"""
+    user_name = serializers.CharField(source='user.username', read_only=True)
+    approved_by_name = serializers.CharField(source='approved_by.username', read_only=True, allow_null=True)
+    is_expired = serializers.BooleanField(read_only=True)
+    down_payment_percentage = serializers.DecimalField(max_digits=5, decimal_places=2, read_only=True)
+    loan_to_value = serializers.DecimalField(max_digits=5, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = PreApproval
+        fields = [
+            'id', 'user', 'user_name', 'loan_estimate',
+            'borrower_name', 'co_borrower_name', 'borrower_email', 'borrower_phone',
+            'annual_income', 'monthly_income', 'total_assets', 'total_liabilities',
+            'credit_score_estimate', 'front_end_dti', 'back_end_dti',
+            'property_address', 'property_value_estimate', 'down_payment_amount',
+            'loan_type', 'max_loan_amount', 'max_purchase_price', 'estimated_rate',
+            'expiration_date', 'status', 'letter_generated_at', 'letter_published_at',
+            'letter_pdf_path', 'created_at', 'updated_at', 'submitted_at',
+            'approved_at', 'approved_by', 'approved_by_name', 'internal_notes',
+            'conditions', 'is_expired', 'down_payment_percentage', 'loan_to_value'
+        ]
+        read_only_fields = [
+            'id', 'user', 'user_name', 'created_at', 'updated_at',
+            'letter_generated_at', 'letter_published_at', 'letter_pdf_path',
+            'submitted_at', 'approved_at', 'approved_by', 'approved_by_name',
+            'is_expired', 'down_payment_percentage', 'loan_to_value'
+        ]
+
+    def validate(self, data):
+        """Validate pre-approval data"""
+        # Ensure down payment doesn't exceed property value
+        if 'down_payment_amount' in data and 'property_value_estimate' in data:
+            if data['down_payment_amount'] > data['property_value_estimate']:
+                raise serializers.ValidationError(
+                    "Down payment cannot exceed property value"
+                )
+
+        # Ensure max loan amount is reasonable
+        if 'max_loan_amount' in data and 'property_value_estimate' in data:
+            loan_amount = data['property_value_estimate'] - data.get('down_payment_amount', 0)
+            if data['max_loan_amount'] < loan_amount:
+                raise serializers.ValidationError(
+                    "Max loan amount should be at least the loan amount needed"
+                )
+
+        return data
+
+
+class PreApprovalCreateSerializer(serializers.ModelSerializer):
+    """Serializer for creating pre-approval (minimal required fields)"""
+
+    class Meta:
+        model = PreApproval
+        fields = [
+            'borrower_name', 'co_borrower_name', 'borrower_email', 'borrower_phone',
+            'annual_income', 'monthly_income', 'total_assets', 'total_liabilities',
+            'credit_score_estimate', 'front_end_dti', 'back_end_dti',
+            'property_address', 'property_value_estimate', 'down_payment_amount',
+            'loan_type', 'max_loan_amount', 'max_purchase_price', 'estimated_rate',
+            'expiration_date', 'internal_notes', 'conditions', 'loan_estimate'
+        ]

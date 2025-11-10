@@ -10,6 +10,7 @@ from ..views import (
     DocTaskViewSet
 )
 from ..views_credit import CreditReportViewSet, TradelineViewSet, parse_credit
+from ..views_preapproval import PreApprovalViewSet
 
 app_name = 'api'
 
@@ -26,6 +27,7 @@ router.register(r'loan-estimates', LoanEstimateViewSet, basename='loanestimate')
 router.register(r'doc-tasks', DocTaskViewSet, basename='doctask')
 router.register(r'credit-reports', CreditReportViewSet, basename='creditreport')
 router.register(r'tradelines', TradelineViewSet, basename='tradeline')
+router.register(r'pre-approvals', PreApprovalViewSet, basename='preapproval')
 
 urlpatterns = [
     path('', include(router.urls)),

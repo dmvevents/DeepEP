@@ -1,0 +1,159 @@
+{
+  "phase": "phase3",
+  "description": "Pre-Approval & Scenario Desk Implementation",
+  "tasks": [
+    {
+      "id": "pre-approval-form",
+      "epic": "Pre-Approval",
+      "story": "Build LO pre-approval parameters form with RBAC-protected submission capturing borrower financials, property details, and loan terms",
+      "acceptance": [
+        "Form captures income, assets, liabilities, credit score estimate, DTI",
+        "Property address, purchase price, down payment, loan type inputs present",
+        "Submit button creates PreApproval record with user_id, timestamps",
+        "RBAC: Only authenticated LO or admin roles can access",
+        "Form validation enforces required fields and numeric constraints"
+      ],
+      "persona": "frontend",
+      "estimate_hours": 6,
+      "priority": 1
+    },
+    {
+      "id": "pre-approval-model",
+      "epic": "Pre-Approval",
+      "story": "Create PreApproval model with audit fields and relationship to User and LoanEstimate",
+      "acceptance": [
+        "PreApproval model with borrower_name, income, assets, liabilities, credit_score fields",
+        "Foreign keys to User and optional LoanEstimate",
+        "status field (draft, submitted, approved, denied) with default draft",
+        "created_at, updated_at, submitted_at, approved_at timestamp fields",
+        "Migration applied and tested with sample records"
+      ],
+      "persona": "backend",
+      "estimate_hours": 3,
+      "priority": 1
+    },
+    {
+      "id": "pre-approval-letter-template",
+      "epic": "Pre-Approval",
+      "story": "Implement pre-approval letter generation with merge variables and PDF export with watermark",
+      "acceptance": [
+        "Template stored in database or file with merge vars (borrower_name, max_loan_amount, expiration_date)",
+        "Endpoint accepts PreApproval ID and returns populated HTML or PDF",
+        "PDF export adds 'Draft' or 'Official' watermark based on status",
+        "Audit event logged on letter generation with user_id and timestamp",
+        "Letter includes ECOA/CFPB disclaimer text"
+      ],
+      "persona": "backend",
+      "estimate_hours": 8,
+      "priority": 2
+    },
+    {
+      "id": "pricing-adapter-interface",
+      "epic": "Scenario Desk",
+      "story": "Design pricing adapter plug-in interface with 3 rails logic (price, points, credit) and mock investor bot/API",
+      "acceptance": [
+        "Abstract PricingAdapter base class with get_pricing(loan_params) method",
+        "Mock investor adapter returns 3 scenarios with rate, points, lender_credit",
+        "Adapter returns structured JSON with loan_amount, rate, apr, monthly_payment",
+        "Unit tests verify adapter interface and mock data structure",
+        "Documentation includes adapter contract and extension guide"
+      ],
+      "persona": "backend",
+      "estimate_hours": 5,
+      "priority": 2
+    },
+    {
+      "id": "fee-engine-jurisdiction",
+      "epic": "Scenario Desk",
+      "story": "Build fee engine wiring to jurisdiction DB for taxes, transfer, recordation, title, prepaids, escrows, UFMIP, MIP, VAFF calculations",
+      "acceptance": [
+        "FeeEngine service queries TaxData by county and applies property tax, transfer tax, recordation tax",
+        "Title insurance calculated based on loan amount and property value",
+        "Prepaids include property tax proration, insurance, interest",
+        "UFMIP (FHA upfront) and MIP (monthly) calculated when loan_type is FHA",
+        "VAFF (VA funding fee) calculated when loan_type is VA",
+        "Source badges (system, AI, override) tracked in calculation metadata",
+        "JSON trace returned with fee breakdown for audit"
+      ],
+      "persona": "backend",
+      "estimate_hours": 10,
+      "priority": 1
+    },
+    {
+      "id": "scenario-cards-ui",
+      "epic": "Scenario Desk",
+      "story": "Build 3 scenario comparison cards with PITIA, DTI, LTV, Cash to Close, and expandable LE-style cost sections (A,B,C,E,H)",
+      "acceptance": [
+        "3 cards displayed side-by-side with scenario name, rate, points, lender credit",
+        "Each card shows PITIA breakdown, DTI ratio, LTV ratio, Cash to Close",
+        "Expand/collapse for Section A (Loan Terms), B (Projected Payments), C (Closing Costs), E (Taxes), H (Other)",
+        "Cards highlight differences (rate, points, credit) between scenarios",
+        "Visual design uses MUI Card, Typography, Chip components"
+      ],
+      "persona": "frontend",
+      "estimate_hours": 8,
+      "priority": 2
+    },
+    {
+      "id": "scenario-pdf-export",
+      "epic": "Scenario Desk",
+      "story": "Implement scenario comparison PDF export with watermark and LE-style formatting",
+      "acceptance": [
+        "Export button generates PDF with all 3 scenarios",
+        "PDF includes borrower name, property address, date, scenario details",
+        "Watermark reads 'For Comparison Purposes Only - Not a Loan Estimate'",
+        "PDF formatted to resemble CFPB LE layout (sections A-H)",
+        "Endpoint returns PDF blob for download"
+      ],
+      "persona": "backend",
+      "estimate_hours": 6,
+      "priority": 3
+    },
+    {
+      "id": "pre-approval-rbac",
+      "epic": "Pre-Approval",
+      "story": "Enforce RBAC permissions for pre-approval submission and letter generation endpoints",
+      "acceptance": [
+        "Endpoint permissions restrict access to authenticated users with LO or admin role",
+        "User can only view/edit their own pre-approvals unless admin",
+        "Admin can view all pre-approvals and update status",
+        "Unauthorized access returns 403 Forbidden with message",
+        "Unit tests verify permission enforcement"
+      ],
+      "persona": "backend",
+      "estimate_hours": 3,
+      "priority": 1
+    },
+    {
+      "id": "scenario-desk-api",
+      "epic": "Scenario Desk",
+      "story": "Build API endpoint to generate 3 scenarios given loan parameters and return structured comparison data",
+      "acceptance": [
+        "POST /api/scenarios/ accepts loan_amount, property_value, credit_score, loan_type",
+        "Endpoint calls PricingAdapter and FeeEngine to build 3 scenarios",
+        "Response includes scenario array with rate, points, credit, PITIA, DTI, LTV, cash_to_close",
+        "Each scenario includes detailed fee breakdown in JSON",
+        "Endpoint logs audit event with user_id and scenario parameters"
+      ],
+      "persona": "backend",
+      "estimate_hours": 6,
+      "priority": 1
+    },
+    {
+      "id": "fee-engine-tests",
+      "epic": "Scenario Desk",
+      "story": "Write unit tests for FeeEngine with mocked jurisdiction data covering FHA, VA, conventional loan types",
+      "acceptance": [
+        "Tests verify property tax calculation with composite rate",
+        "Tests verify transfer tax buyer/seller split logic",
+        "Tests verify UFMIP calculation for FHA loans",
+        "Tests verify VAFF calculation for VA loans",
+        "Tests verify deterministic output given same inputs",
+        "All tests pass in CI pipeline"
+      ],
+      "persona": "backend",
+      "estimate_hours": 4,
+      "priority": 3
+    }
+  ]
+}

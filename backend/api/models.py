@@ -380,6 +380,12 @@ class AuditEvent(models.Model):
         ('application_submit', 'Application Submitted'),
         ('application_approve', 'Application Approved'),
         ('application_reject', 'Application Rejected'),
+        ('preapproval_create', 'Pre-Approval Created'),
+        ('preapproval_submit', 'Pre-Approval Submitted'),
+        ('preapproval_approve', 'Pre-Approval Approved'),
+        ('preapproval_deny', 'Pre-Approval Denied'),
+        ('preapproval_letter_generate', 'Pre-Approval Letter Generated'),
+        ('preapproval_letter_publish', 'Pre-Approval Letter Published'),
     ]
 
     # Event metadata
@@ -882,3 +888,213 @@ class DocTask(models.Model):
         if not self.due_date or self.status in ['completed', 'cancelled']:
             return False
         return timezone.now().date() > self.due_date
+
+
+class PreApproval(models.Model):
+    """
+    Pre-approval letter data for borrowers.
+    Stores borrower financials, property details, and approval parameters.
+    """
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('submitted', 'Submitted'),
+        ('approved', 'Approved'),
+        ('denied', 'Denied'),
+        ('expired', 'Expired'),
+    ]
+
+    # Relationships
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='pre_approvals',
+        help_text="Loan officer or admin who created this pre-approval"
+    )
+    loan_estimate = models.ForeignKey(
+        LoanEstimate,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='pre_approvals',
+        help_text="Optional reference to existing loan estimate"
+    )
+
+    # Borrower Information
+    borrower_name = models.CharField(max_length=200)
+    co_borrower_name = models.CharField(max_length=200, blank=True)
+    borrower_email = models.EmailField(blank=True)
+    borrower_phone = models.CharField(max_length=20, blank=True)
+
+    # Financial Information
+    annual_income = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)]
+    )
+    monthly_income = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)]
+    )
+    total_assets = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)]
+    )
+    total_liabilities = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0.00,
+        validators=[MinValueValidator(0)]
+    )
+    credit_score_estimate = models.IntegerField(
+        validators=[MinValueValidator(300), MaxValueValidator(850)],
+        help_text="Estimated credit score"
+    )
+
+    # DTI Calculations
+    front_end_dti = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Front-end debt-to-income ratio"
+    )
+    back_end_dti = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Back-end debt-to-income ratio"
+    )
+
+    # Property Details
+    property_address = models.TextField(blank=True)
+    property_value_estimate = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)]
+    )
+    down_payment_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)]
+    )
+    loan_type = models.CharField(
+        max_length=20,
+        choices=[
+            ('conventional', 'Conventional'),
+            ('fha', 'FHA'),
+            ('va', 'VA'),
+            ('usda', 'USDA'),
+        ],
+        default='conventional'
+    )
+
+    # Approval Parameters
+    max_loan_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        help_text="Maximum approved loan amount"
+    )
+    max_purchase_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        help_text="Maximum approved purchase price"
+    )
+    estimated_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=3,
+        null=True,
+        blank=True,
+        help_text="Estimated interest rate"
+    )
+    expiration_date = models.DateField(
+        help_text="Date when pre-approval expires"
+    )
+
+    # Status and Workflow
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='draft'
+    )
+
+    # Letter Information
+    letter_generated_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the official letter was generated"
+    )
+    letter_published_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the letter was published/sent"
+    )
+    letter_pdf_path = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Path to generated PDF letter"
+    )
+
+    # Audit Fields
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    approved_at = models.DateTimeField(null=True, blank=True)
+    approved_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='approved_pre_approvals',
+        help_text="Admin who approved this pre-approval"
+    )
+
+    # Additional Notes
+    internal_notes = models.TextField(
+        blank=True,
+        help_text="Internal notes (not shown on letter)"
+    )
+    conditions = models.TextField(
+        blank=True,
+        help_text="Special conditions or requirements"
+    )
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['status', '-created_at']),
+            models.Index(fields=['expiration_date']),
+            models.Index(fields=['borrower_email']),
+        ]
+
+    def __str__(self):
+        return f"Pre-Approval: {self.borrower_name} - ${self.max_loan_amount} ({self.status})"
+
+    @property
+    def is_expired(self):
+        """Check if pre-approval has expired"""
+        if self.status == 'expired':
+            return True
+        if self.expiration_date:
+            return timezone.now().date() > self.expiration_date
+        return False
+
+    @property
+    def down_payment_percentage(self):
+        """Calculate down payment percentage"""
+        if self.property_value_estimate > 0:
+            return (self.down_payment_amount / self.property_value_estimate) * 100
+        return 0
+
+    @property
+    def loan_to_value(self):
+        """Calculate LTV ratio"""
+        if self.property_value_estimate > 0:
+            loan_amount = self.property_value_estimate - self.down_payment_amount
+            return (loan_amount / self.property_value_estimate) * 100
+        return 0

@@ -281,3 +281,107 @@ export const profileApi = {
     return response.data;
   },
 };
+
+// Pre-Approval API
+export interface PreApprovalData {
+  id?: number;
+  borrower_name: string;
+  co_borrower_name?: string;
+  borrower_email?: string;
+  borrower_phone?: string;
+  annual_income: number;
+  monthly_income: number;
+  total_assets: number;
+  total_liabilities: number;
+  credit_score_estimate: number;
+  front_end_dti?: number;
+  back_end_dti?: number;
+  property_address?: string;
+  property_value_estimate: number;
+  down_payment_amount: number;
+  loan_type: 'conventional' | 'fha' | 'va' | 'usda';
+  max_loan_amount: number;
+  max_purchase_price: number;
+  estimated_rate?: number;
+  expiration_date: string;
+  internal_notes?: string;
+  conditions?: string;
+  status?: string;
+  created_at?: string;
+  updated_at?: string;
+  is_expired?: boolean;
+  down_payment_percentage?: number;
+  loan_to_value?: number;
+  user_name?: string;
+  approved_by_name?: string;
+}
+
+export interface PreApprovalLetter {
+  html: string;
+  borrower_name: string;
+  max_loan_amount: string;
+  expiration_date: string;
+  message?: string;
+  published_at?: string;
+}
+
+export const preApprovalApi = {
+  // List all pre-approvals (with optional filters)
+  list: async (params?: { status?: string; borrower_email?: string }): Promise<PreApprovalData[]> => {
+    const response = await apiClient.get('/api/pre-approvals/', { params });
+    return response.data;
+  },
+
+  // Get a single pre-approval by ID
+  get: async (id: number): Promise<PreApprovalData> => {
+    const response = await apiClient.get(`/api/pre-approvals/${id}/`);
+    return response.data;
+  },
+
+  // Create a new pre-approval
+  create: async (data: Partial<PreApprovalData>): Promise<PreApprovalData> => {
+    const response = await apiClient.post('/api/pre-approvals/', data);
+    return response.data;
+  },
+
+  // Update an existing pre-approval
+  update: async (id: number, data: Partial<PreApprovalData>): Promise<PreApprovalData> => {
+    const response = await apiClient.patch(`/api/pre-approvals/${id}/`, data);
+    return response.data;
+  },
+
+  // Delete a pre-approval
+  delete: async (id: number): Promise<void> => {
+    await apiClient.delete(`/api/pre-approvals/${id}/`);
+  },
+
+  // Submit pre-approval for review
+  submit: async (id: number): Promise<PreApprovalData> => {
+    const response = await apiClient.post(`/api/pre-approvals/${id}/submit/`);
+    return response.data;
+  },
+
+  // Approve pre-approval (admin only)
+  approve: async (id: number): Promise<PreApprovalData> => {
+    const response = await apiClient.post(`/api/pre-approvals/${id}/approve/`);
+    return response.data;
+  },
+
+  // Deny pre-approval (admin only)
+  deny: async (id: number, reason: string): Promise<PreApprovalData> => {
+    const response = await apiClient.post(`/api/pre-approvals/${id}/deny/`, { reason });
+    return response.data;
+  },
+
+  // Preview letter (draft watermark)
+  previewLetter: async (id: number): Promise<PreApprovalLetter> => {
+    const response = await apiClient.get(`/api/pre-approvals/${id}/preview_letter/`);
+    return response.data;
+  },
+
+  // Generate and publish official letter
+  generateLetter: async (id: number): Promise<PreApprovalLetter> => {
+    const response = await apiClient.post(`/api/pre-approvals/${id}/generate_letter/`);
+    return response.data;
+  },
+};
