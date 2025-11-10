@@ -1,7 +1,31 @@
 import axios from 'axios';
+import type {
+  CreditReport,
+  CreditSnapshot,
+  Tradeline,
+  DocTask,
+  ConfirmTradelineRequest,
+  CreateDocTaskRequest,
+  UpdateDocTaskRequest,
+} from '../types/credit';
 
 const PROPERTY_API_BASE = 'http://localhost:8004';
 const OCR_API_BASE = 'http://localhost:8003';
+const BACKEND_API_BASE = 'http://localhost:8000';
+
+// Create axios instance with auth token support
+const apiClient = axios.create({
+  baseURL: BACKEND_API_BASE,
+});
+
+// Add auth token to requests if available
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 export interface PropertyLookupResponse {
   address: {
@@ -180,4 +204,59 @@ export const calculateQualification = async (data: {
     qualified_loan_types: qualifiedLoanTypes,
     warnings,
   };
+};
+
+// Credit API
+export const creditApi = {
+  // Get credit snapshot for a loan estimate
+  getCreditSnapshot: async (loanEstimateId: number): Promise<CreditSnapshot> => {
+    const response = await apiClient.get(`/api/credit/snapshot/${loanEstimateId}/`);
+    return response.data;
+  },
+
+  // Get credit report by ID
+  getCreditReport: async (creditReportId: number): Promise<CreditReport> => {
+    const response = await apiClient.get(`/api/credit/reports/${creditReportId}/`);
+    return response.data;
+  },
+
+  // Pull new credit report for user
+  pullCreditReport: async (loanEstimateId: number): Promise<CreditReport> => {
+    const response = await apiClient.post(`/api/credit/pull/`, { loan_estimate_id: loanEstimateId });
+    return response.data;
+  },
+
+  // Confirm or dispute a tradeline
+  updateTradelineConfirmation: async (data: ConfirmTradelineRequest): Promise<Tradeline> => {
+    const response = await apiClient.patch(`/api/credit/tradelines/${data.tradeline_id}/confirm/`, {
+      confirmation_status: data.confirmation_status,
+      dispute_reason: data.dispute_reason,
+    });
+    return response.data;
+  },
+
+  // Get tradelines for a credit report
+  getTradelines: async (creditReportId: number): Promise<Tradeline[]> => {
+    const response = await apiClient.get(`/api/credit/reports/${creditReportId}/tradelines/`);
+    return response.data;
+  },
+
+  // Create a DocTask
+  createDocTask: async (data: CreateDocTaskRequest): Promise<DocTask> => {
+    const response = await apiClient.post(`/api/credit/doc-tasks/`, data);
+    return response.data;
+  },
+
+  // Update a DocTask
+  updateDocTask: async (taskId: number, data: UpdateDocTaskRequest): Promise<DocTask> => {
+    const response = await apiClient.patch(`/api/credit/doc-tasks/${taskId}/`, data);
+    return response.data;
+  },
+
+  // Get all doc tasks for the current user
+  getDocTasks: async (loanEstimateId?: number): Promise<DocTask[]> => {
+    const params = loanEstimateId ? { loan_estimate_id: loanEstimateId } : {};
+    const response = await apiClient.get(`/api/credit/doc-tasks/`, { params });
+    return response.data;
+  },
 };

@@ -11,6 +11,7 @@ import Register from './pages/Register';
 import MyApplications from './pages/MyApplications';
 import Profile from './pages/Profile';
 import AdminProfile from './pages/AdminProfile';
+import CreditReview from './pages/CreditReview';
 
 const theme = createTheme({
   palette: {
@@ -59,6 +60,7 @@ function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/super-admin" element={<SuperAdminDashboard />} />
           <Route path="/documents" element={<DocumentUpload />} />
+          <Route path="/credit-review" element={<CreditReview />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

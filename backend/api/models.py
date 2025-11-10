@@ -438,3 +438,316 @@ class AuditEvent(models.Model):
         clean_ssn = ''.join(filter(str.isdigit, ssn))
         # Return last 4 digits only
         return clean_ssn[-4:] if len(clean_ssn) >= 4 else clean_ssn
+
+
+class CreditReport(models.Model):
+    """
+    Stores credit report data pulled for a borrower.
+    Phase 1: Basic credit snapshot with scores, tradelines, and inquiries.
+    """
+    BUREAU_CHOICES = [
+        ('equifax', 'Equifax'),
+        ('experian', 'Experian'),
+        ('transunion', 'TransUnion'),
+        ('merged', 'Merged Report'),
+    ]
+
+    STATUS_CHOICES = [
+        ('pending', 'Pending Pull'),
+        ('pulled', 'Successfully Pulled'),
+        ('error', 'Error'),
+        ('expired', 'Expired'),
+    ]
+
+    # Relationships
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='credit_reports',
+        help_text="Borrower whose credit was pulled"
+    )
+    loan_estimate = models.ForeignKey(
+        LoanEstimate,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='credit_reports',
+        help_text="Associated loan application"
+    )
+
+    # Credit Bureau Information
+    bureau = models.CharField(max_length=20, choices=BUREAU_CHOICES, default='merged')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+
+    # Credit Scores (all three bureaus for merged reports)
+    equifax_score = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(300), MaxValueValidator(850)]
+    )
+    experian_score = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(300), MaxValueValidator(850)]
+    )
+    transunion_score = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(300), MaxValueValidator(850)]
+    )
+
+    # Report Metadata
+    report_date = models.DateTimeField(auto_now_add=True)
+    report_id = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="External credit bureau reference ID"
+    )
+
+    # Full report data (JSON)
+    raw_data = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Raw credit report data from bureau API"
+    )
+
+    # Summary Statistics
+    total_tradelines = models.IntegerField(default=0)
+    total_inquiries = models.IntegerField(default=0)
+    total_monthly_debt = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
+        help_text="Sum of all monthly debt payments"
+    )
+
+    # Error handling
+    error_message = models.TextField(blank=True)
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    expires_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Credit reports expire after 120 days"
+    )
+
+    class Meta:
+        ordering = ['-report_date']
+        indexes = [
+            models.Index(fields=['user', '-report_date']),
+            models.Index(fields=['loan_estimate']),
+            models.Index(fields=['status']),
+            models.Index(fields=['-report_date']),
+        ]
+
+    def __str__(self):
+        return f"Credit Report for {self.user.username} - {self.report_date.date()}"
+
+    @property
+    def middle_score(self):
+        """Return the middle (representative) credit score from three bureaus"""
+        scores = [s for s in [self.equifax_score, self.experian_score, self.transunion_score] if s]
+        if not scores:
+            return None
+        if len(scores) == 1:
+            return scores[0]
+        return sorted(scores)[len(scores) // 2]
+
+    @property
+    def is_expired(self):
+        """Check if credit report has expired"""
+        if not self.expires_at:
+            return False
+        return timezone.now() > self.expires_at
+
+
+class Tradeline(models.Model):
+    """
+    Individual credit tradeline (debt account) from credit report.
+    Phase 1: Basic tradeline info with borrower confirmation workflow.
+    """
+    ACCOUNT_TYPE_CHOICES = [
+        ('mortgage', 'Mortgage'),
+        ('auto', 'Auto Loan'),
+        ('student', 'Student Loan'),
+        ('credit_card', 'Credit Card'),
+        ('personal', 'Personal Loan'),
+        ('installment', 'Installment Loan'),
+        ('collection', 'Collection Account'),
+        ('other', 'Other'),
+    ]
+
+    STATUS_CHOICES = [
+        ('open', 'Open'),
+        ('closed', 'Closed'),
+        ('paid', 'Paid Off'),
+        ('charge_off', 'Charge Off'),
+        ('collection', 'In Collection'),
+    ]
+
+    CONFIRMATION_STATUS_CHOICES = [
+        ('pending', 'Pending Review'),
+        ('confirmed', 'Confirmed'),
+        ('disputed', 'Disputed'),
+    ]
+
+    # Relationships
+    credit_report = models.ForeignKey(
+        CreditReport,
+        on_delete=models.CASCADE,
+        related_name='tradelines'
+    )
+
+    # Account Information
+    account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPE_CHOICES)
+    creditor_name = models.CharField(max_length=200)
+    account_number = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Last 4 digits only for security"
+    )
+
+    # Balance and Payment Information
+    current_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    monthly_payment = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    credit_limit = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="For revolving accounts"
+    )
+
+    # Account Status
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
+    opened_date = models.DateField(null=True, blank=True)
+    last_payment_date = models.DateField(null=True, blank=True)
+    days_past_due = models.IntegerField(default=0)
+
+    # Borrower Confirmation Workflow
+    confirmation_status = models.CharField(
+        max_length=20,
+        choices=CONFIRMATION_STATUS_CHOICES,
+        default='pending'
+    )
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+    dispute_reason = models.TextField(blank=True)
+
+    # Raw data from credit bureau
+    raw_data = models.JSONField(default=dict, blank=True)
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['account_type', '-current_balance']
+        indexes = [
+            models.Index(fields=['credit_report', 'confirmation_status']),
+            models.Index(fields=['account_type']),
+            models.Index(fields=['confirmation_status']),
+        ]
+
+    def __str__(self):
+        return f"{self.get_account_type_display()} - {self.creditor_name} (${self.current_balance})"
+
+    @property
+    def needs_confirmation(self):
+        """Check if tradeline requires borrower confirmation"""
+        return self.confirmation_status == 'pending'
+
+
+class DocTask(models.Model):
+    """
+    Document task for borrower action (upload supporting docs, provide explanation, etc.)
+    Created when borrower disputes/confirms tradelines or when additional verification needed.
+    """
+    TASK_TYPE_CHOICES = [
+        ('dispute_tradeline', 'Dispute Tradeline'),
+        ('verify_tradeline', 'Verify Tradeline'),
+        ('upload_document', 'Upload Supporting Document'),
+        ('provide_explanation', 'Provide Explanation'),
+        ('verify_income', 'Verify Income'),
+        ('verify_assets', 'Verify Assets'),
+        ('other', 'Other'),
+    ]
+
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+
+    # Relationships
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='doc_tasks'
+    )
+    loan_estimate = models.ForeignKey(
+        LoanEstimate,
+        on_delete=models.CASCADE,
+        related_name='doc_tasks',
+        null=True,
+        blank=True
+    )
+    tradeline = models.ForeignKey(
+        Tradeline,
+        on_delete=models.CASCADE,
+        related_name='doc_tasks',
+        null=True,
+        blank=True,
+        help_text="Associated tradeline if task is debt-related"
+    )
+
+    # Task Details
+    task_type = models.CharField(max_length=30, choices=TASK_TYPE_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    title = models.CharField(max_length=200)
+    description = models.TextField(help_text="Instructions for borrower")
+
+    # Response from Borrower
+    borrower_notes = models.TextField(blank=True)
+    uploaded_documents = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of document IDs uploaded for this task"
+    )
+
+    # Admin Review
+    reviewed_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='reviewed_doc_tasks'
+    )
+    admin_notes = models.TextField(blank=True)
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    due_date = models.DateField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['status', 'due_date', '-created_at']
+        indexes = [
+            models.Index(fields=['user', 'status']),
+            models.Index(fields=['loan_estimate', 'status']),
+            models.Index(fields=['tradeline']),
+            models.Index(fields=['status', 'due_date']),
+        ]
+
+    def __str__(self):
+        return f"{self.get_task_type_display()} - {self.user.username} ({self.status})"
+
+    @property
+    def is_overdue(self):
+        """Check if task is past due date"""
+        if not self.due_date or self.status in ['completed', 'cancelled']:
+            return False
+        return timezone.now().date() > self.due_date
