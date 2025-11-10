@@ -274,6 +274,7 @@ if SENTRY_DSN:
 ENABLE_AUTO_RESCRAPE = env.bool('ENABLE_AUTO_RESCRAPE', default=True)
 ENABLE_OCR_PROCESSING = env.bool('ENABLE_OCR_PROCESSING', default=True)
 ENABLE_DOCUMENT_UPLOAD = env.bool('ENABLE_DOCUMENT_UPLOAD', default=True)
+ENABLE_TENANT_THEMING = env.bool('ENABLE_TENANT_THEMING', default=False)  # White-label theming
 
 # Document Storage Configuration
 DOCUMENT_STORAGE_BACKEND = env('DOCUMENT_STORAGE_BACKEND', default='local')  # 'local' or 's3'

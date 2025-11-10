@@ -17,39 +17,43 @@ import MortgageStatusDemo from './pages/MortgageStatusDemo';
 import LOConsole from './pages/LOConsole';
 import PreApprovalPage from './pages/PreApprovalPage';
 import ScenarioDesk from './pages/ScenarioDesk';
+import { TenantThemeProvider, useTenantTheme } from './contexts/TenantThemeContext';
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#667eea',
-      dark: '#764ba2',
+const AppContent = () => {
+  const { theme: tenantTheme } = useTenantTheme();
+
+  // Create MUI theme based on tenant configuration
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: tenantTheme.colors.primary,
+        dark: tenantTheme.colors.accent,
+      },
+      secondary: {
+        main: tenantTheme.colors.secondary,
+      },
+      error: {
+        main: '#ef4444',
+      },
     },
-    secondary: {
-      main: '#10b981',
+    typography: {
+      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
     },
-    error: {
-      main: '#ef4444',
-    },
-  },
-  typography: {
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: 'none',
-          borderRadius: '10px',
-          padding: '12px 24px',
-          fontSize: '1rem',
-          fontWeight: 600,
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            textTransform: 'none',
+            borderRadius: '10px',
+            padding: '12px 24px',
+            fontSize: '1rem',
+            fontWeight: 600,
+          },
         },
       },
     },
-  },
-});
+  });
 
-function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -75,6 +79,14 @@ function App() {
         </Routes>
       </Router>
     </ThemeProvider>
+  );
+};
+
+function App() {
+  return (
+    <TenantThemeProvider>
+      <AppContent />
+    </TenantThemeProvider>
   );
 }
 

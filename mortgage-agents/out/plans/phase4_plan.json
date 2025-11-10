@@ -1,0 +1,25 @@
+{
+  "tasks": [
+    {
+      "id": "tenant-theming",
+      "epic": "White-Label",
+      "story": "Tenant theming hooks (logo/colors) and report branding.",
+      "acceptance": "- Theme provider takes tenant palette\n- Report templates include logo\n- Feature flag to enable",
+      "persona": "owner"
+    },
+    {
+      "id": "notifications",
+      "epic": "Polish",
+      "story": "Email/SMS templates for key milestones.",
+      "acceptance": "- Template files\n- Env-driven provider\n- Queue jobs wired",
+      "persona": "backend"
+    },
+    {
+      "id": "observability",
+      "epic": "Ops",
+      "story": "Add basic observability and P0 runbook.",
+      "acceptance": "- docs/RUNBOOK_P0.md\n- Error/metrics hooks\n- On-call checklist",
+      "persona": "owner"
+    }
+  ]
+}

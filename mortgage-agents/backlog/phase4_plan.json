@@ -1,0 +1,197 @@
+{
+  "phase": "phase4",
+  "title": "White-Label & Operational Polish",
+  "tasks": [
+    {
+      "id": "tenant-theme-provider",
+      "epic": "White-Label",
+      "story": "Implement tenant-based theming system with configurable logo, colors, and brand assets",
+      "acceptance": [
+        "ThemeProvider component accepts tenant palette configuration",
+        "Logo upload and storage in database per tenant",
+        "Color palette (primary, secondary, accent) applied to MUI theme",
+        "Feature flag to enable/disable white-label mode",
+        "Migration to add tenant table with branding fields",
+        "Admin UI to configure tenant branding settings"
+      ],
+      "persona": "frontend",
+      "estimate_hours": 12,
+      "priority": 2
+    },
+    {
+      "id": "report-branding",
+      "epic": "White-Label",
+      "story": "Apply tenant branding to PDF exports and Loan Estimate reports",
+      "acceptance": [
+        "PDF templates include tenant logo in header",
+        "Report footer shows tenant contact information",
+        "Color scheme matches tenant branding",
+        "Watermark or branded footer on all pages",
+        "Test with at least 2 mock tenant configurations"
+      ],
+      "persona": "backend",
+      "estimate_hours": 8,
+      "priority": 2
+    },
+    {
+      "id": "email-sms-templates",
+      "epic": "Notifications",
+      "story": "Create email and SMS templates for key application milestones",
+      "acceptance": [
+        "HTML email templates for submission, approval, rejection, needs-correction",
+        "SMS templates for urgent notifications",
+        "Templates use Django template engine with context variables",
+        "Templates stored in backend/templates/notifications/",
+        "Preview endpoint to test templates with sample data"
+      ],
+      "persona": "backend",
+      "estimate_hours": 6,
+      "priority": 3
+    },
+    {
+      "id": "notification-provider",
+      "epic": "Notifications",
+      "story": "Implement notification provider with email and SMS delivery",
+      "acceptance": [
+        "Environment-driven provider selection (SendGrid, Twilio, or mock)",
+        "Send email via SMTP or SendGrid API",
+        "Send SMS via Twilio API",
+        "Fallback to console/log in development mode",
+        "Rate limiting and retry logic for failed sends",
+        "Notification log table to track delivery status"
+      ],
+      "persona": "backend",
+      "estimate_hours": 10,
+      "priority": 3
+    },
+    {
+      "id": "notification-celery-jobs",
+      "epic": "Notifications",
+      "story": "Wire Celery jobs to trigger notifications on workflow state changes",
+      "acceptance": [
+        "Celery task for application submission notification",
+        "Celery task for admin review assignment notification",
+        "Celery task for approval/rejection notification",
+        "Celery task for needs-correction notification",
+        "Signal handlers in Django to dispatch Celery tasks on status change",
+        "Test with at least one full workflow cycle"
+      ],
+      "persona": "backend",
+      "estimate_hours": 8,
+      "priority": 3
+    },
+    {
+      "id": "p0-runbook",
+      "epic": "Observability",
+      "story": "Create P0 incident runbook with troubleshooting steps for critical failures",
+      "acceptance": [
+        "docs/RUNBOOK_P0.md created with sections for each service",
+        "Database connection failures: diagnosis and recovery",
+        "Scraper service failures: retry and escalation",
+        "Celery worker failures: restart and queue inspection",
+        "High error rate alerts: log inspection and rollback",
+        "On-call checklist with escalation contacts"
+      ],
+      "persona": "owner",
+      "estimate_hours": 4,
+      "priority": 4
+    },
+    {
+      "id": "error-metrics-hooks",
+      "epic": "Observability",
+      "story": "Add error tracking and metrics instrumentation to critical paths",
+      "acceptance": [
+        "Sentry or logging integration for unhandled exceptions",
+        "Metrics for scraper success rate and latency",
+        "Metrics for API response times (P50, P95, P99)",
+        "Health check endpoints for all services return detailed status",
+        "Logging middleware captures request/response metadata",
+        "Dashboard-ready JSON metrics endpoint"
+      ],
+      "persona": "backend",
+      "estimate_hours": 10,
+      "priority": 4
+    },
+    {
+      "id": "tax-proration-enhancements",
+      "epic": "Polish",
+      "story": "Enhance tax proration logic to handle billing cycles and closing date accuracy",
+      "acceptance": [
+        "Support annual, semi-annual, and quarterly tax billing cycles",
+        "Prorate based on exact closing date within billing period",
+        "Calculate buyer and seller responsibility correctly",
+        "Escrow calculation accounts for prepaid taxes at closing",
+        "Unit tests for edge cases (year-end closing, mid-cycle closing)",
+        "Documentation of proration formula in code comments"
+      ],
+      "persona": "backend",
+      "estimate_hours": 12,
+      "priority": 1
+    },
+    {
+      "id": "respa-escrow-compliance",
+      "epic": "Polish",
+      "story": "Implement RESPA-compliant escrow calculations with cushion limits",
+      "acceptance": [
+        "Escrow cushion limited to 2 months (RESPA Regulation X)",
+        "Initial escrow deposit calculation includes pro-rated amounts",
+        "Escrow analysis accounts for disbursement dates",
+        "Overage and shortage calculations for annual reconciliation",
+        "Unit tests for RESPA compliance edge cases",
+        "Documentation references 12 CFR 1024.17"
+      ],
+      "persona": "backend",
+      "estimate_hours": 14,
+      "priority": 1
+    },
+    {
+      "id": "multi-county-test-suite",
+      "epic": "Quality",
+      "story": "Create comprehensive test suite validating calculations across diverse county configurations",
+      "acceptance": [
+        "Test suite covers 10+ counties with different tax structures",
+        "Include edge cases: first-time buyer exemptions, tiered rates, special assessments",
+        "Validate against official county calculators or published examples",
+        "Automated test fixtures with real county data snapshots",
+        "CI integration to run tests on every PR",
+        "Test report documents accuracy deltas"
+      ],
+      "persona": "backend",
+      "estimate_hours": 16,
+      "priority": 1
+    },
+    {
+      "id": "scraper-prompt-v2-update",
+      "epic": "Scraper",
+      "story": "Update scraper prompts to extract enhanced tax data schema v2.0 fields",
+      "acceptance": [
+        "Scraper extracts composite tax rates and component breakdowns",
+        "Scraper identifies municipality overlays with ZIP code mapping",
+        "Scraper captures buyer/seller split percentages",
+        "Scraper extracts tiered recordation tax brackets",
+        "Scraper captures risk modifiers for insurance pricing",
+        "Validation ensures v2.0 schema completeness before saving",
+        "Backward compatibility maintained for v1.0 data"
+      ],
+      "persona": "backend",
+      "estimate_hours": 10,
+      "priority": 2
+    },
+    {
+      "id": "ux-loading-feedback",
+      "epic": "UX",
+      "story": "Improve loading states and user feedback during async operations",
+      "acceptance": [
+        "Skeleton loaders for application list and profile pages",
+        "Progress indicators for scraper operations with estimated time",
+        "Toast notifications for success and error states",
+        "Disable form submission during processing to prevent double-submit",
+        "Error messages provide actionable guidance",
+        "Consistent loading UX across all pages"
+      ],
+      "persona": "frontend",
+      "estimate_hours": 8,
+      "priority": 3
+    }
+  ]
+}

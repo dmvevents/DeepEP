@@ -24,6 +24,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import Navbar from '../components/Navbar';
+import { useTenantTheme } from '../contexts/TenantThemeContext';
 
 interface ScenarioData {
   id: number;
@@ -73,6 +74,7 @@ interface ScenarioData {
 }
 
 const ScenarioDesk: React.FC = () => {
+  const { theme: tenantTheme } = useTenantTheme();
   const [scenarios] = useState<ScenarioData[]>([
     {
       id: 1,
@@ -243,7 +245,7 @@ const ScenarioDesk: React.FC = () => {
         jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' as const },
       };
 
-      // Add watermark
+      // Add branded watermark using tenant colors
       const watermark = document.createElement('div');
       watermark.style.position = 'fixed';
       watermark.style.top = '50%';
@@ -251,16 +253,31 @@ const ScenarioDesk: React.FC = () => {
       watermark.style.transform = 'translate(-50%, -50%) rotate(-45deg)';
       watermark.style.fontSize = '120px';
       watermark.style.opacity = '0.1';
-      watermark.style.color = '#667eea';
+      watermark.style.color = tenantTheme.colors.primary;
       watermark.style.fontWeight = 'bold';
       watermark.style.pointerEvents = 'none';
       watermark.style.zIndex = '9999';
       watermark.textContent = 'DRAFT';
       document.body.appendChild(watermark);
 
+      // Add tenant logo if available
+      let logoElement: HTMLElement | null = null;
+      if (tenantTheme.logo_url) {
+        logoElement = document.createElement('div');
+        logoElement.style.position = 'fixed';
+        logoElement.style.top = '20px';
+        logoElement.style.right = '20px';
+        logoElement.style.zIndex = '10000';
+        logoElement.innerHTML = `<img src="${tenantTheme.logo_url}" alt="${tenantTheme.name}" style="height: 60px; opacity: 0.9;" />`;
+        document.body.appendChild(logoElement);
+      }
+
       await html2pdf().set(opt).from(element).save();
 
       document.body.removeChild(watermark);
+      if (logoElement) {
+        document.body.removeChild(logoElement);
+      }
     } catch (error) {
       console.error('Error generating PDF:', error);
     }
