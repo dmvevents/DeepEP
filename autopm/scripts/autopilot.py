@@ -142,6 +142,9 @@ def open_pr(branch: str, title: str, body: str) -> Optional[str]:
         print("gh pr create failed:", e)
         return None
 
+import os
+DEBUG = os.getenv('AUTOPM_DEBUG') == '1'
+
 def main():
     import argparse
     ap = argparse.ArgumentParser()
@@ -183,6 +186,7 @@ def main():
         return True
 
     filtered = [t for t in task_items if matches(t)]
+    if DEBUG: print('DEBUG matched tasks:', [t.get('id') for t in filtered])
     if not filtered:
         print("No tasks matched your filters.")
         sys.exit(0)
@@ -224,6 +228,7 @@ def _sanitize_ref(name:str)->str:
 
         task_branch = f"{bprefix}{_sanitize_ref(epic_key or 'task')}-task-{_sanitize_ref(tid)[:32]}"
         run(f"git checkout {base_branch}")
+        if DEBUG: print('DEBUG base_branch:', base_branch)
         rc = subprocess.call(["git","rev-parse","--verify","--quiet",task_branch])
         if rc != 0:
             run(f"git checkout -b {task_branch}")
@@ -233,7 +238,9 @@ def _sanitize_ref(name:str)->str:
         # Ask LLM for patch
         user = build_user_prompt(t, plan_md, contracts, security)
         print(f"\n🧠 Generating patch for task: {t.get('title','(no title)')}")
+        if DEBUG: print('DEBUG requesting patch for', t.get('id'))
         patch_text = llm.complete(PROMPT_SYSTEM, user).strip()
+        if DEBUG: print('DEBUG patch length:', len(patch_text))
 
         ok = apply_patch(patch_text)
         if not ok:
