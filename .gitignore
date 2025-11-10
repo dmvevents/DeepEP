@@ -115,3 +115,5 @@ ocr_uploads/
 scraper_cache/
 .ollama/
 
+autopm/
+auto/
