@@ -275,6 +275,41 @@ ENABLE_AUTO_RESCRAPE = env.bool('ENABLE_AUTO_RESCRAPE', default=True)
 ENABLE_OCR_PROCESSING = env.bool('ENABLE_OCR_PROCESSING', default=True)
 ENABLE_DOCUMENT_UPLOAD = env.bool('ENABLE_DOCUMENT_UPLOAD', default=True)
 
+# Document Storage Configuration
+DOCUMENT_STORAGE_BACKEND = env('DOCUMENT_STORAGE_BACKEND', default='local')  # 'local' or 's3'
+
+# AWS S3 Configuration (for production document storage)
+if DOCUMENT_STORAGE_BACKEND == 's3':
+    AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default='')
+    AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default='')
+    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='mortgage-documents')
+    AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME', default='us-east-1')
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
+    AWS_S3_OBJECT_PARAMETERS = {
+        'CacheControl': 'max-age=86400',
+    }
+    # Use django-storages for S3
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+# Virus Scanning Configuration
+ENABLE_VIRUS_SCAN = env.bool('ENABLE_VIRUS_SCAN', default=not DEBUG)  # Enabled in production
+CLAMAV_SOCKET_PATH = env('CLAMAV_SOCKET_PATH', default='/var/run/clamav/clamd.ctl')
+ALLOWED_DOCUMENT_MIME_TYPES = [
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'image/tiff',
+    'image/gif',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/msword',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+]
+
+# OCR Service Configuration
+OCR_SERVICE_URL = env('OCR_SERVICE_URL', default='http://localhost:8003')
+
 # Security & Compliance Configuration
 # Field-level encryption key for PII (SSN, DOB, account numbers)
 # IMPORTANT: In production, store this in a secure key management system (AWS KMS, HashiCorp Vault)
