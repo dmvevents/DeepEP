@@ -11,7 +11,7 @@ from decimal import Decimal
 
 from .models import (
     State, County, TaxData, Municipality,
-    ScraperLog, UserProfile, LoanEstimate
+    ScraperLog, UserProfile, LoanEstimate, AuditEvent
 )
 
 
@@ -445,3 +445,158 @@ class ScraperLogModelTests(TestCase):
         self.assertEqual(log.status, 'success')
         self.assertEqual(log.processing_time, 45.5)
         self.assertEqual(log.data_completeness, 95)
+
+
+class AuditEventModelTests(TestCase):
+    """Tests for AuditEvent model and SSN masking"""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser',
+            password='testpass123',
+            first_name='John',
+            last_name='Doe'
+        )
+        self.state = State.objects.create(code='MD', name='Maryland')
+        self.county = County.objects.create(state=self.state, name='Montgomery')
+        self.tax_data = TaxData.objects.create(
+            state=self.state,
+            county=self.county,
+            version=1,
+            is_current=True,
+            data_completeness=95,
+            scraper_confidence=90,
+            data={},
+            effective_date=timezone.now().date()
+        )
+        self.loan_estimate = LoanEstimate.objects.create(
+            user=self.user,
+            county=self.county,
+            property_value=Decimal('500000'),
+            property_type='single_family',
+            loan_amount=Decimal('400000'),
+            down_payment=Decimal('100000'),
+            interest_rate=Decimal('6.5'),
+            loan_term_years=30,
+            loan_type='conventional',
+            first_time_homebuyer=False,
+            closing_date=timezone.now().date(),
+            calculation_results={},
+            tax_data=self.tax_data
+        )
+
+    def test_audit_event_creation(self):
+        """Test audit event can be created"""
+        event = AuditEvent.objects.create(
+            event_type='credit_consent',
+            user=self.user,
+            borrower_name='John Doe',
+            ssn_last_four='6789',
+            ip_address='192.168.1.1',
+            user_agent='Mozilla/5.0',
+            loan_estimate=self.loan_estimate
+        )
+
+        self.assertEqual(event.event_type, 'credit_consent')
+        self.assertEqual(event.borrower_name, 'John Doe')
+        self.assertEqual(event.ssn_last_four, '6789')
+        self.assertEqual(event.user, self.user)
+
+    def test_ssn_masking_full_ssn(self):
+        """Test SSN masking with 9-digit SSN"""
+        ssn = '123456789'
+        masked = AuditEvent.mask_ssn(ssn)
+        self.assertEqual(masked, '6789')
+        self.assertEqual(len(masked), 4)
+
+    def test_ssn_masking_with_hyphens(self):
+        """Test SSN masking with hyphenated format"""
+        ssn = '123-45-6789'
+        masked = AuditEvent.mask_ssn(ssn)
+        self.assertEqual(masked, '6789')
+        self.assertEqual(len(masked), 4)
+
+    def test_ssn_masking_with_spaces(self):
+        """Test SSN masking with spaces"""
+        ssn = '123 45 6789'
+        masked = AuditEvent.mask_ssn(ssn)
+        self.assertEqual(masked, '6789')
+        self.assertEqual(len(masked), 4)
+
+    def test_ssn_masking_short_ssn(self):
+        """Test SSN masking with less than 4 digits"""
+        ssn = '123'
+        masked = AuditEvent.mask_ssn(ssn)
+        self.assertEqual(masked, '123')
+
+    def test_ssn_masking_empty(self):
+        """Test SSN masking with empty string"""
+        ssn = ''
+        masked = AuditEvent.mask_ssn(ssn)
+        self.assertEqual(masked, '')
+
+    def test_ssn_masking_none(self):
+        """Test SSN masking with None"""
+        ssn = None
+        masked = AuditEvent.mask_ssn(ssn)
+        self.assertEqual(masked, '')
+
+    def test_ssn_masking_mixed_format(self):
+        """Test SSN masking with mixed non-digit characters"""
+        ssn = '123.45.6789'
+        masked = AuditEvent.mask_ssn(ssn)
+        self.assertEqual(masked, '6789')
+
+    def test_audit_event_never_stores_full_ssn(self):
+        """Test that audit events only store last 4 digits"""
+        full_ssn = '123456789'
+        event = AuditEvent.objects.create(
+            event_type='credit_consent',
+            user=self.user,
+            borrower_name='John Doe',
+            ssn_last_four=AuditEvent.mask_ssn(full_ssn),
+            ip_address='192.168.1.1'
+        )
+
+        # Verify that only last 4 digits are stored
+        self.assertEqual(event.ssn_last_four, '6789')
+        self.assertNotIn('12345', event.ssn_last_four)
+        self.assertEqual(len(event.ssn_last_four), 4)
+
+    def test_credit_consent_audit_event(self):
+        """Test creating a credit consent audit event"""
+        event = AuditEvent.objects.create(
+            event_type='credit_consent',
+            user=self.user,
+            borrower_name='John Doe',
+            ssn_last_four=AuditEvent.mask_ssn('123-45-6789'),
+            ip_address='192.168.1.1',
+            user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+            loan_estimate=self.loan_estimate,
+            context={
+                'consent_given': True,
+                'cfpb_45_day_notice': True,
+                'timestamp': timezone.now().isoformat()
+            }
+        )
+
+        self.assertEqual(event.event_type, 'credit_consent')
+        self.assertEqual(event.ssn_last_four, '6789')
+        self.assertTrue(event.context['consent_given'])
+        self.assertTrue(event.context['cfpb_45_day_notice'])
+
+    def test_audit_event_ordering(self):
+        """Test audit events are ordered by timestamp descending"""
+        event1 = AuditEvent.objects.create(
+            event_type='credit_consent',
+            borrower_name='John Doe'
+        )
+        event2 = AuditEvent.objects.create(
+            event_type='application_submit',
+            borrower_name='Jane Smith'
+        )
+
+        events = AuditEvent.objects.all()
+        # Most recent should be first
+        self.assertEqual(events[0], event2)
+        self.assertEqual(events[1], event1)

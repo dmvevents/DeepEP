@@ -1,0 +1,46 @@
+{
+  "tasks": [
+    {
+      "id": "consent-modal",
+      "epic": "Intake & Credit",
+      "story": "Add CFPB-compliant credit consent modal with 45-day rate-shopping copy, before credit pull.",
+      "acceptance": "- Modal blocks next until accepted\n- Copy references CFPB 45-day shopping window\n- Event logged: AuditEvent.credit_consent\n- Unit test for masking SSN in logs",
+      "persona": "frontend"
+    },
+    {
+      "id": "credit-snapshot-ui",
+      "epic": "Intake & Credit",
+      "story": "Implement Credit Snapshot and per-debt confirmation cards with confirm/dispute/upload actions.",
+      "acceptance": "- Snapshot shows scores, tradelines, inquiries\n- Card actions create DocTasks where applicable\n- State kept in borrower profile\n- Basic e2e happy path",
+      "persona": "frontend"
+    },
+    {
+      "id": "credit-parser",
+      "epic": "Intake & Credit",
+      "story": "Backend credit parser to normalize tradelines/inquiries/lates (24/36mo), DLA, remarks.",
+      "acceptance": "- Ingest mock tri-merge JSON\n- Output Liabilities with normalized fields\n- Flags: IBR/defer, cosigned, <10 payments\n- Unit tests for 3 samples",
+      "persona": "backend"
+    },
+    {
+      "id": "doc-task-engine-v1",
+      "epic": "Docs Engine",
+      "story": "Doc task engine v1 with CRUD and status transitions (requested\u2192received\u2192approved).",
+      "acceptance": "- Model + API + RBAC\n- Events logged to AuditEvent\n- Linked to per-debt confirmations\n- Minimal admin UI",
+      "persona": "backend"
+    },
+    {
+      "id": "mortgage-checks-ui",
+      "epic": "Intake & Credit",
+      "story": "UI prompts for forbearance/mod/transfer/foreclosure with badges on Mortgage cards.",
+      "acceptance": "- Prompts when rules trigger\n- Badges render with tooltips\n- State saved to borrower profile",
+      "persona": "frontend"
+    },
+    {
+      "id": "security-baseline",
+      "epic": "Security",
+      "story": "Apply PII masking, SSN encryption at rest, and access logs for credit events.",
+      "acceptance": "- Field-level encryption for SSN\n- Masking in UI/logs\n- Access log entries for sensitive reads",
+      "persona": "compliance"
+    }
+  ]
+}

@@ -355,3 +355,86 @@ class LoanEstimate(models.Model):
     def monthly_payment(self):
         """Extract monthly payment from calculation results"""
         return self.calculation_results.get('section_b', {}).get('estimated_total_monthly_payment', 0)
+
+
+class AuditEvent(models.Model):
+    """
+    Audit trail for sensitive operations (credit consent, PII access, etc.)
+    """
+    EVENT_TYPES = [
+        ('credit_consent', 'Credit Consent Given'),
+        ('credit_pull', 'Credit Report Pulled'),
+        ('pii_access', 'PII Data Accessed'),
+        ('document_view', 'Document Viewed'),
+        ('application_submit', 'Application Submitted'),
+        ('application_approve', 'Application Approved'),
+        ('application_reject', 'Application Rejected'),
+    ]
+
+    # Event metadata
+    event_type = models.CharField(max_length=50, choices=EVENT_TYPES)
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    # User information
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='audit_events',
+        help_text="User who triggered the event"
+    )
+    borrower_name = models.CharField(max_length=200, blank=True)
+
+    # PII protection: Only store last 4 digits of SSN
+    ssn_last_four = models.CharField(
+        max_length=4,
+        blank=True,
+        help_text="Last 4 digits of SSN (masked for security)"
+    )
+
+    # Request metadata
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+
+    # Related objects
+    loan_estimate = models.ForeignKey(
+        LoanEstimate,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='audit_events'
+    )
+
+    # Additional context (JSON for flexibility)
+    context = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Additional context data for the event"
+    )
+
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['event_type', '-timestamp']),
+            models.Index(fields=['user', '-timestamp']),
+            models.Index(fields=['ssn_last_four', '-timestamp']),
+            models.Index(fields=['-timestamp']),
+        ]
+
+    def __str__(self):
+        return f"{self.get_event_type_display()} - {self.borrower_name} ({self.timestamp})"
+
+    @staticmethod
+    def mask_ssn(ssn: str) -> str:
+        """
+        Mask SSN to only last 4 digits for logging
+        Input: '123456789' or '123-45-6789'
+        Output: '6789'
+        """
+        if not ssn:
+            return ''
+        # Remove any non-digit characters
+        clean_ssn = ''.join(filter(str.isdigit, ssn))
+        # Return last 4 digits only
+        return clean_ssn[-4:] if len(clean_ssn) >= 4 else clean_ssn

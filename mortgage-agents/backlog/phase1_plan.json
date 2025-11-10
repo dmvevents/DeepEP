@@ -1,0 +1,134 @@
+{
+  "phase": "phase1",
+  "title": "Credit Intake & Document Foundation",
+  "tasks": [
+    {
+      "id": "security-baseline",
+      "epic": "Security & Compliance Foundation",
+      "story": "Implement PII encryption, SSN masking, and audit logging for credit operations",
+      "acceptance": [
+        "SSN field encrypted at rest using field-level encryption",
+        "SSN masked in UI displays (format: ***-**-1234)",
+        "SSN masked in all log outputs",
+        "AuditEvent model created with immutable=True for credit_consent and credit_pull events",
+        "Access logs capture user, timestamp, and action for all credit data reads",
+        "Unit tests verify masking in logs and UI serializers"
+      ],
+      "persona": "compliance",
+      "estimate_hours": 8,
+      "priority": 1
+    },
+    {
+      "id": "consent-modal",
+      "epic": "Credit Intake UI",
+      "story": "Create CFPB-compliant credit consent modal with 45-day rate-shopping disclosure",
+      "acceptance": [
+        "Modal component blocks credit pull flow until user accepts",
+        "Copy includes CFPB 45-day rate-shopping window language",
+        "Acceptance triggers AuditEvent.credit_consent log entry",
+        "User consent timestamp stored in borrower profile",
+        "Unit test verifies modal cannot be bypassed",
+        "E2E test confirms consent flow before credit pull"
+      ],
+      "persona": "frontend",
+      "estimate_hours": 6,
+      "priority": 2
+    },
+    {
+      "id": "credit-parser",
+      "epic": "Credit Processing Backend",
+      "story": "Build credit parser to normalize tri-merge data into Liabilities model",
+      "acceptance": [
+        "Parser ingests mock tri-merge JSON format",
+        "Outputs normalized Liabilities with fields: creditor, balance, payment, DLA, lates_24mo, lates_36mo",
+        "Flags: is_ibr_deferred, is_cosigned, payment_count_under_10",
+        "Handles tradelines, inquiries, and remarks",
+        "Unit tests cover 3 sample credit reports (clean, moderate issues, complex)",
+        "API endpoint: POST /api/credit/parse returns structured output"
+      ],
+      "persona": "backend",
+      "estimate_hours": 12,
+      "priority": 2
+    },
+    {
+      "id": "credit-snapshot-ui",
+      "epic": "Credit Intake UI",
+      "story": "Display Credit Snapshot with per-debt confirmation cards and actions",
+      "acceptance": [
+        "Snapshot view shows: credit scores (TU/EQ/EX), tradelines list, inquiries count",
+        "Each debt card displays: creditor, balance, payment, status",
+        "Card actions: Confirm / Dispute / Upload Documentation",
+        "Actions trigger DocTask creation for dispute or upload",
+        "Confirmation state persists in borrower profile JSON field",
+        "E2E test: view snapshot, confirm 2 debts, dispute 1, upload doc"
+      ],
+      "persona": "frontend",
+      "estimate_hours": 10,
+      "priority": 3
+    },
+    {
+      "id": "doc-task-engine-v1",
+      "epic": "Document Management",
+      "story": "Create DocTask model with CRUD API and status workflow",
+      "acceptance": [
+        "DocTask model: task_type, status (requested/received/approved/rejected), related_object (Liability FK), assignee, due_date",
+        "API endpoints: POST create, GET list/retrieve, PATCH update status",
+        "Status transitions logged to AuditEvent",
+        "RBAC: borrowers see own tasks, admins see all",
+        "Minimal admin UI: list view with filters by status and borrower",
+        "Unit tests for state transitions and access control"
+      ],
+      "persona": "backend",
+      "estimate_hours": 10,
+      "priority": 3
+    },
+    {
+      "id": "mortgage-checks-ui",
+      "epic": "Credit Intake UI",
+      "story": "Add mortgage-specific prompts and badges for forbearance/modification/transfer/foreclosure",
+      "acceptance": [
+        "Prompt dialogs appear when mortgage account detected (account_type=mortgage)",
+        "Questions: forbearance status, loan modification, transfer/assumption, foreclosure history",
+        "Badges render on Mortgage card with tooltip explanations",
+        "Responses saved to borrower profile mortgage_flags JSON field",
+        "Badges styled with MUI Chip: forbearance=warning, foreclosure=error, modification=info",
+        "Unit test: mortgage detection triggers prompts"
+      ],
+      "persona": "frontend",
+      "estimate_hours": 8,
+      "priority": 4
+    },
+    {
+      "id": "borrower-profile-api",
+      "epic": "Credit Processing Backend",
+      "story": "Extend User model with BorrowerProfile for credit and mortgage metadata",
+      "acceptance": [
+        "BorrowerProfile model: user FK, credit_consent_at, credit_scores JSON, mortgage_flags JSON, confirmation_state JSON",
+        "API endpoints: GET /api/borrower/profile, PATCH update",
+        "Profile auto-created on first credit consent",
+        "JSON fields validated with JSONSchema",
+        "Migration creates profile for existing users",
+        "Unit tests for profile CRUD and validation"
+      ],
+      "persona": "backend",
+      "estimate_hours": 6,
+      "priority": 4
+    },
+    {
+      "id": "e2e-credit-flow",
+      "epic": "Integration Testing",
+      "story": "End-to-end test for complete credit intake flow",
+      "acceptance": [
+        "Test script: login -> consent modal -> mock credit pull -> view snapshot -> confirm debts -> create doc task",
+        "Verifies AuditEvent entries created at each step",
+        "Confirms borrower profile updated with consent and confirmation state",
+        "Validates DocTask created from dispute action",
+        "Runs in CI pipeline",
+        "Documents test data setup in tests/fixtures/credit_scenarios.json"
+      ],
+      "persona": "backend",
+      "estimate_hours": 8,
+      "priority": 5
+    }
+  ]
+}

@@ -40,6 +40,7 @@ import { propertyApi, calculateQualification } from '../services/api';
 import type { PropertyLookupResponse } from '../services/api';
 import Navbar from '../components/Navbar';
 import AddressAutocomplete from '../components/AddressAutocomplete';
+import CreditConsentModal from '../components/CreditConsentModal';
 import {
   formatCurrency,
   formatPercentage,
@@ -130,6 +131,10 @@ const MortgageApplication = () => {
 
   // Step 5: Results
   const [qualificationResults, setQualificationResults] = useState<any>(null);
+
+  // Credit Consent Modal State
+  const [showCreditConsentModal, setShowCreditConsentModal] = useState(false);
+  const [creditConsentGiven, setCreditConsentGiven] = useState(false);
 
   // Check for existing draft on mount
   useEffect(() => {
@@ -282,11 +287,56 @@ const MortgageApplication = () => {
   };
 
   const handleNext = () => {
+    // Before moving from Step 1 (Loan Details) to Step 2 (Upload Documents),
+    // show credit consent modal if consent hasn't been given
+    if (activeStep === 1 && !creditConsentGiven) {
+      setShowCreditConsentModal(true);
+      return;
+    }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleCreditConsentAccept = async () => {
+    try {
+      const timestamp = new Date();
+      setCreditConsentGiven(true);
+      setShowCreditConsentModal(false);
+
+      // Log audit event: AuditEvent.credit_consent
+      // In production, this would call a backend API endpoint
+      const auditEvent = {
+        event_type: 'credit_consent',
+        timestamp: timestamp.toISOString(),
+        borrower_name: `${firstName} ${lastName}`.trim(),
+        ssn_last_four: ssn ? ssn.slice(-4) : 'N/A', // Only log last 4 digits
+        ip_address: 'client', // In production, this would be captured server-side
+        user_agent: navigator.userAgent,
+      };
+
+      console.log('Credit Consent Audit Event:', auditEvent);
+
+      // TODO: Replace with actual API call when backend endpoint is ready
+      // await fetch('http://localhost:8000/api/audit-events/', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+      //   },
+      //   body: JSON.stringify(auditEvent)
+      // });
+
+      // Continue to next step
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    } catch (error) {
+      console.error('Error logging credit consent:', error);
+      // Still allow progression if logging fails (don't block user)
+      setShowCreditConsentModal(false);
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
   };
 
   const lookupProperty = async () => {
@@ -1703,6 +1753,15 @@ const MortgageApplication = () => {
           Progress saved! Redirecting to home...
         </Alert>
       </Snackbar>
+
+      {/* Credit Consent Modal */}
+      <CreditConsentModal
+        open={showCreditConsentModal}
+        onAccept={handleCreditConsentAccept}
+        borrowerName={`${firstName} ${lastName}`.trim()}
+        ssn={ssn}
+        isLoading={loading}
+      />
       </Box>
     </>
   );
