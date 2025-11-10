@@ -70,13 +70,16 @@ DB_ENC=$(docker compose exec -T backend python manage.py shell < /tmp/dbcheck.py
 [[ "$DB_ENC" == "SKIP" ]] && log_warning "No data to check"
 
 log "Checking frontend..."
-if docker compose ps 2>&1 | grep -q "frontend-react.*Up"; then
+set +e  # Temporarily disable exit on error for this check
+PS_OUTPUT=$(docker compose ps 2>/dev/null)
+if echo "$PS_OUTPUT" | grep -q "frontend-react.*Up"; then
     FRONTEND="PASS"
     log_success "Frontend running"
 else
     FRONTEND="SKIP"
     log_warning "Frontend not running"
 fi
+set -e  # Re-enable exit on error
 
 OVERALL="PASS"
 [[ "$PII_LEAK" == "true" ]] && OVERALL="WARN"
