@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-11-10T05:18:40Z",
+  "phase": "phase1",
+  "status": "PASS",
+  "tests": {
+    "migrations": "PASS",
+    "credit_parser_tests": "PASS",
+    "api_endpoint": "WARN",
+    "pii_masking": "PASS",
+    "db_encryption": "SKIP",
+    "frontend": "SKIP"
+  },
+  "security": {
+    "pii_leaks": false,
+    "encryption_verified": false
+  },
+  "log_file": "/Users/antonalexander/Github/real_estate_app/mortgage-agents/out/smoke_phase1_20251110_001831.log"
+}
