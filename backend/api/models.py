@@ -1351,3 +1351,146 @@ class PricingAuditLog(models.Model):
 
     def __str__(self):
         return f"Pricing Audit: {self.pricing_provider} - {self.status} ({self.timestamp})"
+
+
+class FeeCalculation(models.Model):
+    """
+    Fee calculation audit trail with deterministic results and source tracking
+
+    Tracks all fee calculations for loan scenarios including:
+    - Transfer taxes, recording fees, recordation taxes
+    - Title fees, prepaids, escrows
+    - UFMIP (FHA), MIP (FHA), VAFF (VA)
+
+    Each fee has source attribution (system/AI/override) and calculation trace
+    """
+    # Relationships
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='fee_calculations'
+    )
+    loan_estimate = models.ForeignKey(
+        'LoanEstimate',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='fee_calculations'
+    )
+    pricing_scenario = models.ForeignKey(
+        PricingScenario,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='fee_calculations'
+    )
+    tax_data = models.ForeignKey(
+        TaxData,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='fee_calculations',
+        help_text="TaxData version used for this calculation"
+    )
+
+    # Input parameters
+    property_value = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        help_text="Property value/purchase price"
+    )
+    loan_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        help_text="Loan amount"
+    )
+    loan_type = models.CharField(
+        max_length=20,
+        choices=[
+            ('conventional', 'Conventional'),
+            ('fha', 'FHA'),
+            ('va', 'VA'),
+            ('usda', 'USDA'),
+        ],
+        default='conventional'
+    )
+    first_time_homebuyer = models.BooleanField(default=False)
+    is_new_construction = models.BooleanField(default=False)
+    closing_date = models.DateField(null=True, blank=True)
+    zip_code = models.CharField(max_length=10, blank=True)
+
+    # Calculated totals
+    total_transfer_taxes = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_recording_fees = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_recordation_taxes = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_title_fees = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_prepaids = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_escrows = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_mortgage_insurance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_fees = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    # Detailed fee breakdown with source tracking
+    fee_breakdown = models.JSONField(
+        help_text="Complete fee breakdown with line items, sources, and calculation traces"
+    )
+
+    # Determinism and audit
+    deterministic_hash = models.CharField(
+        max_length=32,
+        db_index=True,
+        help_text="Hash of inputs for determinism verification"
+    )
+    jurisdiction = models.CharField(
+        max_length=100,
+        help_text="Jurisdiction (State-County) for this calculation"
+    )
+    tax_data_version = models.CharField(
+        max_length=10,
+        default="2.0",
+        help_text="Tax data schema version used"
+    )
+
+    # Metadata
+    calculation_timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-calculation_timestamp']
+        indexes = [
+            models.Index(fields=['user', '-calculation_timestamp']),
+            models.Index(fields=['loan_estimate', '-calculation_timestamp']),
+            models.Index(fields=['pricing_scenario', '-calculation_timestamp']),
+            models.Index(fields=['deterministic_hash']),
+            models.Index(fields=['jurisdiction', '-calculation_timestamp']),
+            models.Index(fields=['-calculation_timestamp']),
+        ]
+
+    def __str__(self):
+        return f"Fee Calc: {self.jurisdiction} - ${self.total_fees:,.2f} - {self.calculation_timestamp}"
+
+    @property
+    def has_overrides(self) -> bool:
+        """Check if any fees have 'override' source"""
+        breakdown = self.fee_breakdown
+        for category in ['transfer_taxes', 'recording_fees', 'recordation_taxes',
+                        'title_fees', 'prepaids', 'escrows', 'mortgage_insurance']:
+            for item in breakdown.get(category, []):
+                if item.get('source') == 'override':
+                    return True
+        return False
+
+    @property
+    def source_summary(self) -> dict:
+        """Get count of fees by source type"""
+        sources = {'system': 0, 'ai': 0, 'override': 0}
+        breakdown = self.fee_breakdown
+
+        for category in ['transfer_taxes', 'recording_fees', 'recordation_taxes',
+                        'title_fees', 'prepaids', 'escrows', 'mortgage_insurance']:
+            for item in breakdown.get(category, []):
+                source = item.get('source', 'system')
+                sources[source] = sources.get(source, 0) + 1
+
+        return sources

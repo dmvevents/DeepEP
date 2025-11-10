@@ -9,7 +9,7 @@ import json
 from .models import (
     State, County, TaxData, Municipality,
     ScraperLog, UserProfile, LoanEstimate, DocTask,
-    CreditReport, Tradeline, AuditEvent
+    CreditReport, Tradeline, AuditEvent, FeeCalculation
 )
 
 
@@ -400,6 +400,93 @@ class AuditEventAdmin(admin.ModelAdmin):
             return "No context data"
         return mark_safe(f'<pre>{json.dumps(obj.context, indent=2)}</pre>')
     formatted_context.short_description = 'Context (Formatted)'
+
+
+@admin.register(FeeCalculation)
+class FeeCalculationAdmin(admin.ModelAdmin):
+    list_display = [
+        'id', 'user', 'jurisdiction', 'loan_type',
+        'total_fees_display', 'has_overrides_display',
+        'calculation_timestamp'
+    ]
+    list_filter = [
+        'loan_type', 'first_time_homebuyer', 'is_new_construction',
+        'jurisdiction', 'calculation_timestamp'
+    ]
+    search_fields = [
+        'user__username', 'jurisdiction', 'deterministic_hash'
+    ]
+    readonly_fields = [
+        'calculation_timestamp', 'updated_at', 'deterministic_hash',
+        'jurisdiction', 'tax_data_version', 'has_overrides',
+        'source_summary_display', 'formatted_fee_breakdown',
+        'total_transfer_taxes', 'total_recording_fees',
+        'total_recordation_taxes', 'total_title_fees',
+        'total_prepaids', 'total_escrows', 'total_mortgage_insurance',
+        'total_fees'
+    ]
+    fieldsets = (
+        ('User & Relationships', {
+            'fields': ('user', 'loan_estimate', 'pricing_scenario', 'tax_data')
+        }),
+        ('Input Parameters', {
+            'fields': (
+                'property_value', 'loan_amount', 'loan_type',
+                'first_time_homebuyer', 'is_new_construction',
+                'closing_date', 'zip_code'
+            )
+        }),
+        ('Totals', {
+            'fields': (
+                'total_transfer_taxes', 'total_recording_fees',
+                'total_recordation_taxes', 'total_title_fees',
+                'total_prepaids', 'total_escrows',
+                'total_mortgage_insurance', 'total_fees'
+            )
+        }),
+        ('Fee Breakdown', {
+            'fields': ('fee_breakdown', 'formatted_fee_breakdown'),
+            'classes': ('collapse',)
+        }),
+        ('Audit Trail', {
+            'fields': (
+                'deterministic_hash', 'jurisdiction', 'tax_data_version',
+                'has_overrides', 'source_summary_display',
+                'calculation_timestamp', 'updated_at'
+            )
+        }),
+    )
+    raw_id_fields = ['user', 'loan_estimate', 'pricing_scenario', 'tax_data']
+    date_hierarchy = 'calculation_timestamp'
+
+    def total_fees_display(self, obj):
+        return f"${obj.total_fees:,.2f}"
+    total_fees_display.short_description = 'Total Fees'
+    total_fees_display.admin_order_field = 'total_fees'
+
+    def has_overrides_display(self, obj):
+        if obj.has_overrides:
+            return format_html('<span style="color: orange;">⚠ Override</span>')
+        return format_html('<span style="color: green;">✓ System</span>')
+    has_overrides_display.short_description = 'Source'
+
+    def source_summary_display(self, obj):
+        summary = obj.source_summary
+        html = '<ul style="margin: 0; padding-left: 20px;">'
+        html += f'<li><strong>System:</strong> {summary["system"]} fees</li>'
+        html += f'<li><strong>AI:</strong> {summary["ai"]} fees</li>'
+        html += f'<li><strong>Override:</strong> {summary["override"]} fees</li>'
+        html += '</ul>'
+        return mark_safe(html)
+    source_summary_display.short_description = 'Source Summary'
+
+    def formatted_fee_breakdown(self, obj):
+        return mark_safe(f'<pre>{json.dumps(obj.fee_breakdown, indent=2)}</pre>')
+    formatted_fee_breakdown.short_description = 'Fee Breakdown (Formatted)'
+
+    def has_add_permission(self, request):
+        # Fee calculations should only be created by the system
+        return False
 
 
 # Customize admin site
