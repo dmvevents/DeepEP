@@ -198,6 +198,16 @@ def main():
 
     bprefix = cfg.get("branch_prefix","autopm/")
 
+import re
+def _sanitize_ref(name:str)->str:
+    name = (name or "task").lower()
+    name = re.sub(r"[^a-z0-9._/-]+", "-", name)   # kill :, spaces, etc
+    name = name.strip("-/.")
+    name = name.replace("..","-")
+    if name.endswith(".lock"): name += "-x"
+    return name or "task"
+
+
     for t in filtered:
         tid = str(t.get("id") or t.get("title","untitled")).lower().replace(" ","-").replace("/","-")
         epic_key = (t.get("epic") or t.get("id","")).split(":")[0] if t.get("id") else None
@@ -212,7 +222,7 @@ def main():
                     base_branch = name
                     break
 
-        task_branch = f"{bprefix}{(epic_key or 'TASK')}-task-{tid[:32]}"
+        task_branch = f"{bprefix}{_sanitize_ref(epic_key or 'task')}-task-{_sanitize_ref(tid)[:32]}"
         run(f"git checkout {base_branch}")
         rc = subprocess.call(["git","rev-parse","--verify","--quiet",task_branch])
         if rc != 0:
