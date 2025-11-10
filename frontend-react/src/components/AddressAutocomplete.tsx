@@ -32,7 +32,7 @@ const AddressAutocomplete = ({ value, onChange, textFieldProps }: AddressAutocom
   const [options, setOptions] = useState<AddressSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [inputValue, setInputValue] = useState(value);
-  const debounceTimer = useRef<NodeJS.Timeout>();
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Fetch suggestions from Photon API (OpenStreetMap geocoder)
   const fetchSuggestions = async (query: string) => {
@@ -100,7 +100,7 @@ const AddressAutocomplete = ({ value, onChange, textFieldProps }: AddressAutocom
       options={options}
       loading={loading}
       inputValue={inputValue}
-      onInputChange={(event, newValue, reason) => {
+      onInputChange={(_, newValue, reason) => {
         // Only update if user is typing (not when selecting from dropdown)
         if (reason === 'input') {
           setInputValue(newValue);

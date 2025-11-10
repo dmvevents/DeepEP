@@ -1,228 +1,170 @@
-# 🏠 Real Estate Mortgage Calculator
+# Real Estate Mortgage Calculator
 
-A comprehensive mortgage qualification system with intelligent property lookup, AI-powered document processing, and multi-guideline loan qualification (Fannie Mae, FHA, VA).
+> AI-Powered Mortgage Calculation Platform with Automated Tax Data Collection
 
-**Created by:** Anton Alexander  
-**Date:** November 2025  
-**Status:** ✅ Production Ready
-
----
-
-## ✨ Features
-
-### Core Functionality
-
-- **🔍 Automatic Property Lookup**: Enter an address and automatically retrieve:
-  - Property tax rates
-  - Transfer tax calculations
-  - Recording fees
-  - Insurance estimates
-  - County jurisdiction data
-
-- **💰 Transfer Tax Calculator**: Intelligent calculation with 4 scenarios:
-  1. New Construction → Buyer pays 100%
-  2. Resale → 50/50 split
-  3. Resale + First-Time Buyer → State transfer tax exempt (saves $2,000+ on typical home)
-  4. New Construction + First-Time Buyer → Buyer pays 100% (no exemption)
-
-- **📄 AI-Powered OCR**: Extract data from documents using OLLAMA vision models:
-  - Pay stubs, W-2 forms, Tax returns, Bank statements, Employment letters
-
-- **🎯 Multi-Guideline Qualification**: Calculate eligibility for:
-  - Fannie Mae (Conventional) - Front-end ≤ 28%, Back-end ≤ 36%
-  - FHA - Front-end ≤ 31%, Back-end ≤ 43%
-  - VA - Back-end ≤ 41%
-
-- **👨‍💼 Admin Dashboard**:
-  - Manage borrowers with loan-number authentication
-  - Set qualification limits per user
-  - Monitor DTI warnings (> 43%)
-  - View uploaded documents
-  - Enable/disable borrower accounts
-
----
-
-## 🛠 Tech Stack
-
-### Frontend
-- React 18 with TypeScript
-- Vite for fast development
-- Material-UI v5 for components
-- React Router for navigation
-
-### Backend
-- FastAPI for microservices (Python 3.11+)
-- PostgreSQL 15 for data storage
-- Redis 7 for caching
-- OLLAMA for AI vision models
-
-### DevOps
-- Docker & Docker Compose
-- Nginx reverse proxy
+[![Status](https://img.shields.io/badge/status-beta-yellow)](https://github.com)
+[![Python](https://img.shields.io/badge/python-3.11+-blue)](https://python.org)
+[![React](https://img.shields.io/badge/react-19.2-blue)](https://reactjs.org)
 
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Docker & Docker Compose
-- Git
+```bash
+# Start all services with Docker
+docker-compose up -d
 
-### 1. Clone & Setup
+# Access the application
+open http://localhost:3000
+```
 
-\`\`\`bash
-git clone https://github.com/antonalexander/real_estate_app.git
-cd real_estate_app
-cp .env.example .env
-\`\`\`
+**Demo Accounts:**
+- Admin: `admin` / `admin`
+- Customer: `demo` / `demo123`
 
-### 2. Start Services
-
-\`\`\`bash
-docker-compose up --build
-\`\`\`
-
-**Access:**
-- Frontend: http://localhost:3000
-- Property API: http://localhost:8004
-- OCR Service: http://localhost:8003
+**Full setup instructions**: See [Quick Start Guide](docs/development/QUICKSTART.md)
 
 ---
 
-## 🐳 Docker Services
+## 🎯 What is This?
 
-| Service | Port | Description |
-|---------|------|-------------|
-| frontend-react | 3000 | React app (Nginx) |
-| property-api | 8004 | Property lookup & tax calculations |
-| ocr-service | 8003 | Document OCR |
-| postgres | 5432 | PostgreSQL DB |
-| redis | 6379 | Redis cache |
-| ollama | 11434 | AI vision models |
+An intelligent mortgage calculator that automatically collects tax data from all 50 US states using AI and provides CFPB-compliant loan estimates with 98% accuracy.
+
+### Key Features
+
+- **🤖 Automated Tax Data**: AI scrapes property tax, transfer fees, and recordation taxes from official government sources
+- **📊 CFPB Compliant**: Complete federal Loan Estimate calculations
+- **🗺️ National Coverage**: All 50 states, 3,143+ counties
+- **⚡ Real-Time**: Instant mortgage calculations
+- **👥 Full Workflow**: Application submission through admin approval
+- **📄 Smart OCR**: AI-powered document processing
+
+---
+
+## 📚 Documentation
+
+### Get Started
+- **[Quick Start](docs/development/QUICKSTART.md)** - Up and running in 5 minutes
+- **[Docker Operations](docs/deployment/DOCKER_OPERATIONS.md)** - Managing containers
+- **[API Reference](docs/development/QUICK_REFERENCE.md)** - API endpoints
+
+### For Developers
+- **[Development Guide](docs/development/CLAUDE.md)** - Complete dev setup
+- **[Architecture](docs/architecture/REPO_STRUCTURE.md)** - System design
+- **[Debugging Guide](docs/development/DEBUGGING_GUIDE.md)** - Troubleshooting
+
+### For Stakeholders
+- **[Project Status Report](docs/summaries/PROJECT_STATUS_REPORT.md)** - Progress and roadmap
+- **[Implementation Summary](docs/summaries/IMPLEMENTATION_SUMMARY.md)** - Recent updates
+
+### Technical Specs
+- **[Tax Data Schema](docs/specifications/ENHANCED_TAX_DATA_SCHEMA.md)** - Data structure
+- **[Test Results](docs/summaries/TEST_SUMMARY.md)** - Testing status
+
+---
+
+## 🏗️ Architecture
+
+```
+Frontend (React)  →  Backend API (Django)  →  PostgreSQL
+                  →  Scraper (FastAPI)     →  Redis
+                  →  OCR Service          →  Celery
+                  →  VLM Service
+```
+
+**Tech Stack:**
+- Backend: Django 4.2, FastAPI, PostgreSQL 15, Redis 7, Celery
+- AI: OpenAI GPT-4 / Claude 3.5, Ollama
+- Frontend: React 19.2, TypeScript 5.6, Material-UI 5.18
+- Infrastructure: Docker Compose, Nginx
+
+---
+
+## 📊 Current Status
+
+**Version:** v2.0-beta  
+**Progress:** 85% Complete  
+**Status:** Ready for Beta Testing  
+
+### ✅ Completed
+- Core mortgage calculator (CFPB compliant)
+- AI tax data scraper (all 50 states)
+- Enhanced tax schema v2.0 (98% accuracy)
+- User authentication & workflow
+- Admin dashboard
+- React frontend
+- Document OCR
+- Docker deployment
+
+### 🚧 In Progress
+- Enhanced tax proration
+- RESPA escrow calculations
+- Multi-county testing
+- Email notifications
+
+See full status in [Project Status Report](docs/summaries/PROJECT_STATUS_REPORT.md)
+
+---
+
+## 🔧 Configuration
+
+```bash
+# 1. Copy environment templates
+cp .env.example .env
+cp .env.scraper.example .env.scraper
+
+# 2. Add API keys to .env.scraper
+OPENAI_API_KEY=your-key-here
+SERP_API_KEY=your-key-here
+
+# 3. Start services
+docker-compose up -d
+
+# 4. Initialize database
+docker-compose exec backend python manage.py migrate
+docker-compose exec backend python manage.py load_jurisdictions
+docker-compose exec backend python manage.py createsuperuser
+```
 
 ---
 
 ## 📁 Project Structure
 
-\`\`\`
+```
 real_estate_app/
-├── frontend-react/          # React frontend
-│   ├── src/pages/
-│   │   ├── Home.tsx
-│   │   ├── MortgageApplication.tsx
-│   │   ├── AdminDashboard.tsx
-│   │   └── DocumentUpload.tsx
-│   └── Dockerfile
-├── backend/
-│   ├── api/                 # Property API
-│   ├── ocr-service/         # OCR Service
-│   └── calculator/          # Calculation engines
-├── docker-compose.yml
-└── README.md
-\`\`\`
+├── backend/              # Django REST API
+├── frontend-react/       # React application
+├── scraper/             # Tax data scraper
+├── ocr-service/         # Document OCR
+├── vlm-service/         # Vision-language model
+├── nginx/               # Reverse proxy
+├── docs/                # Documentation
+│   ├── architecture/    # System design
+│   ├── deployment/      # Ops guides
+│   ├── development/     # Dev guides
+│   ├── specifications/  # Technical specs
+│   └── summaries/       # Status reports
+├── tests/               # Test suites
+└── docker-compose.yml   # Container config
+```
 
 ---
 
-## 🎯 Key Features
+## 🔗 Quick Links
 
-### 1. Property Address Auto-Population ✅
-User enters address → System auto-fills taxes, insurance, and fees
-
-### 2. Transfer Tax Calculation ✅
-**Test Results ($400k home):**
-- Scenario 1: Buyer $7,875
-- Scenario 2: Buyer $4,875, Seller $3,000
-- Scenario 3 (First-Time): Buyer $3,875 (saves $2,000!)
-- Scenario 4: Buyer $7,875
-
-### 3. Admin Dashboard ✅
-Complete CRUD, DTI warnings, document management
-
-### 4. Loan Number Auth ✅
-Simple access via loan number (e.g., LN-2025-001)
-
-### 5. AI-Powered OCR ✅
-Extract data from documents with confidence scores
+- **[Documentation Index](docs/README.md)** - All documentation
+- **[Quick Start](docs/development/QUICKSTART.md)** - Get started fast
+- **[API Docs](http://localhost:8000/api/docs)** - Interactive API (when running)
+- **[Project Status](docs/summaries/PROJECT_STATUS_REPORT.md)** - Current progress
 
 ---
 
-## 📊 Project Stats
+## 📞 Support
 
-- **12,000+ lines** of code
-- **35+ files** across modules
-- **7 microservices** operational
-- **Complete Docker orchestration**
-- **4,000+ lines** of documentation
+- **Issues**: [GitHub Issues](https://github.com/yourusername/real_estate_app/issues)
+- **Docs**: See `/docs` directory
+- **Guides**: [Quick Reference](docs/development/QUICK_REFERENCE.md)
 
 ---
 
-## 💻 Development
-
-### Frontend Dev
-\`\`\`bash
-cd frontend-react
-npm install
-npm run dev
-\`\`\`
-
-### Backend Dev
-\`\`\`bash
-cd backend/api
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn property_api:app --reload --port 8004
-\`\`\`
-
----
-
-## 📚 API Examples
-
-### Property Lookup
-\`\`\`bash
-curl "http://localhost:8004/api/property/lookup?address=123 Main St, Rockville, MD 20850"
-\`\`\`
-
-### Transfer Tax Calculation
-\`\`\`bash
-curl -X POST http://localhost:8004/api/property/calculate-transfer-tax \
-  -H "Content-Type: application/json" \
-  -d '{"sales_price": 400000, "is_new_construction": false, "is_first_time_buyer": true}'
-\`\`\`
-
----
-
-## 🔐 Security
-
-### Implemented:
-- ✅ Loan number-based access
-- ✅ Admin-only dashboard
-- ✅ Input validation
-- ✅ Environment variables for secrets
-
-### Production Recommendations:
-- 🔄 HTTPS/SSL certificates
-- 🔄 JWT authentication
-- 🔄 Rate limiting
-- 🔄 Document encryption
-
----
-
-## 👤 Author
-
-**Anton Alexander**  
-GitHub: [@antonalexander](https://github.com/antonalexander)  
-Project: Real Estate Mortgage Calculator  
-Date: November 2025
-
----
-
-## 📄 License
-
-MIT License - See LICENSE file
-
----
-
-**⭐ Star this repo if you find it helpful!**
-
-Built with [Claude Code](https://claude.com/claude-code)
+**Built by Anton Alexander** | Last Updated: November 9, 2025

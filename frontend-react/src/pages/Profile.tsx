@@ -15,7 +15,6 @@ import {
   DialogTitle,
   DialogActions,
   Alert,
-  Divider,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
@@ -375,7 +374,7 @@ const Profile = () => {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   disabled={!editing}
-                  error={editing && formData.email && !isValidEmail(formData.email)}
+                  error={!!(editing && formData.email && !isValidEmail(formData.email))}
                   helperText={editing && formData.email && !isValidEmail(formData.email) ? 'Invalid email' : undefined}
                 />
               </Grid>
@@ -387,7 +386,7 @@ const Profile = () => {
                   value={formData.first_name}
                   onChange={(e) => setFormData({ ...formData, first_name: formatName(e.target.value) })}
                   disabled={!editing}
-                  error={editing && formData.first_name && !isValidName(formData.first_name)}
+                  error={!!(editing && formData.first_name && !isValidName(formData.first_name))}
                   helperText={editing && formData.first_name && !isValidName(formData.first_name) ? 'Letters only, 2-50 chars' : undefined}
                 />
               </Grid>
@@ -398,7 +397,7 @@ const Profile = () => {
                   value={formData.middle_name}
                   onChange={(e) => setFormData({ ...formData, middle_name: formatName(e.target.value) })}
                   disabled={!editing}
-                  error={editing && formData.middle_name && !isValidName(formData.middle_name)}
+                  error={!!(editing && formData.middle_name && !isValidName(formData.middle_name))}
                   helperText={editing && formData.middle_name && !isValidName(formData.middle_name) ? 'Letters only, 2-50 chars' : 'Optional'}
                 />
               </Grid>
@@ -410,7 +409,7 @@ const Profile = () => {
                   value={formData.last_name}
                   onChange={(e) => setFormData({ ...formData, last_name: formatName(e.target.value) })}
                   disabled={!editing}
-                  error={editing && formData.last_name && !isValidName(formData.last_name)}
+                  error={!!(editing && formData.last_name && !isValidName(formData.last_name))}
                   helperText={editing && formData.last_name && !isValidName(formData.last_name) ? 'Letters only, 2-50 chars' : undefined}
                 />
               </Grid>
@@ -421,7 +420,7 @@ const Profile = () => {
                   value={editing ? formData.phone : formatPhoneNumber(formData.phone)}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   disabled={!editing}
-                  error={editing && formData.phone && !isValidPhone(formData.phone)}
+                  error={!!(editing && formData.phone && !isValidPhone(formData.phone))}
                   helperText={editing && formData.phone && !isValidPhone(formData.phone) ? 'Enter 10-digit phone' : undefined}
                 />
               </Grid>

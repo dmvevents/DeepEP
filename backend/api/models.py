@@ -58,6 +58,11 @@ class TaxData(models.Model):
     # Versioning
     version = models.IntegerField(default=1)
     is_current = models.BooleanField(default=True, help_text="Is this the current version?")
+    data_version = models.CharField(
+        max_length=10,
+        default="1.0",
+        help_text="Schema version (e.g., '2.0' for enhanced schema)"
+    )
 
     # Data completeness and confidence
     data_completeness = models.IntegerField(

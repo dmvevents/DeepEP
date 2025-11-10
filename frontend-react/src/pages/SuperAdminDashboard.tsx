@@ -48,7 +48,6 @@ import Navbar from '../components/Navbar';
 import type { AdminProfile, AuditLog } from '../types/admin';
 import {
   formatPhoneNumber,
-  formatDate,
   formatDateTime,
   formatRelativeTime,
   formatNumber,
@@ -258,14 +257,14 @@ const SuperAdminDashboard = () => {
     }
   };
 
-  const handleDeleteAdmin = async (adminId: string) => {
+  const handleDeleteAdmin = async (_adminId: string) => {
     if (!window.confirm('Are you sure you want to delete this admin? This action cannot be undone.')) {
       return;
     }
 
     try {
       // TODO: Replace with actual API call
-      // await fetch(`/api/admins/${adminId}/`, {
+      // await fetch(`/api/admins/${_adminId}/`, {
       //   method: 'DELETE',
       //   headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       // });

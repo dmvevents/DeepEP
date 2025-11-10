@@ -451,8 +451,9 @@ class MortgageCalculator:
 
         Applies:
         - Assessment ratio
-        - Base tax rate
+        - Base tax rate (composite_rate_per_100)
         - Municipality overlay (if zip code provided)
+        - Special assessments
         """
         tax_info = self.tax_data.get('property_tax', {})
 
@@ -462,43 +463,95 @@ class MortgageCalculator:
         # Calculate assessed value
         assessed_value = property_value * assessment_ratio
 
-        # Get total tax rate (convert from mills or percentage)
-        total_rate = Decimal(str(tax_info.get('total_rate', 0.01)))
-
-        # Check if rate is in mills (per $1000) or percentage
-        if total_rate > 1:
-            # Likely in mills, convert to percentage
-            total_rate = total_rate / 1000
+        # Get composite rate per $100 (enhanced schema)
+        # Try new schema first, fallback to old schema
+        composite_rate_per_100 = tax_info.get('composite_rate_per_100')
+        if composite_rate_per_100 is not None:
+            # Enhanced schema: rate per $100
+            rate = Decimal(str(composite_rate_per_100)) / 100
+        else:
+            # Legacy schema: total_rate
+            total_rate = Decimal(str(tax_info.get('total_rate', 0.01)))
+            # Check if rate is in mills (per $1000) or percentage
+            if total_rate > 1:
+                # Likely in mills, convert to percentage
+                rate = total_rate / 1000
+            else:
+                rate = total_rate
 
         # Apply municipality overlay if zip code provided
         if zip_code:
             municipalities = tax_info.get('municipalities', [])
             for muni in municipalities:
                 if zip_code in muni.get('zip_codes', []):
-                    muni_rate = Decimal(str(muni.get('millage', 0)))
-                    if muni_rate > 1:
-                        muni_rate = muni_rate / 1000
-                    total_rate += muni_rate
+                    # Enhanced schema: composite_rate_per_100
+                    muni_composite = muni.get('composite_rate_per_100')
+                    if muni_composite is not None:
+                        # Use municipality's composite rate (replaces base rate)
+                        rate = Decimal(str(muni_composite)) / 100
+                    else:
+                        # Legacy: add municipality_rate_per_100 or millage
+                        muni_rate = muni.get('municipality_rate_per_100') or muni.get('millage', 0)
+                        muni_rate = Decimal(str(muni_rate))
+                        if muni_rate > 1:
+                            muni_rate = muni_rate / 1000
+                        else:
+                            muni_rate = muni_rate / 100
+                        rate += muni_rate
                     break
 
-        # Calculate annual tax
-        annual_tax = assessed_value * total_rate
+        # Calculate base annual tax
+        annual_tax = assessed_value * rate
+
+        # Add special assessments (flat annual amounts)
+        special_assessments = tax_info.get('special_assessments', [])
+        for assessment in special_assessments:
+            annual_amount = Decimal(str(assessment.get('annual_amount', 0)))
+            annual_tax += annual_amount
 
         return annual_tax.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
-    def _get_annual_homeowners_insurance(self, property_value: Decimal) -> Decimal:
+    def _get_annual_homeowners_insurance(
+        self,
+        property_value: Decimal,
+        risk_factors: Optional[Dict[str, bool]] = None
+    ) -> Decimal:
         """
         Estimate annual homeowners insurance from scraped data
 
-        Uses base premium per $100k of property value
+        Enhanced schema supports:
+        - Base premium per $100k OR avg_rate_per_1000
+        - Risk modifiers (flood_zone, coastal, wildfire, etc.)
+        - Dwelling coverage multiplier
         """
         insurance_info = self.tax_data.get('insurance_estimate', {})
+        homeowners = insurance_info.get('homeowners', insurance_info)  # Support nested or flat structure
 
-        # Base premium per $100k
-        base_premium_per_100k = Decimal(str(insurance_info.get('base_premium_per_100k', 650)))
+        # Get base rate - try enhanced schema first
+        avg_rate_per_1000 = homeowners.get('avg_rate_per_1000')
+        if avg_rate_per_1000 is not None:
+            # Enhanced schema: rate per $1000
+            rate = Decimal(str(avg_rate_per_1000))
+            dwelling_coverage_multiplier = Decimal(str(homeowners.get('dwelling_coverage_multiplier', 1.0)))
+            dwelling_coverage = property_value * dwelling_coverage_multiplier
+            base_premium = (dwelling_coverage / Decimal('1000')) * rate
+        else:
+            # Legacy schema: premium per $100k
+            base_premium_per_100k = Decimal(str(homeowners.get('base_premium_per_100k', 650)))
+            base_premium = (property_value / Decimal('100000')) * base_premium_per_100k
 
-        # Calculate for this property
-        annual_premium = (property_value / Decimal('100000')) * base_premium_per_100k
+        # Apply risk modifiers if available
+        risk_modifiers = homeowners.get('risk_modifiers', {})
+        risk_multiplier = Decimal('1.0')
+
+        if risk_factors and risk_modifiers:
+            for risk_type, has_risk in risk_factors.items():
+                if has_risk and risk_type in risk_modifiers:
+                    # Add the modifier (e.g., 0.15 = 15% increase)
+                    modifier_value = Decimal(str(risk_modifiers[risk_type]))
+                    risk_multiplier += modifier_value
+
+        annual_premium = base_premium * risk_multiplier
 
         return annual_premium.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
@@ -531,9 +584,10 @@ class MortgageCalculator:
         first_time_homebuyer: bool
     ) -> Decimal:
         """
-        Calculate transfer taxes from scraped data
+        Calculate transfer taxes from scraped data with buyer/seller split
 
         Applies first-time homebuyer exemptions if applicable
+        Enhanced schema supports explicit payer_split ratios
         """
         transfer_tax = self.tax_data.get('transfer_tax', {})
 
@@ -543,21 +597,54 @@ class MortgageCalculator:
         # Check first-time homebuyer exemption
         if first_time_homebuyer:
             ftb_threshold = Decimal(str(transfer_tax.get('first_time_buyer_threshold', 0)))
+            ftb_info = transfer_tax.get('first_time_buyer', {})
+
             if ftb_threshold > 0 and property_value <= ftb_threshold:
-                exemption = transfer_tax.get('first_time_buyer_exemption', '')
-                if 'state portion waived' in exemption.lower():
-                    state_rate = Decimal('0')
+                # Enhanced schema: use effective_state_rate if available
+                effective_rate = ftb_info.get('effective_state_rate')
+                if effective_rate is not None:
+                    state_rate = Decimal(str(effective_rate))
+                else:
+                    # Legacy: check exemption text
+                    exemption = transfer_tax.get('first_time_buyer_exemption', '')
+                    if 'state portion waived' in exemption.lower():
+                        state_rate = Decimal('0')
+
+                # Use FTB payer split override if available
+                ftb_split = ftb_info.get('payer_split_override', {})
+                if ftb_split:
+                    buyer_portion_ftb = Decimal(str(ftb_split.get('buyer', 0.0)))
+                    seller_portion_ftb = Decimal(str(ftb_split.get('seller', 1.0)))
+                else:
+                    buyer_portion_ftb = None
+                    seller_portion_ftb = None
+            else:
+                buyer_portion_ftb = None
+                seller_portion_ftb = None
+        else:
+            buyer_portion_ftb = None
+            seller_portion_ftb = None
 
         # Calculate taxes
         state_tax = property_value * state_rate
         county_tax = property_value * county_rate
 
-        # Buyer/seller split (typically seller pays, but we show buyer portion)
-        split_rule = transfer_tax.get('buyer_seller_split', 'seller pays')
-        if 'negotiable' in split_rule.lower() or 'buyer pays' in split_rule.lower():
-            buyer_portion = Decimal('0.5')  # Assume 50/50 if negotiable
+        # Determine buyer/seller split
+        if buyer_portion_ftb is not None:
+            # FTB override
+            buyer_portion = buyer_portion_ftb
         else:
-            buyer_portion = Decimal('0')  # Seller typically pays
+            # Standard split from payer_split
+            payer_split = transfer_tax.get('payer_split', {})
+            if payer_split:
+                buyer_portion = Decimal(str(payer_split.get('buyer', 0.5)))
+            else:
+                # Legacy: parse split_rule text
+                split_rule = transfer_tax.get('buyer_seller_split', 'seller pays')
+                if 'negotiable' in split_rule.lower() or 'buyer pays' in split_rule.lower():
+                    buyer_portion = Decimal('0.5')  # Assume 50/50 if negotiable
+                else:
+                    buyer_portion = Decimal('0')  # Seller typically pays
 
         total_buyer = (state_tax + county_tax) * buyer_portion
 
@@ -567,8 +654,11 @@ class MortgageCalculator:
         """
         Calculate recordation taxes with tiered structure
 
-        Many jurisdictions have tiered rates based on property value
+        Enhanced schema uses rate_per_500 (rate per $500 increment)
+        Legacy schema uses percentage rates
         """
+        from math import ceil
+
         recordation_tax = self.tax_data.get('recordation_tax', {})
         tiers = recordation_tax.get('tiers', [])
 
@@ -579,21 +669,62 @@ class MortgageCalculator:
 
         # Calculate with tiers
         total_tax = Decimal('0')
+        remaining = property_value
 
         for tier in tiers:
             min_value = Decimal(str(tier.get('min_value', 0)))
-            max_value = Decimal(str(tier.get('max_value', float('inf'))))
-            rate = Decimal(str(tier.get('rate', 0)))
+            max_value_raw = tier.get('max_value')
 
-            if property_value >= min_value:
-                # Calculate taxable amount in this tier
-                if property_value <= max_value:
-                    taxable = property_value - min_value
+            # Check for rate_per_500 (enhanced schema)
+            rate_per_500 = tier.get('rate_per_500')
+
+            if rate_per_500 is not None:
+                # Enhanced schema: calculate using $500 increments
+                rate_per_500 = Decimal(str(rate_per_500))
+
+                if max_value_raw is None:
+                    # No max, apply to all remaining
+                    taxable = remaining
                 else:
-                    taxable = max_value - min_value
+                    max_value = Decimal(str(max_value_raw))
+                    if remaining + min_value <= max_value:
+                        taxable = remaining
+                    else:
+                        taxable = max_value - min_value
 
-                tier_tax = taxable * rate
+                # Calculate number of $500 increments (round up)
+                increments = ceil(float(taxable / 500))
+                tier_tax = Decimal(increments) * rate_per_500
                 total_tax += tier_tax
+                remaining -= taxable
+
+                if remaining <= 0:
+                    break
+            else:
+                # Legacy schema: percentage rate
+                if max_value_raw is None:
+                    max_value = Decimal('inf')
+                else:
+                    max_value = Decimal(str(max_value_raw))
+
+                rate = Decimal(str(tier.get('rate', 0)))
+
+                if property_value >= min_value:
+                    # Calculate taxable amount in this tier
+                    if property_value <= max_value:
+                        taxable = property_value - min_value
+                    else:
+                        taxable = max_value - min_value
+
+                    tier_tax = taxable * rate
+                    total_tax += tier_tax
+
+        # Add school increment if included (enhanced schema)
+        school_increment = recordation_tax.get('school_increment', {})
+        if school_increment.get('included'):
+            school_rate_per_500 = Decimal(str(school_increment.get('rate_per_500', 0.5)))
+            school_increments = ceil(float(property_value / 500))
+            total_tax += Decimal(school_increments) * school_rate_per_500
 
         return total_tax.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 

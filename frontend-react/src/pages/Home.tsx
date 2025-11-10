@@ -22,7 +22,6 @@ import SpeedIcon from '@mui/icons-material/Speed';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import SearchIcon from '@mui/icons-material/Search';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import HomeWorkIcon from '@mui/icons-material/HomeWork';
 import Navbar from '../components/Navbar';
 
 const Home = () => {

@@ -1,0 +1,21 @@
+# Minimal data contracts (extend in repo-native apps)
+BorrowerProfile:
+  fields: [id, user_id, first_name, last_name, ssn_encrypted, residency_status, monthly_rent]
+RealtorProfile:
+  fields: [id, borrower_id, name, email, phone, brokerage]
+CreditReport:
+  fields: [id, borrower_id, bureaus_json, tradelines_json, inquiries_json, score_3]
+Liability:
+  fields: [id, credit_report_id, name, monthly_payment, balance, cosigned, months_remaining]
+MortgageLiabilityExt:
+  fields: [liability_id, dla_days, remarks, flags]
+DocTask:
+  fields: [id, borrower_id, type, status, requested_at, received_at, approved_at]
+IncomeProfile:
+  fields: [id, borrower_id, w2_json, hourly_json, bonus_json, sched_c_json]
+ScenarioInput:
+  fields: [id, borrower_id, address, price, down_payment, credits]
+ScenarioOutput:
+  fields: [id, scenario_input_id, rate, points, lender_credit, piti, pitia, dti, ltv, cash_to_close, qualifies]
+AuditEvent:
+  fields: [id, actor, action, target, meta_json, created_at]

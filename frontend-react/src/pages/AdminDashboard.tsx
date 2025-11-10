@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import {
   Container,
   Box,
@@ -75,7 +74,6 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(0);
   const [borrowers, setBorrowers] = useState<Borrower[]>([
     {
@@ -222,15 +220,6 @@ const AdminDashboard = () => {
       default:
         return 'default';
     }
-  };
-
-  const handleLogout = () => {
-    // Clear authentication tokens from localStorage
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
-
-    // Navigate to home page
-    navigate('/');
   };
 
   const dtiWarnings = borrowers.filter((b) => b.dtiRatio > 43);

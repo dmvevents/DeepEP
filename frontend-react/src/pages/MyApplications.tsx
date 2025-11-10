@@ -106,7 +106,7 @@ const MyApplications = () => {
   };
 
   const getStatusConfig = (status: string) => {
-    const configs: Record<string, { color: any; icon: JSX.Element; label: string }> = {
+    const configs: Record<string, { color: any; icon: React.ReactElement; label: string }> = {
       draft: {
         color: 'default',
         icon: <EditIcon fontSize="small" />,
@@ -153,7 +153,7 @@ const MyApplications = () => {
     navigate('/mortgage-application');
   };
 
-  const handleResumeApplication = (app: Application) => {
+  const handleResumeApplication = (_app: Application) => {
     // TODO: Load application data into draft
     navigate('/mortgage-application');
   };

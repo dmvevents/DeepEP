@@ -27,13 +27,10 @@ import {
   CardContent,
   Chip,
   Tooltip,
-  IconButton,
   LinearProgress,
   Snackbar,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import SaveIcon from '@mui/icons-material/Save';
@@ -47,7 +44,6 @@ import {
   formatCurrency,
   formatPercentage,
   formatName,
-  formatSSN,
   isValidName,
   isValidEmail,
   isValidPhone,
@@ -134,10 +130,6 @@ const MortgageApplication = () => {
 
   // Step 5: Results
   const [qualificationResults, setQualificationResults] = useState<any>(null);
-
-  // Snackbar state
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   // Check for existing draft on mount
   useEffect(() => {
@@ -419,10 +411,6 @@ const MortgageApplication = () => {
       // Clear draft from localStorage
       localStorage.removeItem('mortgage_application_draft');
       localStorage.removeItem('mortgage_application_draft_timestamp');
-
-      // Show success message
-      setSnackbarMessage('Application submitted successfully!');
-      setSnackbarOpen(true);
 
       // Navigate to My Applications after a short delay
       setTimeout(() => {
