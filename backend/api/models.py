@@ -567,6 +567,7 @@ class Tradeline(models.Model):
     """
     Individual credit tradeline (debt account) from credit report.
     Phase 1: Basic tradeline info with borrower confirmation workflow.
+    Enhanced: Normalized fields for lates/DLA, inquiries, remarks, special flags.
     """
     ACCOUNT_TYPE_CHOICES = [
         ('mortgage', 'Mortgage'),
@@ -626,6 +627,71 @@ class Tradeline(models.Model):
     last_payment_date = models.DateField(null=True, blank=True)
     days_past_due = models.IntegerField(default=0)
 
+    # === Enhanced: Days Late Activity (DLA) Tracking ===
+    lates_30_count_24mo = models.IntegerField(
+        default=0,
+        help_text="Count of 30+ day late payments in last 24 months"
+    )
+    lates_60_count_24mo = models.IntegerField(
+        default=0,
+        help_text="Count of 60+ day late payments in last 24 months"
+    )
+    lates_90_count_24mo = models.IntegerField(
+        default=0,
+        help_text="Count of 90+ day late payments in last 24 months"
+    )
+    lates_30_count_36mo = models.IntegerField(
+        default=0,
+        help_text="Count of 30+ day late payments in last 36 months"
+    )
+    lates_60_count_36mo = models.IntegerField(
+        default=0,
+        help_text="Count of 60+ day late payments in last 36 months"
+    )
+    lates_90_count_36mo = models.IntegerField(
+        default=0,
+        help_text="Count of 90+ day late payments in last 36 months"
+    )
+
+    # === Enhanced: Special Account Flags ===
+    is_deferred = models.BooleanField(
+        default=False,
+        help_text="Account is in deferment (common for student loans)"
+    )
+    is_ibr = models.BooleanField(
+        default=False,
+        help_text="Income-Based Repayment plan (student loans)"
+    )
+    is_cosigned = models.BooleanField(
+        default=False,
+        help_text="Account has a co-signer"
+    )
+    is_disputed = models.BooleanField(
+        default=False,
+        help_text="Borrower is disputing this tradeline with bureau"
+    )
+    has_less_than_10_payments = models.BooleanField(
+        default=False,
+        help_text="Account has fewer than 10 reported payments (new account)"
+    )
+
+    # === Enhanced: Payment History Metadata ===
+    payment_count = models.IntegerField(
+        default=0,
+        help_text="Total number of payments reported"
+    )
+    months_reviewed = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Number of months of payment history available"
+    )
+
+    # === Enhanced: Remarks and Notes ===
+    remarks = models.TextField(
+        blank=True,
+        help_text="Creditor remarks or bureau notes (e.g., 'Account closed by consumer')"
+    )
+
     # Borrower Confirmation Workflow
     confirmation_status = models.CharField(
         max_length=20,
@@ -648,6 +714,8 @@ class Tradeline(models.Model):
             models.Index(fields=['credit_report', 'confirmation_status']),
             models.Index(fields=['account_type']),
             models.Index(fields=['confirmation_status']),
+            models.Index(fields=['is_deferred', 'is_ibr']),
+            models.Index(fields=['has_less_than_10_payments']),
         ]
 
     def __str__(self):
@@ -657,6 +725,24 @@ class Tradeline(models.Model):
     def needs_confirmation(self):
         """Check if tradeline requires borrower confirmation"""
         return self.confirmation_status == 'pending'
+
+    @property
+    def has_recent_lates(self):
+        """Check if account has any late payments in last 24 months"""
+        return (
+            self.lates_30_count_24mo > 0 or
+            self.lates_60_count_24mo > 0 or
+            self.lates_90_count_36mo > 0
+        )
+
+    @property
+    def total_lates_24mo(self):
+        """Total count of all late payments in last 24 months"""
+        return (
+            self.lates_30_count_24mo +
+            self.lates_60_count_24mo +
+            self.lates_90_count_24mo
+        )
 
 
 class DocTask(models.Model):

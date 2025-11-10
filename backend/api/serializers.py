@@ -5,7 +5,8 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import (
     State, County, TaxData, Municipality,
-    ScraperLog, UserProfile, LoanEstimate
+    ScraperLog, UserProfile, LoanEstimate,
+    CreditReport, Tradeline, AuditEvent
 )
 
 
@@ -292,3 +293,114 @@ class LoanEstimateCreateSerializer(serializers.Serializer):
             })
 
         return attrs
+
+
+class TradelineSerializer(serializers.ModelSerializer):
+    """Serializer for Tradeline model with normalized credit fields."""
+    account_type_display = serializers.CharField(source='get_account_type_display', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    confirmation_status_display = serializers.CharField(
+        source='get_confirmation_status_display',
+        read_only=True
+    )
+    has_recent_lates = serializers.BooleanField(read_only=True)
+    total_lates_24mo = serializers.IntegerField(read_only=True)
+    needs_confirmation = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = Tradeline
+        fields = [
+            'id', 'credit_report',
+            # Account info
+            'account_type', 'account_type_display',
+            'creditor_name', 'account_number',
+            # Balance and payment
+            'current_balance', 'monthly_payment', 'credit_limit',
+            # Status
+            'status', 'status_display',
+            'opened_date', 'last_payment_date', 'days_past_due',
+            # DLA tracking (24 months)
+            'lates_30_count_24mo', 'lates_60_count_24mo', 'lates_90_count_24mo',
+            # DLA tracking (36 months)
+            'lates_30_count_36mo', 'lates_60_count_36mo', 'lates_90_count_36mo',
+            # Flags
+            'is_deferred', 'is_ibr', 'is_cosigned', 'is_disputed',
+            'has_less_than_10_payments',
+            # Payment metadata
+            'payment_count', 'months_reviewed', 'remarks',
+            # Confirmation workflow
+            'confirmation_status', 'confirmation_status_display',
+            'confirmed_at', 'dispute_reason',
+            # Computed properties
+            'has_recent_lates', 'total_lates_24mo', 'needs_confirmation',
+            # Timestamps
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at', 'confirmed_at']
+
+
+class CreditReportSerializer(serializers.ModelSerializer):
+    """Serializer for CreditReport model with tradelines."""
+    username = serializers.CharField(source='user.username', read_only=True)
+    bureau_display = serializers.CharField(source='get_bureau_display', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    middle_score = serializers.IntegerField(read_only=True)
+    is_expired = serializers.BooleanField(read_only=True)
+    tradelines = TradelineSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = CreditReport
+        fields = [
+            'id', 'user', 'username', 'loan_estimate',
+            # Bureau info
+            'bureau', 'bureau_display', 'status', 'status_display',
+            'report_id', 'report_date',
+            # Credit scores
+            'equifax_score', 'experian_score', 'transunion_score', 'middle_score',
+            # Summary stats
+            'total_tradelines', 'total_inquiries', 'total_monthly_debt',
+            # Expiration
+            'expires_at', 'is_expired',
+            # Error handling
+            'error_message',
+            # Timestamps
+            'created_at', 'updated_at',
+            # Related
+            'tradelines'
+        ]
+        read_only_fields = [
+            'id', 'report_date', 'middle_score', 'is_expired',
+            'created_at', 'updated_at', 'tradelines'
+        ]
+
+
+class CreditReportListSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for listing credit reports (without tradelines)."""
+    username = serializers.CharField(source='user.username', read_only=True)
+    middle_score = serializers.IntegerField(read_only=True)
+    is_expired = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = CreditReport
+        fields = [
+            'id', 'user', 'username', 'bureau', 'status',
+            'report_date', 'middle_score',
+            'total_tradelines', 'total_inquiries', 'total_monthly_debt',
+            'is_expired', 'created_at'
+        ]
+
+
+class AuditEventSerializer(serializers.ModelSerializer):
+    """Serializer for AuditEvent model."""
+    event_type_display = serializers.CharField(source='get_event_type_display', read_only=True)
+    username = serializers.CharField(source='user.username', read_only=True, allow_null=True)
+
+    class Meta:
+        model = AuditEvent
+        fields = [
+            'id', 'event_type', 'event_type_display', 'timestamp',
+            'user', 'username', 'borrower_name', 'ssn_last_four',
+            'ip_address', 'user_agent',
+            'loan_estimate', 'context'
+        ]
+        read_only_fields = ['id', 'timestamp']
