@@ -1,0 +1,11 @@
+branch_prefix: agent/autopm
+allowed_tools: "Bash,Read,Grep,Glob,WebSearch,WebFetch,Edit,Write"
+commit_prefix: feat
+personas:
+  - pm
+  - backend
+  - frontend
+  - ux
+  - compliance
+  - owner
+  - critic

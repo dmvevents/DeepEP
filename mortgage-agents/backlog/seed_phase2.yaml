@@ -1,0 +1,44 @@
+phase: phase2
+tasks:
+- id: docs-portal
+  epic: Docs & OCR
+  story: Docs portal sections with upload progress, file preview, retry states.
+  acceptance: '- Sectionized tasks
+
+    - Upload + preview common types
+
+    - Retry & error banners
+
+    - Mobile-friendly'
+  persona: frontend
+- id: ocr-hooks
+  epic: Docs & OCR
+  story: Backend file store + OCR pipeline hooks + doc-to-task linkage.
+  acceptance: '- Storage abstraction
+
+    - OCR webhook to update task values
+
+    - Virus scan hook
+
+    - Audit events'
+  persona: backend
+- id: income-calc-service
+  epic: Income Calc
+  story: Income calc (W-2 salary/hourly, OT/bonus; Sched C start) with rules service
+    toggles.
+  acceptance: '- Service outputs monthly income
+
+    - Toggle rules (<10 payments, cosigned exclusion)
+
+    - Unit tests for 4 scenarios'
+  persona: backend
+- id: lo-console
+  epic: LO Console
+  story: LO Console tabs (Credit, Doc Tasks) with include/exclude toggles and rule
+    tooltips.
+  acceptance: '- Two tabs functional
+
+    - Toggles update DTI preview
+
+    - RBAC enforced'
+  persona: frontend
