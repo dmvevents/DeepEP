@@ -322,3 +322,44 @@ MASK_ACCOUNT_NUMBERS = env.bool('MASK_ACCOUNT_NUMBERS', default=True)
 # Create logs directory if it doesn't exist
 LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(exist_ok=True)
+
+# =============================================================================
+# Phase 2: Income Calculation Service Configuration
+# =============================================================================
+
+# Income Calculation Rules - Configurable via environment variables
+# These rules control income qualification logic per underwriting guidelines
+
+# Exclude income sources with fewer than 10 payment history entries
+# Rationale: Insufficient payment history indicates unstable/new income source
+INCOME_EXCLUDE_LESS_THAN_10_PAYMENTS = env.bool(
+    'INCOME_EXCLUDE_LESS_THAN_10_PAYMENTS',
+    default=False
+)
+
+# Exclude cosigned debt from DTI calculations
+# Rationale: Borrower may not be responsible for full payment if cosigned
+INCOME_EXCLUDE_COSIGNED_DEBT = env.bool(
+    'INCOME_EXCLUDE_COSIGNED_DEBT',
+    default=False
+)
+
+# Variable income averaging period (in months)
+# Standard: 24 months (2 years) for overtime, bonus, commission
+INCOME_VARIABLE_AVERAGE_MONTHS = env.int(
+    'INCOME_VARIABLE_AVERAGE_MONTHS',
+    default=24
+)
+
+# Schedule C income averaging period (in months)
+# Standard: 24 months (2 years) for self-employment income
+INCOME_SCHEDULE_C_AVERAGE_MONTHS = env.int(
+    'INCOME_SCHEDULE_C_AVERAGE_MONTHS',
+    default=24
+)
+
+# Minimum years of self-employment history required
+INCOME_SCHEDULE_C_MIN_YEARS = env.int(
+    'INCOME_SCHEDULE_C_MIN_YEARS',
+    default=2
+)
