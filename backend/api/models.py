@@ -235,6 +235,13 @@ class UserProfile(models.Model):
         validators=[MinValueValidator(300), MaxValueValidator(850)]
     )
 
+    # Mortgage status tracking (Phase 1: Intake & Credit)
+    mortgage_statuses = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of mortgage status objects tracking forbearance, modifications, transfers, and foreclosures"
+    )
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

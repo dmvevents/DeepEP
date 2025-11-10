@@ -260,3 +260,24 @@ export const creditApi = {
     return response.data;
   },
 };
+
+// User Profile API
+export const profileApi = {
+  // Get user profile
+  getUserProfile: async (): Promise<any> => {
+    const response = await apiClient.get('/api/profile/');
+    return response.data;
+  },
+
+  // Update user profile
+  updateUserProfile: async (data: Partial<any>): Promise<any> => {
+    const response = await apiClient.patch('/api/profile/', data);
+    return response.data;
+  },
+
+  // Update mortgage statuses
+  updateMortgageStatuses: async (statuses: any[]): Promise<any> => {
+    const response = await apiClient.patch('/api/profile/', { mortgage_statuses: statuses });
+    return response.data;
+  },
+};

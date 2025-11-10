@@ -165,6 +165,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'id', 'username', 'email',
             'default_state', 'default_county',
             'annual_income', 'credit_score',
+            'mortgage_statuses',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['created_at', 'updated_at']

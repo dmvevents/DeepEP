@@ -12,6 +12,7 @@ import MyApplications from './pages/MyApplications';
 import Profile from './pages/Profile';
 import AdminProfile from './pages/AdminProfile';
 import CreditReview from './pages/CreditReview';
+import MortgageStatusDemo from './pages/MortgageStatusDemo';
 
 const theme = createTheme({
   palette: {
@@ -55,6 +56,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/mortgage-application" element={<MortgageApplication />} />
           <Route path="/my-applications" element={<MyApplications />} />
+          <Route path="/mortgage-status" element={<MortgageStatusDemo />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin-profile" element={<AdminProfile />} />
           <Route path="/admin" element={<AdminDashboard />} />
