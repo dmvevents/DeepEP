@@ -9,6 +9,7 @@ from ..views import (
     UserViewSet, UserProfileViewSet, LoanEstimateViewSet,
     DocTaskViewSet
 )
+from ..views_credit import CreditReportViewSet, TradelineViewSet
 
 app_name = 'api'
 
@@ -23,6 +24,8 @@ router.register(r'users', UserViewSet, basename='user')
 router.register(r'profiles', UserProfileViewSet, basename='userprofile')
 router.register(r'loan-estimates', LoanEstimateViewSet, basename='loanestimate')
 router.register(r'doc-tasks', DocTaskViewSet, basename='doctask')
+router.register(r'credit-reports', CreditReportViewSet, basename='creditreport')
+router.register(r'tradelines', TradelineViewSet, basename='tradeline')
 
 urlpatterns = [
     path('', include(router.urls)),

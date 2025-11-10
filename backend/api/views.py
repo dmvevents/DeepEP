@@ -11,7 +11,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from .models import (
     State, County, TaxData, Municipality,
-    ScraperLog, UserProfile, LoanEstimate, DocTask, AuditEvent
+    ScraperLog, UserProfile, LoanEstimate, DocTask, AuditEvent,
+    CreditReport, Tradeline
 )
 from .serializers import (
     StateSerializer, CountySerializer, CountyDetailSerializer,
@@ -21,7 +22,9 @@ from .serializers import (
     UserProfileSerializer, LoanEstimateSerializer,
     LoanEstimateListSerializer, DocTaskSerializer,
     DocTaskListSerializer, DocTaskCreateSerializer,
-    DocTaskUpdateSerializer, DocTaskAdminUpdateSerializer
+    DocTaskUpdateSerializer, DocTaskAdminUpdateSerializer,
+    CreditReportSerializer, CreditReportListSerializer,
+    TradelineSerializer
 )
 
 

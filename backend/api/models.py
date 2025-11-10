@@ -482,6 +482,12 @@ class CreditReport(models.Model):
         help_text="Associated loan application"
     )
 
+    # PII: Encrypted SSN (field-level encryption at rest)
+    ssn_encrypted = models.TextField(
+        blank=True,
+        help_text="Encrypted SSN for borrower identity verification (AES-128)"
+    )
+
     # Credit Bureau Information
     bureau = models.CharField(max_length=20, choices=BUREAU_CHOICES, default='merged')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
@@ -568,6 +574,34 @@ class CreditReport(models.Model):
         if not self.expires_at:
             return False
         return timezone.now() > self.expires_at
+
+    def set_ssn(self, ssn: str):
+        """
+        Encrypt and store SSN.
+        Args:
+            ssn: SSN in any format (123-45-6789 or 123456789)
+        """
+        from .encryption import encrypt_ssn
+        self.ssn_encrypted = encrypt_ssn(ssn)
+
+    def get_ssn(self) -> str:
+        """
+        Decrypt and return SSN (digits only).
+        Returns:
+            Decrypted SSN or empty string
+        """
+        from .encryption import decrypt_ssn
+        return decrypt_ssn(self.ssn_encrypted)
+
+    def get_ssn_masked(self) -> str:
+        """
+        Get masked SSN for display (***-**-1234).
+        Returns:
+            Masked SSN string
+        """
+        from .encryption import decrypt_ssn, mask_ssn
+        ssn = decrypt_ssn(self.ssn_encrypted)
+        return mask_ssn(ssn)
 
 
 class Tradeline(models.Model):

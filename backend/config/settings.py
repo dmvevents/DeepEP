@@ -275,6 +275,15 @@ ENABLE_AUTO_RESCRAPE = env.bool('ENABLE_AUTO_RESCRAPE', default=True)
 ENABLE_OCR_PROCESSING = env.bool('ENABLE_OCR_PROCESSING', default=True)
 ENABLE_DOCUMENT_UPLOAD = env.bool('ENABLE_DOCUMENT_UPLOAD', default=True)
 
+# Security & Compliance Configuration
+# Field-level encryption key for PII (SSN, DOB, account numbers)
+# IMPORTANT: In production, store this in a secure key management system (AWS KMS, HashiCorp Vault)
+FIELD_ENCRYPTION_KEY = env('FIELD_ENCRYPTION_KEY', default=SECRET_KEY[:32].encode('utf-8'))
+
+# PII Masking Configuration
+MASK_SSN_IN_LOGS = env.bool('MASK_SSN_IN_LOGS', default=True)
+MASK_ACCOUNT_NUMBERS = env.bool('MASK_ACCOUNT_NUMBERS', default=True)
+
 # Create logs directory if it doesn't exist
 LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(exist_ok=True)

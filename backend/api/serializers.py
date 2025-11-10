@@ -349,6 +349,10 @@ class CreditReportSerializer(serializers.ModelSerializer):
     is_expired = serializers.BooleanField(read_only=True)
     tradelines = TradelineSerializer(many=True, read_only=True)
 
+    # PII: Masked SSN for display (write_only for encryption, read via masked property)
+    ssn = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    ssn_masked = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = CreditReport
         fields = [
@@ -356,6 +360,8 @@ class CreditReportSerializer(serializers.ModelSerializer):
             # Bureau info
             'bureau', 'bureau_display', 'status', 'status_display',
             'report_id', 'report_date',
+            # PII (masked)
+            'ssn', 'ssn_masked',
             # Credit scores
             'equifax_score', 'experian_score', 'transunion_score', 'middle_score',
             # Summary stats
@@ -371,8 +377,30 @@ class CreditReportSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             'id', 'report_date', 'middle_score', 'is_expired',
-            'created_at', 'updated_at', 'tradelines'
+            'created_at', 'updated_at', 'tradelines', 'ssn_masked'
         ]
+
+    def get_ssn_masked(self, obj):
+        """Return masked SSN for display."""
+        return obj.get_ssn_masked()
+
+    def create(self, validated_data):
+        """Handle SSN encryption on create."""
+        ssn = validated_data.pop('ssn', None)
+        credit_report = super().create(validated_data)
+        if ssn:
+            credit_report.set_ssn(ssn)
+            credit_report.save(update_fields=['ssn_encrypted'])
+        return credit_report
+
+    def update(self, instance, validated_data):
+        """Handle SSN encryption on update."""
+        ssn = validated_data.pop('ssn', None)
+        credit_report = super().update(instance, validated_data)
+        if ssn:
+            credit_report.set_ssn(ssn)
+            credit_report.save(update_fields=['ssn_encrypted'])
+        return credit_report
 
 
 class CreditReportListSerializer(serializers.ModelSerializer):
