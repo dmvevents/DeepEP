@@ -56,6 +56,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Observability
+    'api.middleware.ErrorTrackingMiddleware',
+    'api.middleware.LLMRateLimitMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -276,6 +279,12 @@ ENABLE_AUTO_RESCRAPE = env.bool('ENABLE_AUTO_RESCRAPE', default=True)
 ENABLE_OCR_PROCESSING = env.bool('ENABLE_OCR_PROCESSING', default=True)
 ENABLE_DOCUMENT_UPLOAD = env.bool('ENABLE_DOCUMENT_UPLOAD', default=True)
 ENABLE_TENANT_THEMING = env.bool('ENABLE_TENANT_THEMING', default=False)  # White-label theming
+
+# Observability & Rate Limiting
+LLM_DAILY_TOKEN_LIMIT = env.int('LLM_DAILY_TOKEN_LIMIT', default=100000)  # Daily token budget
+ENABLE_LLM_CIRCUIT_BREAKER = env.bool('ENABLE_LLM_CIRCUIT_BREAKER', default=True)
+LLM_CIRCUIT_BREAKER_THRESHOLD = env.int('LLM_CIRCUIT_BREAKER_THRESHOLD', default=10)  # failures before breaking
+LLM_CIRCUIT_BREAKER_TIMEOUT = env.int('LLM_CIRCUIT_BREAKER_TIMEOUT', default=300)  # seconds (5 min cooldown)
 
 # Document Storage Configuration
 DOCUMENT_STORAGE_BACKEND = env('DOCUMENT_STORAGE_BACKEND', default='local')  # 'local' or 's3'

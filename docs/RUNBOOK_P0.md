@@ -25,12 +25,23 @@ P0 incidents are service-impacting events affecting customers or core functional
 # Backend API health
 curl http://localhost:8000/api/health/
 
+# Backend metrics (admin auth required)
+curl -H "Authorization: Bearer $ADMIN_TOKEN" http://localhost:8000/api/health/metrics/
+
 # Scraper service health
 curl http://localhost:8001/health
 
 # OCR service health
 curl http://localhost:8003/health
 ```
+
+### Metrics Dashboard
+View real-time metrics at `/api/health/metrics/` (admin only):
+- `api_requests_total` - Total API requests
+- `api_errors_4xx` / `api_errors_5xx` - Error counts
+- `api_exceptions` - Unhandled exceptions
+- `llm_tokens_today` - Daily LLM token usage
+- `error_rate_percent` - Calculated error rate
 
 ### Key Metrics to Monitor
 
@@ -80,22 +91,29 @@ docker-compose exec backend python manage.py check --database default
 
 ### 2. LLM API Rate Limit / Cost Overrun
 
-**Symptoms**: 429 errors, high API costs, scraper failures
+**Symptoms**: 429 errors, high API costs, scraper failures, HTTP 503 responses
 
 **Immediate Actions**:
-1. Enable circuit breaker (prevents cascading failures):
+1. Check current usage via metrics API:
    ```bash
-   # In .env.scraper
-   ENABLE_CIRCUIT_BREAKER=true
-   CIRCUIT_BREAKER_THRESHOLD=10  # failures before breaking
-   CIRCUIT_BREAKER_TIMEOUT=300    # 5 min cooldown
-
-   docker-compose restart scraper
+   # Check LLM token usage (admin auth required)
+   curl -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/health/metrics/
+   # Look for: llm_tokens_today, llm_token_usage_percent
    ```
 
-2. Check current usage:
+2. Adjust daily limit if needed:
    ```bash
-   # View ScraperLog for token usage
+   # In .env
+   LLM_DAILY_TOKEN_LIMIT=50000  # Reduce from 100000
+   ENABLE_LLM_CIRCUIT_BREAKER=true
+   LLM_CIRCUIT_BREAKER_THRESHOLD=10
+   LLM_CIRCUIT_BREAKER_TIMEOUT=300
+
+   docker-compose restart backend
+   ```
+
+3. View detailed usage in database:
+   ```bash
    docker-compose exec backend python manage.py shell
    >>> from api.models import ScraperLog
    >>> ScraperLog.objects.filter(
@@ -103,7 +121,7 @@ docker-compose exec backend python manage.py check --database default
    ... ).aggregate(total=models.Sum('tokens_used'))
    ```
 
-3. Enable rate limiting (backend settings):
+4. Enable rate limiting (backend settings):
    ```python
    # config/settings.py
    REST_FRAMEWORK = {
@@ -302,14 +320,37 @@ docker-compose up -d --scale celery=5
 
 ---
 
+## ✅ On-Call Checklist
+
+### Start of Shift
+- [ ] Verify all health endpoints are green (`/api/health/`, `/health` for all services)
+- [ ] Check metrics dashboard for anomalies (`/api/health/metrics/`)
+- [ ] Review LLM token usage (should be <80% of daily limit)
+- [ ] Check error rate (should be <5%)
+- [ ] Verify database connections and Redis cache are healthy
+- [ ] Review last 24h of logs for warnings/errors
+- [ ] Ensure Sentry (if configured) shows no critical alerts
+
+### During Shift
+- [ ] Monitor Slack/PagerDuty for alerts
+- [ ] Check metrics every 2 hours or when notified
+- [ ] Document any incidents or degradations
+- [ ] Escalate P0 incidents immediately
+
+### End of Shift
+- [ ] Hand off any ongoing incidents
+- [ ] Update incident log if applicable
+- [ ] Confirm next on-call engineer is reachable
+
 ## ✅ Post-Incident Checklist
 
 After resolving a P0:
-- [ ] Document root cause
+- [ ] Document root cause in incident log
 - [ ] Update this runbook with learnings
 - [ ] Add monitoring/alerting to prevent recurrence
-- [ ] Schedule blameless postmortem
+- [ ] Schedule blameless postmortem within 48h
 - [ ] Communicate resolution to stakeholders
+- [ ] Create follow-up tickets for long-term fixes
 
 ---
 
