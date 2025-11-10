@@ -14,6 +14,7 @@ import Profile from './pages/Profile';
 import AdminProfile from './pages/AdminProfile';
 import CreditReview from './pages/CreditReview';
 import MortgageStatusDemo from './pages/MortgageStatusDemo';
+import LOConsole from './pages/LOConsole';
 
 const theme = createTheme({
   palette: {
@@ -65,6 +66,7 @@ function App() {
           <Route path="/documents" element={<DocumentUpload />} />
           <Route path="/documents-portal" element={<DocumentsPortal />} />
           <Route path="/credit-review" element={<CreditReview />} />
+          <Route path="/lo-console" element={<LOConsole />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
