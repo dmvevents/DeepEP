@@ -1,0 +1,33 @@
+{% extends "email/base.html" %}
+
+{% block header_title %}Application Submitted{% endblock %}
+
+{% block content %}
+<p>Dear {{ borrower_name }},</p>
+
+<p>Thank you for submitting your mortgage application. We have received your application and it is now being processed.</p>
+
+<div style="background-color: #f0f7ff; padding: 15px; border-radius: 4px; margin: 20px 0;">
+    <strong>Application Details:</strong><br>
+    Application ID: <strong>{{ application_id }}</strong><br>
+    Property Address: {{ property_address }}<br>
+    Loan Amount: ${{ loan_amount }}<br>
+    Submitted: {{ submitted_date }}
+</div>
+
+<p><strong>What happens next?</strong></p>
+<ul>
+    <li>Our team will review your application within 24-48 hours</li>
+    <li>We may request additional documentation</li>
+    <li>You will receive email updates at each stage</li>
+</ul>
+
+<p style="text-align: center;">
+    <a href="{{ application_url }}" class="button">View Application Status</a>
+</p>
+
+<p>Thank you for choosing us for your mortgage needs.</p>
+
+<p>Best regards,<br>
+The Mortgage Team</p>
+{% endblock %}

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'calculator',
     'documents',
     'scraper_integration',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -381,3 +382,73 @@ PRICING_ENABLE_AUDIT_LOG = env.bool('PRICING_ENABLE_AUDIT_LOG', default=True)
 
 # Cache pricing results (in seconds, 0 = disabled)
 PRICING_CACHE_TTL = env.int('PRICING_CACHE_TTL', default=300)  # 5 minutes
+
+# =============================================================================
+# Phase 4: Email/SMS Notifications Configuration
+# =============================================================================
+
+# Email Configuration
+# Provider: 'console' (dev), 'smtp' (custom SMTP), 'sendgrid', 'ses' (AWS), 'mailgun'
+EMAIL_PROVIDER = env('EMAIL_PROVIDER', default='console')
+
+# Django email backend mapping
+EMAIL_BACKEND_MAP = {
+    'console': 'django.core.mail.backends.console.EmailBackend',
+    'smtp': 'django.core.mail.backends.smtp.EmailBackend',
+    'sendgrid': 'django.core.mail.backends.smtp.EmailBackend',
+    'ses': 'django_ses.SESBackend',
+    'mailgun': 'anymail.backends.mailgun.EmailBackend',
+}
+EMAIL_BACKEND = EMAIL_BACKEND_MAP.get(EMAIL_PROVIDER, 'django.core.mail.backends.console.EmailBackend')
+
+# SMTP Configuration (for 'smtp' provider)
+EMAIL_HOST = env('EMAIL_HOST', default='localhost')
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL', default=False)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+
+# Email sender configuration
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@mortgagecalculator.com')
+DEFAULT_FROM_NAME = env('DEFAULT_FROM_NAME', default='Mortgage Calculator')
+
+# SendGrid Configuration
+SENDGRID_API_KEY = env('SENDGRID_API_KEY', default='')
+
+# AWS SES Configuration
+AWS_SES_REGION_NAME = env('AWS_SES_REGION_NAME', default='us-east-1')
+AWS_SES_REGION_ENDPOINT = env('AWS_SES_REGION_ENDPOINT', default=f'email.{AWS_SES_REGION_NAME}.amazonaws.com')
+
+# Mailgun Configuration
+MAILGUN_API_KEY = env('MAILGUN_API_KEY', default='')
+MAILGUN_SENDER_DOMAIN = env('MAILGUN_SENDER_DOMAIN', default='')
+
+# SMS Configuration
+# Provider: 'console' (dev), 'twilio', 'sns' (AWS)
+SMS_PROVIDER = env('SMS_PROVIDER', default='console')
+
+# Twilio Configuration
+TWILIO_ACCOUNT_SID = env('TWILIO_ACCOUNT_SID', default='')
+TWILIO_AUTH_TOKEN = env('TWILIO_AUTH_TOKEN', default='')
+TWILIO_FROM_NUMBER = env('TWILIO_FROM_NUMBER', default='')  # E.164 format: +15551234567
+
+# AWS SNS Configuration
+AWS_SNS_REGION_NAME = env('AWS_SNS_REGION_NAME', default='us-east-1')
+
+# Notification Settings
+NOTIFICATIONS_ENABLED = env.bool('NOTIFICATIONS_ENABLED', default=True)
+ENABLE_EMAIL_NOTIFICATIONS = env.bool('ENABLE_EMAIL_NOTIFICATIONS', default=True)
+ENABLE_SMS_NOTIFICATIONS = env.bool('ENABLE_SMS_NOTIFICATIONS', default=False)  # Opt-in only
+
+# Notification retry configuration
+NOTIFICATION_MAX_RETRIES = env.int('NOTIFICATION_MAX_RETRIES', default=3)
+NOTIFICATION_RETRY_DELAY = env.int('NOTIFICATION_RETRY_DELAY', default=300)  # 5 minutes
+
+# Rate limiting (prevent notification spam)
+NOTIFICATION_RATE_LIMIT_PER_USER = env.int('NOTIFICATION_RATE_LIMIT_PER_USER', default=10)  # per hour
+NOTIFICATION_RATE_LIMIT_WINDOW = env.int('NOTIFICATION_RATE_LIMIT_WINDOW', default=3600)  # seconds
+
+# URL shortener for SMS (optional)
+URL_SHORTENER_ENABLED = env.bool('URL_SHORTENER_ENABLED', default=False)
+URL_SHORTENER_DOMAIN = env('URL_SHORTENER_DOMAIN', default='')  # e.g., 'short.domain.com'

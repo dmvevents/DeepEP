@@ -27,6 +27,10 @@ app.conf.beat_schedule = {
         'task': 'documents.tasks.cleanup_old_documents',
         'schedule': crontab(hour=3, minute=0, day_of_week=0),  # Weekly on Sunday at 3 AM
     },
+    'retry-failed-notifications': {
+        'task': 'notifications.tasks.retry_failed_notifications',
+        'schedule': crontab(minute='*/30'),  # Every 30 minutes
+    },
 }
 
 
