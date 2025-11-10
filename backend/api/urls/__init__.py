@@ -9,7 +9,7 @@ from ..views import (
     UserViewSet, UserProfileViewSet, LoanEstimateViewSet,
     DocTaskViewSet
 )
-from ..views_credit import CreditReportViewSet, TradelineViewSet
+from ..views_credit import CreditReportViewSet, TradelineViewSet, parse_credit
 
 app_name = 'api'
 
@@ -29,4 +29,5 @@ router.register(r'tradelines', TradelineViewSet, basename='tradeline')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('credit/parse', parse_credit, name='credit-parse'),
 ]

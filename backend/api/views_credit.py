@@ -3,14 +3,17 @@ Credit Report ViewSets with PII access logging and audit trails.
 
 Implements RBAC, audit logging for all credit report access, and SSN masking.
 """
+import json
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes as perm_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from drf_spectacular.utils import extend_schema
 from django.utils import timezone
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import CreditReport, Tradeline, AuditEvent
 from .serializers import (
@@ -18,6 +21,29 @@ from .serializers import (
     CreditReportListSerializer,
     TradelineSerializer
 )
+from . import credit_parser
+
+
+@csrf_exempt
+def parse_credit(request):
+    """
+    Parse credit report data endpoint.
+    Accepts POST with credit report payload, returns normalized data.
+    Minimal stub for Phase 1 - just echoes back the payload with status.
+    """
+    if request.method != "POST":
+        return HttpResponseBadRequest("POST required")
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+        # Minimal response - just acknowledge receipt
+        result = {
+            "status": "received",
+            "data": payload,
+            "message": "Credit data received successfully"
+        }
+        return JsonResponse(result, status=200, safe=False)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
 
 
 class CreditReportViewSet(viewsets.ModelViewSet):

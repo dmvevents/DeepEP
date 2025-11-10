@@ -1,11 +1,11 @@
 {
-  "timestamp": "2025-11-10T05:18:40Z",
+  "timestamp": "2025-11-10T05:27:36Z",
   "phase": "phase1",
   "status": "PASS",
   "tests": {
     "migrations": "PASS",
     "credit_parser_tests": "PASS",
-    "api_endpoint": "WARN",
+    "api_endpoint": "PASS",
     "pii_masking": "PASS",
     "db_encryption": "SKIP",
     "frontend": "SKIP"
@@ -14,5 +14,5 @@
     "pii_leaks": false,
     "encryption_verified": false
   },
-  "log_file": "/Users/antonalexander/Github/real_estate_app/mortgage-agents/out/smoke_phase1_20251110_001831.log"
+  "log_file": "/Users/antonalexander/Github/real_estate_app/mortgage-agents/out/smoke_phase1_20251110_002728.log"
 }
