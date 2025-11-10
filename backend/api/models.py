@@ -1098,3 +1098,256 @@ class PreApproval(models.Model):
             loan_amount = self.property_value_estimate - self.down_payment_amount
             return (loan_amount / self.property_value_estimate) * 100
         return 0
+
+
+class PricingScenario(models.Model):
+    """
+    Pricing scenario for Scenario Desk.
+    Stores loan parameters and pricing options from investor bot/API.
+    """
+    # Relationships
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='pricing_scenarios',
+        help_text="User who created this scenario"
+    )
+    loan_estimate = models.ForeignKey(
+        LoanEstimate,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='pricing_scenarios',
+        help_text="Optional reference to loan estimate"
+    )
+
+    # Loan Parameters (for pricing request)
+    loan_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)]
+    )
+    property_value = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)]
+    )
+    credit_score = models.IntegerField(
+        validators=[MinValueValidator(300), MaxValueValidator(850)]
+    )
+    loan_type = models.CharField(
+        max_length=20,
+        choices=[
+            ('conventional', 'Conventional'),
+            ('fha', 'FHA'),
+            ('va', 'VA'),
+            ('usda', 'USDA'),
+        ],
+        default='conventional'
+    )
+    occupancy = models.CharField(
+        max_length=20,
+        choices=[
+            ('primary', 'Primary Residence'),
+            ('secondary', 'Secondary Home'),
+            ('investment', 'Investment Property'),
+        ],
+        default='primary'
+    )
+    property_type = models.CharField(
+        max_length=20,
+        choices=[
+            ('single_family', 'Single Family'),
+            ('condo', 'Condominium'),
+            ('townhouse', 'Townhouse'),
+            ('multi_family', 'Multi-Family'),
+        ],
+        default='single_family'
+    )
+    loan_term_months = models.IntegerField(
+        default=360,
+        validators=[MinValueValidator(1)],
+        help_text="Loan term in months (360 = 30 years, 180 = 15 years)"
+    )
+    loan_purpose = models.CharField(
+        max_length=20,
+        choices=[
+            ('purchase', 'Purchase'),
+            ('refinance', 'Refinance'),
+            ('cash_out', 'Cash-Out Refinance'),
+        ],
+        default='purchase'
+    )
+    documentation_type = models.CharField(
+        max_length=20,
+        choices=[
+            ('full_doc', 'Full Documentation'),
+            ('alt_doc', 'Alternative Documentation'),
+            ('no_doc', 'No Documentation'),
+        ],
+        default='full_doc'
+    )
+
+    # Optional location fields
+    state = models.CharField(max_length=2, blank=True)
+    county = models.CharField(max_length=100, blank=True)
+    zip_code = models.CharField(max_length=10, blank=True)
+    debt_to_income_ratio = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(100)]
+    )
+
+    # Pricing Response (stored as JSON)
+    pricing_options = models.JSONField(
+        default=list,
+        help_text="List of pricing options from investor API"
+    )
+    selected_option_index = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Index of selected pricing option in pricing_options array"
+    )
+
+    # Pricing Metadata
+    pricing_provider = models.CharField(
+        max_length=100,
+        default='MockInvestor',
+        help_text="Name of pricing adapter/provider"
+    )
+    pricing_timestamp = models.DateTimeField(
+        auto_now_add=True,
+        help_text="When pricing was retrieved"
+    )
+    pricing_request_id = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="External pricing request ID for audit trail"
+    )
+    execution_time_ms = models.IntegerField(
+        default=0,
+        help_text="Pricing API execution time in milliseconds"
+    )
+
+    # Scenario Metadata
+    name = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="User-provided scenario name"
+    )
+    notes = models.TextField(
+        blank=True,
+        help_text="User notes about this scenario"
+    )
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['loan_estimate']),
+            models.Index(fields=['pricing_provider', '-created_at']),
+            models.Index(fields=['-pricing_timestamp']),
+        ]
+
+    def __str__(self):
+        return f"Pricing Scenario: {self.name or self.loan_type} - ${self.loan_amount} ({self.created_at.date()})"
+
+    @property
+    def ltv_ratio(self):
+        """Calculate loan-to-value ratio"""
+        if self.property_value > 0:
+            return (self.loan_amount / self.property_value * 100)
+        return 0
+
+    @property
+    def selected_option(self):
+        """Get selected pricing option"""
+        if self.selected_option_index is not None and self.pricing_options:
+            if 0 <= self.selected_option_index < len(self.pricing_options):
+                return self.pricing_options[self.selected_option_index]
+        return None
+
+    def get_best_rate_option(self):
+        """Get pricing option with lowest rate"""
+        if not self.pricing_options:
+            return None
+        return min(self.pricing_options, key=lambda x: x.get('rate', 999))
+
+    def get_zero_cost_option(self):
+        """Get pricing option closest to zero net cost"""
+        if not self.pricing_options:
+            return None
+        return min(
+            self.pricing_options,
+            key=lambda x: abs(x.get('points', 0) - x.get('credit', 0))
+        )
+
+
+class PricingAuditLog(models.Model):
+    """
+    Audit log for pricing requests.
+    Tracks all pricing API calls for compliance and debugging.
+    """
+    # Relationships
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='pricing_audit_logs'
+    )
+    pricing_scenario = models.ForeignKey(
+        PricingScenario,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='audit_logs'
+    )
+
+    # Request details
+    pricing_provider = models.CharField(max_length=100)
+    request_parameters = models.JSONField(
+        help_text="Full request parameters sent to pricing API"
+    )
+    response_data = models.JSONField(
+        null=True,
+        blank=True,
+        help_text="Full response from pricing API"
+    )
+
+    # Execution metadata
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+    execution_time_ms = models.IntegerField(default=0)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('success', 'Success'),
+            ('error', 'Error'),
+            ('timeout', 'Timeout'),
+            ('validation_error', 'Validation Error'),
+        ],
+        default='success'
+    )
+    error_message = models.TextField(blank=True)
+
+    # Request context
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['pricing_provider', '-timestamp']),
+            models.Index(fields=['user', '-timestamp']),
+            models.Index(fields=['status', '-timestamp']),
+            models.Index(fields=['-timestamp']),
+        ]
+
+    def __str__(self):
+        return f"Pricing Audit: {self.pricing_provider} - {self.status} ({self.timestamp})"

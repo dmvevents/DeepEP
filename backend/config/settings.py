@@ -363,3 +363,20 @@ INCOME_SCHEDULE_C_MIN_YEARS = env.int(
     'INCOME_SCHEDULE_C_MIN_YEARS',
     default=2
 )
+
+# =============================================================================
+# Phase 3: Pricing Adapter Configuration (Scenario Desk)
+# =============================================================================
+
+# Pricing API Configuration
+# Provider: 'mock', 'optimal_blue', 'encompass', 'custom'
+PRICING_PROVIDER = env('PRICING_PROVIDER', default='mock')
+PRICING_API_KEY = env('PRICING_API_KEY', default='')
+PRICING_API_URL = env('PRICING_API_URL', default='')
+PRICING_API_TIMEOUT = env.int('PRICING_API_TIMEOUT', default=30)  # seconds
+
+# Enable pricing audit logging
+PRICING_ENABLE_AUDIT_LOG = env.bool('PRICING_ENABLE_AUDIT_LOG', default=True)
+
+# Cache pricing results (in seconds, 0 = disabled)
+PRICING_CACHE_TTL = env.int('PRICING_CACHE_TTL', default=300)  # 5 minutes
