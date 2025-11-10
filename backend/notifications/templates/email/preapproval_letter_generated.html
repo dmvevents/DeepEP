@@ -1,0 +1,34 @@
+{% extends "email/base.html" %}
+
+{% block header_title %}Pre-Approval Letter Generated{% endblock %}
+
+{% block content %}
+<p>Dear {{ borrower_name }},</p>
+
+<p>Great news! Your pre-approval letter has been generated and is ready for download.</p>
+
+<div style="background-color: #e8f5e9; padding: 15px; border-radius: 4px; margin: 20px 0;">
+    <strong>Pre-Approval Details:</strong><br>
+    Max Purchase Price: ${{ max_purchase_price }}<br>
+    Max Loan Amount: ${{ max_loan_amount }}<br>
+    Valid Until: {{ expiration_date }}<br>
+    Letter ID: {{ preapproval_id }}
+</div>
+
+<p><strong>How to use your pre-approval letter:</strong></p>
+<ul>
+    <li>Share with your real estate agent when viewing properties</li>
+    <li>Include with purchase offers to show you're a serious buyer</li>
+    <li>Keep a digital and printed copy handy</li>
+    <li>Note the expiration date and renew if needed</li>
+</ul>
+
+<p style="text-align: center;">
+    <a href="{{ letter_download_url }}" class="button">Download Letter (PDF)</a>
+</p>
+
+<p>Congratulations on this important step in your home buying journey!</p>
+
+<p>Best regards,<br>
+The Mortgage Team</p>
+{% endblock %}

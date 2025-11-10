@@ -1,0 +1,32 @@
+{% extends "email/base.html" %}
+
+{% block header_title %}Application Status Update{% endblock %}
+
+{% block content %}
+<p>Dear {{ borrower_name }},</p>
+
+<p>Thank you for your interest in our mortgage services. After careful review, we regret to inform you that we are unable to approve your application at this time.</p>
+
+<div style="background-color: #f5f5f5; padding: 15px; border-radius: 4px; margin: 20px 0;">
+    <strong>Application ID:</strong> {{ application_id }}<br>
+    <strong>Decision Date:</strong> {{ decision_date }}
+</div>
+
+<p><strong>Reason:</strong></p>
+<div style="background-color: #fafafa; padding: 15px; border-radius: 4px; margin: 15px 0; border-left: 4px solid #9e9e9e;">
+    {{ admin_feedback }}
+</div>
+
+<p><strong>What you can do:</strong></p>
+<ul>
+    <li>Review the reason provided above</li>
+    <li>Work on improving the identified areas</li>
+    <li>Reapply after addressing the concerns</li>
+    <li>Contact us to discuss alternative options</li>
+</ul>
+
+<p>We appreciate your interest and encourage you to reach out if you have any questions or would like guidance on reapplying in the future.</p>
+
+<p>Best regards,<br>
+The Mortgage Team</p>
+{% endblock %}

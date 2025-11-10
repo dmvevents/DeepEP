@@ -1,0 +1,32 @@
+{% extends "email/base.html" %}
+
+{% block header_title %}Credit Report Pulled{% endblock %}
+
+{% block content %}
+<p>Dear {{ borrower_name }},</p>
+
+<p>As part of your mortgage application process, we have pulled your credit report.</p>
+
+<div style="background-color: #f0f7ff; padding: 15px; border-radius: 4px; margin: 20px 0;">
+    <strong>Credit Report Details:</strong><br>
+    Bureau: {{ bureau }}<br>
+    Report Date: {{ report_date }}<br>
+    Application ID: {{ application_id }}
+</div>
+
+<p><strong>Important Information:</strong></p>
+<ul>
+    <li>This inquiry may appear on your credit report</li>
+    <li>Multiple mortgage inquiries within 45 days count as one inquiry</li>
+    <li>Your credit score will be used for loan qualification</li>
+</ul>
+
+<p style="text-align: center;">
+    <a href="{{ application_url }}" class="button">View Application</a>
+</p>
+
+<p>If you did not authorize this credit pull, please contact us immediately.</p>
+
+<p>Best regards,<br>
+The Mortgage Team</p>
+{% endblock %}

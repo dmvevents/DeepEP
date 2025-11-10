@@ -1,0 +1,38 @@
+phase: phase3
+tasks:
+- id: pre-approval-params
+  epic: Pre-Approval
+  story: LO pre-approval parameters page; generate pre-approval letter.
+  acceptance: '- Inputs stored with RBAC
+
+    - Letter template with merge vars
+
+    - Audit event on publish'
+  persona: frontend
+- id: pricing-adapter
+  epic: Scenario Desk
+  story: Pricing adapter (investor bot/API) with 3 rails logic.
+  acceptance: '- Plug-in adapter interface
+
+    - 3 rails: price/points/credit
+
+    - Unit tests w/ mocked API'
+  persona: backend
+- id: fee-engine
+  epic: Scenario Desk
+  story: Fee engine wiring to jurisdiction DB for taxes/transfer/recordation/title/prepaids/escrows/UFMIP/MIP/VAFF.
+  acceptance: '- Deterministic fee calc
+
+    - Source badges (system/AI/override)
+
+    - JSON trace for audit'
+  persona: backend
+- id: scenario-cards
+  epic: Scenario Desk
+  story: 3 scenario cards + expanded LE-style costs; PDF export with watermark.
+  acceptance: '- Cards with PITIA/DTI/LTV/Cash to Close
+
+    - Expandable costs A,B,C,E,H
+
+    - PDF export present'
+  persona: frontend

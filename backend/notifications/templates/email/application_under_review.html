@@ -1,0 +1,26 @@
+{% extends "email/base.html" %}
+
+{% block header_title %}Application Under Review{% endblock %}
+
+{% block content %}
+<p>Dear {{ borrower_name }},</p>
+
+<p>Your mortgage application is now <span class="status-badge status-review">Under Review</span>.</p>
+
+<div style="background-color: #fff8e1; padding: 15px; border-radius: 4px; margin: 20px 0;">
+    <strong>Application ID:</strong> {{ application_id }}<br>
+    <strong>Reviewer:</strong> {{ reviewer_name }}<br>
+    <strong>Review Started:</strong> {{ review_date }}
+</div>
+
+<p>Our underwriting team is carefully reviewing your application and supporting documents. This process typically takes 2-3 business days.</p>
+
+<p style="text-align: center;">
+    <a href="{{ application_url }}" class="button">Check Status</a>
+</p>
+
+<p>We will notify you as soon as the review is complete.</p>
+
+<p>Best regards,<br>
+The Mortgage Team</p>
+{% endblock %}

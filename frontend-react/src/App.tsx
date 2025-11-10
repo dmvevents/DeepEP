@@ -1,0 +1,93 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import MortgageApplication from './pages/MortgageApplication';
+import AdminDashboard from './pages/AdminDashboard';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import DocumentUpload from './pages/DocumentUpload';
+import DocumentsPortal from './pages/DocumentsPortal';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import MyApplications from './pages/MyApplications';
+import Profile from './pages/Profile';
+import AdminProfile from './pages/AdminProfile';
+import CreditReview from './pages/CreditReview';
+import MortgageStatusDemo from './pages/MortgageStatusDemo';
+import LOConsole from './pages/LOConsole';
+import PreApprovalPage from './pages/PreApprovalPage';
+import ScenarioDesk from './pages/ScenarioDesk';
+import { TenantThemeProvider, useTenantTheme } from './contexts/TenantThemeContext';
+
+const AppContent = () => {
+  const { theme: tenantTheme } = useTenantTheme();
+
+  // Create MUI theme based on tenant configuration
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: tenantTheme.colors.primary,
+        dark: tenantTheme.colors.accent,
+      },
+      secondary: {
+        main: tenantTheme.colors.secondary,
+      },
+      error: {
+        main: '#ef4444',
+      },
+    },
+    typography: {
+      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    },
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            textTransform: 'none',
+            borderRadius: '10px',
+            padding: '12px 24px',
+            fontSize: '1rem',
+            fontWeight: 600,
+          },
+        },
+      },
+    },
+  });
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/mortgage-application" element={<MortgageApplication />} />
+          <Route path="/my-applications" element={<MyApplications />} />
+          <Route path="/mortgage-status" element={<MortgageStatusDemo />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/admin-profile" element={<AdminProfile />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/super-admin" element={<SuperAdminDashboard />} />
+          <Route path="/documents" element={<DocumentUpload />} />
+          <Route path="/documents-portal" element={<DocumentsPortal />} />
+          <Route path="/credit-review" element={<CreditReview />} />
+          <Route path="/lo-console" element={<LOConsole />} />
+          <Route path="/pre-approval" element={<PreApprovalPage />} />
+          <Route path="/scenario-desk" element={<ScenarioDesk />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
+  );
+};
+
+function App() {
+  return (
+    <TenantThemeProvider>
+      <AppContent />
+    </TenantThemeProvider>
+  );
+}
+
+export default App;

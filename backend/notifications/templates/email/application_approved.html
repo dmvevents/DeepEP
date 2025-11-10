@@ -1,0 +1,35 @@
+{% extends "email/base.html" %}
+
+{% block header_title %}Application Approved!{% endblock %}
+
+{% block content %}
+<p>Dear {{ borrower_name }},</p>
+
+<p><strong>Congratulations!</strong> Your mortgage application has been <span class="status-badge status-approved">Approved</span>.</p>
+
+<div style="background-color: #e8f5e9; padding: 15px; border-radius: 4px; margin: 20px 0;">
+    <strong>Application ID:</strong> {{ application_id }}<br>
+    <strong>Loan Amount:</strong> ${{ loan_amount }}<br>
+    <strong>Property Address:</strong> {{ property_address }}<br>
+    <strong>Approval Date:</strong> {{ approval_date }}
+</div>
+
+<p><strong>Next Steps:</strong></p>
+<ol>
+    <li>Review your loan estimate carefully</li>
+    <li>Schedule a closing date with your real estate agent</li>
+    <li>Complete final documentation</li>
+    <li>Prepare for closing costs</li>
+</ol>
+
+<p style="text-align: center;">
+    <a href="{{ application_url }}" class="button">View Loan Details</a>
+</p>
+
+<p>Our team will be in touch shortly to discuss the next steps.</p>
+
+<p>Congratulations on this important milestone!</p>
+
+<p>Best regards,<br>
+The Mortgage Team</p>
+{% endblock %}

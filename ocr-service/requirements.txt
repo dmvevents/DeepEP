@@ -1,0 +1,43 @@
+# OCR Service Requirements
+# Created by: Neumann Rashid AI Development
+# Date: November 8, 2025
+
+# FastAPI framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Document processing
+Pillow==10.1.0
+PyPDF2==3.0.1
+pdf2image==1.16.3
+python-magic==0.4.27
+
+# Data validation
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# OLLAMA integration (for vision models)
+ollama==0.1.7
+
+# HTTP client
+httpx==0.25.2
+aiofiles==23.2.1
+
+# Database (PostgreSQL)
+psycopg2-binary==2.9.9
+SQLAlchemy==2.0.23
+
+# Environment variables
+python-dotenv==1.0.0
+
+# Logging and monitoring
+loguru==0.7.2
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+
+# Date/time handling
+python-dateutil==2.8.2

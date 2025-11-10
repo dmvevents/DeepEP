@@ -1,0 +1,1883 @@
+{
+  "test_timestamp": "2025-11-08T10:40:54.424450",
+  "states_scraped": [
+    "VA",
+    "DC",
+    "PA"
+  ],
+  "total_jurisdictions": 41,
+  "total_successful": 41,
+  "total_failed": 0,
+  "failed_jurisdictions": [],
+  "by_state": {
+    "VA": {
+      "state_code": "VA",
+      "state_name": "Virginia",
+      "total": 20,
+      "successful": 20,
+      "failed": 0,
+      "jurisdictions": [
+        {
+          "jurisdiction_id": 41,
+          "jurisdiction_name": "Albemarle",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:41:13.845342",
+          "scrape_duration_seconds": 19.36,
+          "success": true,
+          "data_completeness": 100,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.0063,
+            "components": {
+              "county": 0.0063,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.0025,
+            "county_rate": 0.001
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 20.0,
+              "per_page": 3.0,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 20.0,
+              "per_page": 3.0,
+              "typical_pages": 5
+            },
+            "surcharge": 5.0,
+            "surcharge_description": "Technology Trust Fund Fee",
+            "recording_fees_source": "Source 3 - Recordation Fees | Fauquier County, VA",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "https://law.lis.virginia.gov/vacodefull/title58.1/chapter8/",
+            "https://www.tax-rates.org/virginia/albemarle_county_property_tax",
+            "https://www.albemarle.org/government/finance-and-budget/business/tax-rates",
+            "https://www.fauquiercounty.gov/government/departments-a-g/circuit-court-clerk/fees/recordation-fees"
+          ]
+        },
+        {
+          "jurisdiction_id": 34,
+          "jurisdiction_name": "Alexandria City",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:41:32.586630",
+          "scrape_duration_seconds": 17.74,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.01135,
+            "components": {
+              "county": 0.0,
+              "state": 0.0,
+              "municipality": 0.01135,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.005,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 21.0,
+              "per_page": 3.0,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 21.0,
+              "per_page": 3.0,
+              "typical_pages": 3
+            },
+            "surcharge": 5.0,
+            "surcharge_description": "Technology Trust Fund fee",
+            "recording_fees_source": "Source 7 - ALEXANDRIA CIRCUIT COURT CIVIL FEE SCHEDULE",
+            "recording_fees_confidence": 85
+          },
+          "sources_used": [
+            "https://www.alexandriava.gov/RealEstateTax",
+            "https://www.alexandriava.gov/taxes/tax-rates",
+            "https://www.alexandriava.gov/news-finance/2025-10-27/alexandria-2025-second-half-real-estate-tax-bills-due-november-17-2025",
+            "https://www.alexandriava.gov/real-estate/recordation-tax",
+            "https://www.vacourts.gov/caseinfo/circuit_fees/alexandria_circ_civil_fees.pdf"
+          ]
+        },
+        {
+          "jurisdiction_id": 31,
+          "jurisdiction_name": "Arlington",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:41:50.638541",
+          "scrape_duration_seconds": 17.05,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.01043,
+            "components": {
+              "county": 0.01043,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.0025,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 80,
+              "per_page": 5,
+              "typical_pages": 8
+            },
+            "surcharge": 20,
+            "surcharge_description": "Estimated from regional averages",
+            "recording_fees_source": "Estimated",
+            "recording_fees_confidence": 50
+          },
+          "sources_used": [
+            "https://www.arlingtonva.us/About-Arlington/Newsroom/Articles/2025/Board-Advertises-Tax-Rate-Increase-in-Response-to-Federal-Fiscal-Uncertainty",
+            "https://law.lis.virginia.gov/vacodefull/title58.1/chapter8/"
+          ]
+        },
+        {
+          "jurisdiction_id": 35,
+          "jurisdiction_name": "Chesapeake City",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:42:09.854298",
+          "scrape_duration_seconds": 18.21,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.0093,
+            "components": {
+              "county": 0.0093,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.0025,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 20.0,
+              "per_page": 3.0,
+              "typical_pages": 5
+            },
+            "mortgage": {
+              "flat": 20.0,
+              "per_page": 3.0,
+              "typical_pages": 5
+            },
+            "surcharge": 5.0,
+            "surcharge_description": "Technology Trust Fund Fee",
+            "recording_fees_source": "Source 3 - Recordation Fees | Fauquier County, VA",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "https://law.lis.virginia.gov/vacodefull/title58.1/chapter8/",
+            "https://www.tax-rates.org/virginia/chesapeake_city_property_tax",
+            "https://www.cityofchesapeake.net/237/Local-Tax-Rates",
+            "https://www.fauquiercounty.gov/government/departments-a-g/circuit-court-clerk/fees/recordation-fees"
+          ]
+        },
+        {
+          "jurisdiction_id": 30,
+          "jurisdiction_name": "Chesterfield",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:42:27.418576",
+          "scrape_duration_seconds": 16.56,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 90,
+          "property_tax": {
+            "total_rate": 0.0089,
+            "components": {
+              "county": 0.0089,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.005,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 0,
+              "per_page": 17,
+              "typical_pages": 1
+            },
+            "mortgage": {
+              "flat": 0,
+              "per_page": 17,
+              "typical_pages": 1
+            },
+            "surcharge": 50,
+            "surcharge_description": "$50 or 10% of transaction amount, whichever is greater",
+            "recording_fees_source": "Source 7 and Source 8",
+            "recording_fees_confidence": 90
+          },
+          "sources_used": [
+            "https://www.chesterfield.gov/823/Real-Estate-Assessments",
+            "https://law.lis.virginia.gov/vacode/title17.1/chapter2/section17.1-275/",
+            "https://maps.chesterfield.gov/1146/Payment-Options"
+          ]
+        },
+        {
+          "jurisdiction_id": 25,
+          "jurisdiction_name": "Fairfax",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:42:59.005689",
+          "scrape_duration_seconds": 30.58,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 90,
+          "property_tax": {
+            "total_rate": 0.01135,
+            "components": {
+              "county": 0.01135,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.005,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 31,
+              "per_page": 0,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 56,
+              "per_page": 0,
+              "typical_pages": 3
+            },
+            "surcharge": 0,
+            "surcharge_description": "No additional surcharges found",
+            "recording_fees_source": "Source 9 - Fairfax Circuit Court Land Records Recordation Taxes And Fees",
+            "recording_fees_confidence": 90
+          },
+          "sources_used": [
+            "https://www.fairfaxcounty.gov/budget/sites/budget/files/Assets/Documents/fy2025/advertised/overview/Trends%20and%20Demographics.pdf",
+            "https://www.fairfaxcounty.gov/taxes/real-estate",
+            "https://www.fairfaxcounty.gov/circuit/land-records/land-records-faq",
+            "https://www.fairfaxcounty.gov/circuit/sites/circuit/files/assets/documents/pdf/fees-land-records.pdf"
+          ]
+        },
+        {
+          "jurisdiction_id": 37,
+          "jurisdiction_name": "Hampton City",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:43:31.913087",
+          "scrape_duration_seconds": 31.9,
+          "success": true,
+          "data_completeness": 100,
+          "scraper_confidence": 80,
+          "property_tax": {
+            "total_rate": 1.24,
+            "components": {
+              "county": 0.86,
+              "state": 0.0,
+              "municipality": 0.38,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.0025,
+            "county_rate": 0.001
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 20,
+              "per_page": 3,
+              "typical_pages": 5
+            },
+            "mortgage": {
+              "flat": 20,
+              "per_page": 3,
+              "typical_pages": 5
+            },
+            "surcharge": 5,
+            "surcharge_description": "Technology fee",
+            "recording_fees_source": "Source 3 - Central Records Unit | Hampton, VA - Official Website",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "https://www.hampton.gov/573/Tax-Rates",
+            "https://law.lis.virginia.gov/vacodefull/title58.1/chapter8/",
+            "https://www.hampton.gov/742/Fees-Services"
+          ]
+        },
+        {
+          "jurisdiction_id": 29,
+          "jurisdiction_name": "Henrico",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:43:42.621624",
+          "scrape_duration_seconds": 9.71,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.0077,
+            "components": {
+              "county": 0.0077,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.0025,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 80,
+              "per_page": 5,
+              "typical_pages": 8
+            },
+            "surcharge": 4,
+            "surcharge_description": "Increase for Virginia State Library and Open Space Preservation Fees",
+            "recording_fees_source": "Source 4 - Recordation Fees | Fauquier County, VA",
+            "recording_fees_confidence": 85
+          },
+          "sources_used": [
+            "https://henrico.gov/news/2025/02/henricos-proposed-budget-offers-sweeping-tax-relief-for-homeowners-businesses/",
+            "https://law.lis.virginia.gov/vacodefull/title58.1/chapter8/",
+            "https://www.tax-rates.org/virginia/henrico_county_property_tax",
+            "https://www.fauquiercounty.gov/government/departments-a-g/circuit-court-clerk/fees/recordation-fees"
+          ]
+        },
+        {
+          "jurisdiction_id": 28,
+          "jurisdiction_name": "Loudoun",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:44:19.390990",
+          "scrape_duration_seconds": 35.77,
+          "success": true,
+          "data_completeness": 75,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.00805,
+            "components": {
+              "county": 0.00805,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.005,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 0,
+              "per_page": 17,
+              "typical_pages": 1
+            },
+            "mortgage": {
+              "flat": 0,
+              "per_page": 17,
+              "typical_pages": 1
+            },
+            "surcharge": 0,
+            "surcharge_description": "Not applicable",
+            "recording_fees_source": "Source 7 - Virginia Code",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "https://www.loudoun.gov/1922/Property-Tax-Rates",
+            "https://www.loudoun.gov/1911/Taxes-in-Loudoun-County",
+            "https://law.lis.virginia.gov/vacode/title17.1/chapter2/section17.1-275/"
+          ]
+        },
+        {
+          "jurisdiction_id": 44,
+          "jurisdiction_name": "Montgomery",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:44:35.935359",
+          "scrape_duration_seconds": 15.54,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 75,
+          "property_tax": {
+            "total_rate": 0.89,
+            "components": {
+              "county": 0.65,
+              "state": 0.0,
+              "municipality": 0.24,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.005,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 46,
+              "per_page": 5,
+              "typical_pages": 8
+            },
+            "surcharge": 0,
+            "surcharge_description": "Not found",
+            "recording_fees_source": "Source 9 - Montgomery County Clerk",
+            "recording_fees_confidence": 85
+          },
+          "sources_used": [
+            "https://www.blacksburg.gov/residents/services/taxes",
+            "https://law.lis.virginia.gov/vacode/title17.1/chapter2/section17.1-275/",
+            "https://www.pwcva.gov/department/circuit-court/land-records-fees/",
+            "https://montgomery.countyclerk.us/recording-fees/"
+          ]
+        },
+        {
+          "jurisdiction_id": 36,
+          "jurisdiction_name": "Newport News City",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:44:53.863271",
+          "scrape_duration_seconds": 16.92,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 80,
+          "property_tax": {
+            "total_rate": 0.0118,
+            "components": {
+              "county": 0.0,
+              "state": 0.0,
+              "municipality": 0.0118,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.005,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 80,
+              "per_page": 5,
+              "typical_pages": 8
+            },
+            "surcharge": 20,
+            "surcharge_description": "Technology surcharge for electronic filing system",
+            "recording_fees_source": "Estimated from typical regional averages",
+            "recording_fees_confidence": 70
+          },
+          "sources_used": [
+            "https://www.nnva.gov/faq.aspx?TID=23",
+            "https://www.nnva.gov/333/Tax-Calculator",
+            "https://www.nnva.gov/1343/Taxes-Fees-Charges",
+            "https://www.nnva.gov/529/Tax-Rate-Schedules"
+          ]
+        },
+        {
+          "jurisdiction_id": 32,
+          "jurisdiction_name": "Norfolk City",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:45:23.604317",
+          "scrape_duration_seconds": 28.74,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 80,
+          "property_tax": {
+            "total_rate": 1.25,
+            "components": {
+              "county": 0.85,
+              "state": 0.0,
+              "municipality": 0.4,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.005,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 20,
+              "per_page": 3,
+              "typical_pages": 5
+            },
+            "mortgage": {
+              "flat": 20,
+              "per_page": 3,
+              "typical_pages": 5
+            },
+            "surcharge": 5,
+            "surcharge_description": "Technology trust fund fee",
+            "recording_fees_source": "https://www.norfolkcircuitcourt.us/list-of-fees/",
+            "recording_fees_confidence": 90
+          },
+          "sources_used": [
+            "https://www.norfolk.gov/3733/Personal-Property-Tax",
+            "https://www.norfolk.gov/4812/Real-Estate-Tax",
+            "https://www.norfolk.gov/faq.aspx?TID=48",
+            "https://law.lis.virginia.gov/vacodefull/title17.1/chapter2/article7/",
+            "https://www.norfolkcircuitcourt.us/list-of-fees/"
+          ]
+        },
+        {
+          "jurisdiction_id": 40,
+          "jurisdiction_name": "Portsmouth City",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:45:43.234775",
+          "scrape_duration_seconds": 18.63,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 75,
+          "property_tax": {
+            "total_rate": 1.3,
+            "components": {
+              "county": 1.0,
+              "state": 0.0,
+              "municipality": 0.3,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.005,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 20,
+              "per_page": 3,
+              "typical_pages": 5
+            },
+            "mortgage": {
+              "flat": 20,
+              "per_page": 3,
+              "typical_pages": 5
+            },
+            "surcharge": 5,
+            "surcharge_description": "Technology Trust Fund Fee",
+            "recording_fees_source": "Source 5 - Land Records Fees",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "https://www.portsmouthva.gov/162/Collection-Rates",
+            "https://www.pwcva.gov/department/circuit-court/land-records-fees/",
+            "https://law.lis.virginia.gov/vacode/title17.1/chapter2/section17.1-275/"
+          ]
+        },
+        {
+          "jurisdiction_id": 26,
+          "jurisdiction_name": "Prince William",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:45:55.506956",
+          "scrape_duration_seconds": 11.27,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.00906,
+            "components": {
+              "county": 0.00906,
+              "state": 0.0,
+              "municipality": 0.00116,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.0025,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 80,
+              "per_page": 5,
+              "typical_pages": 8
+            },
+            "surcharge": 20,
+            "surcharge_description": "Technology surcharge for electronic filing system",
+            "recording_fees_source": "Source 10 - Recordation Fees | Fauquier County, VA",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "https://www.pwcva.gov/department/management-and-budget/your-tax-dollar-at-work",
+            "https://occoquanva.gov/living-here/tax-information/",
+            "https://law.lis.virginia.gov/vacodefull/title58.1/chapter8/",
+            "https://www.fauquiercounty.gov/government/departments-a-g/circuit-court-clerk/fees/recordation-fees"
+          ]
+        },
+        {
+          "jurisdiction_id": 33,
+          "jurisdiction_name": "Richmond City",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:46:12.433126",
+          "scrape_duration_seconds": 15.92,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 80,
+          "property_tax": {
+            "total_rate": 0.012,
+            "components": {
+              "county": 0.012,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.005,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 20,
+              "per_page": 0.5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 30,
+              "per_page": 0.5,
+              "typical_pages": 5
+            },
+            "surcharge": 5,
+            "surcharge_description": "Technology Trust Fund Fee",
+            "recording_fees_source": "Source 4 - Code of Virginia",
+            "recording_fees_confidence": 85
+          },
+          "sources_used": [
+            "https://rva.gov/finance/real-estate",
+            "https://law.lis.virginia.gov/vacodefull/title17.1/chapter2/article7/",
+            "https://law.lis.virginia.gov/vacode/title17.1/chapter2/section17.1-275/"
+          ]
+        },
+        {
+          "jurisdiction_id": 39,
+          "jurisdiction_name": "Roanoke City",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:46:23.508163",
+          "scrape_duration_seconds": 10.07,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.0122,
+            "components": {
+              "county": 0.0,
+              "state": 0.0,
+              "municipality": 0.0122,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.0025,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 80,
+              "per_page": 5,
+              "typical_pages": 8
+            },
+            "surcharge": 20,
+            "surcharge_description": "Technology surcharge for electronic filing system",
+            "recording_fees_source": "Estimated from regional averages",
+            "recording_fees_confidence": 70
+          },
+          "sources_used": [
+            "https://www.roanokeva.gov/1520/Real-Estate-Taxes",
+            "https://law.lis.virginia.gov/vacodefull/title58.1/chapter8/"
+          ]
+        },
+        {
+          "jurisdiction_id": 42,
+          "jurisdiction_name": "Spotsylvania",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:46:40.716897",
+          "scrape_duration_seconds": 16.21,
+          "success": true,
+          "data_completeness": 100,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.847,
+            "components": {
+              "county": 0.62,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.227
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.0025,
+            "county_rate": 0.001
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 20,
+              "per_page": 3,
+              "typical_pages": 5
+            },
+            "mortgage": {
+              "flat": 20,
+              "per_page": 3,
+              "typical_pages": 5
+            },
+            "surcharge": 5,
+            "surcharge_description": "Technology Trust Fund Fee",
+            "recording_fees_source": "Source 4 - Recordation Fees | Fauquier County, VA",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "https://apps.spotsylvaniacountyva.gov/assessment/assessment/index.cfm",
+            "https://law.lis.virginia.gov/vacodefull/title58.1/chapter8/",
+            "https://www.spotsylvania.va.us/695/Tax-Rate",
+            "https://www.spotsylvania.va.us/2387/Real-Estate-Personal-Property-and-Busine",
+            "https://www.fauquiercounty.gov/government/departments-a-g/circuit-court-clerk/fees/recordation-fees"
+          ]
+        },
+        {
+          "jurisdiction_id": 43,
+          "jurisdiction_name": "Stafford",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:47:02.366110",
+          "scrape_duration_seconds": 20.65,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.009067,
+            "components": {
+              "county": 0.009067,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.005,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 80,
+              "per_page": 5,
+              "typical_pages": 8
+            },
+            "surcharge": 20,
+            "surcharge_description": "Technology surcharge for electronic filing system",
+            "recording_fees_source": "Source 9 - Land Records | Essex County VA",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "https://staffordcountyva.gov/news_detail_T5_R849.php",
+            "https://staffordcountyva.gov/news_detail_T5_R834.php",
+            "https://staffordcountyva.gov/government/elected_and_appointed_officials/treasurer/tax_rates.php",
+            "https://law.lis.virginia.gov/vacode/title17.1/chapter2/section17.1-275/"
+          ]
+        },
+        {
+          "jurisdiction_id": 38,
+          "jurisdiction_name": "Suffolk City",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:47:22.028858",
+          "scrape_duration_seconds": 18.66,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 80,
+          "property_tax": {
+            "total_rate": 0.0107,
+            "components": {
+              "county": 0.0,
+              "state": 0.0,
+              "municipality": 0.0107,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.005,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 80,
+              "per_page": 5,
+              "typical_pages": 8
+            },
+            "surcharge": 20,
+            "surcharge_description": "Estimated based on typical VA fees",
+            "recording_fees_source": "Estimated",
+            "recording_fees_confidence": 50
+          },
+          "sources_used": [
+            "https://www.suffolkva.us/970/Real-Estate-Taxes",
+            "https://www.suffolkva.us/180/Tax-Rates",
+            "https://www.suffolkva.us/DocumentCenter/View/15950/TaxRatesandFees-2024-2025"
+          ]
+        },
+        {
+          "jurisdiction_id": 27,
+          "jurisdiction_name": "Virginia Beach City",
+          "state": "VA",
+          "scrape_timestamp": "2025-11-08T10:47:40.096161",
+          "scrape_duration_seconds": 17.06,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.0097,
+            "components": {
+              "county": 0.0097,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.005,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 20,
+              "per_page": 0.5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 30,
+              "per_page": 0.5,
+              "typical_pages": 8
+            },
+            "surcharge": 5,
+            "surcharge_description": "Technology Trust Fund Fee",
+            "recording_fees_source": "Source 8 - Land Records Fees",
+            "recording_fees_confidence": 85
+          },
+          "sources_used": [
+            "https://assessor.virginiabeach.gov/tax-rates",
+            "https://www.tax.virginia.gov/sites/default/files/inline-files/2022-local-tax-rates.pdf",
+            "https://law.lis.virginia.gov/vacode/title17.1/chapter2/section17.1-275/",
+            "https://virginiabeach.gov/connect/blog/five-things-to-know-about-the-2024-2025-real-estate-assessments",
+            "https://virginiabeach.gov/connect/blog/seven-key-takeaways-from-the-real-estate-assessors-annual-report",
+            "https://law.lis.virginia.gov/vacodefull/title58.1/chapter8/",
+            "https://www.pwcva.gov/department/circuit-court/land-records-fees/",
+            "https://treasurer.virginiabeach.gov/"
+          ]
+        }
+      ]
+    },
+    "DC": {
+      "state_code": "DC",
+      "state_name": "District of Columbia",
+      "total": 1,
+      "successful": 1,
+      "failed": 0,
+      "jurisdictions": [
+        {
+          "jurisdiction_id": 65,
+          "jurisdiction_name": "District of Columbia",
+          "state": "DC",
+          "scrape_timestamp": "2025-11-08T10:48:02.745918",
+          "scrape_duration_seconds": 21.58,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.0085,
+            "components": {
+              "county": 0.0085,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.0145,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 150,
+              "per_page": 0,
+              "typical_pages": 0
+            },
+            "mortgage": {
+              "flat": 150,
+              "per_page": 0,
+              "typical_pages": 0
+            },
+            "surcharge": 25,
+            "surcharge_description": "Technology fee",
+            "recording_fees_source": "Source 7 - General Recording Requirements & Fees",
+            "recording_fees_confidence": 95
+          },
+          "sources_used": [
+            "https://code.dccouncil.gov/us/dc/council/code/sections/47-812",
+            "https://otr.cfo.dc.gov/page/real-property-tax-rates",
+            "https://otr.cfo.dc.gov/service/general-recording-requirements-fees",
+            "https://otr.cfo.dc.gov/page/dc-tax-rates"
+          ]
+        }
+      ]
+    },
+    "PA": {
+      "state_code": "PA",
+      "state_name": "Pennsylvania",
+      "total": 20,
+      "successful": 20,
+      "failed": 0,
+      "jurisdictions": [
+        {
+          "jurisdiction_id": 46,
+          "jurisdiction_name": "Allegheny",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:48:14.906178",
+          "scrape_duration_seconds": 11.11,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.00643,
+            "components": {
+              "county": 0.00643,
+              "state": 0.01,
+              "municipality": 0.0,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.02
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 80,
+              "per_page": 5,
+              "typical_pages": 8
+            },
+            "surcharge": 20,
+            "surcharge_description": "Technology surcharge for electronic filing system",
+            "recording_fees_source": "Source 3 - Recording Fees | York County, PA",
+            "recording_fees_confidence": 70
+          },
+          "sources_used": [
+            "https://www.alleghenycounty.us/Government/Departments-and-Offices/Department-Directory/Budget-and-Finance/Property-Assessment-Tax-Calculator",
+            "https://www.alleghenycounty.us/Services/Property-Assessments-and-Real-Estate/Realty-Transfer-Taxes/Local-Tax-Rates",
+            "https://www.franklinparkborough.us/339/Real-Estate-Transfer-Tax"
+          ]
+        },
+        {
+          "jurisdiction_id": 53,
+          "jurisdiction_name": "Berks",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:48:41.023914",
+          "scrape_duration_seconds": 25.11,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.0185,
+            "components": {
+              "county": 0.0075,
+              "state": 0.0,
+              "municipality": 0.005,
+              "school": 0.006
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 100,
+              "per_page": 15,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 100,
+              "per_page": 15,
+              "typical_pages": 8
+            },
+            "surcharge": 0,
+            "surcharge_description": "Not found",
+            "recording_fees_source": "Source 3 - Berks County Recorder of Deeds Fee Schedule",
+            "recording_fees_confidence": 90
+          },
+          "sources_used": [
+            "https://www.berkspa.gov/getmedia/3c2b5fc2-406c-4caf-82dd-cbb5f37634d9/Fee-Schedule-REVISED-(09-22-2025).pdf",
+            "https://www.berkspa.gov/departments/recorder-of-deeds/fee-schedule",
+            "https://www.berkspa.gov/getmedia/1905a9aa-1ed9-4e7f-8d10-07e6ccba2582/co-twp-sch-tax-rate.pdf",
+            "https://www.co.berks.pa.us/Dept/Assessment/Pages/Berks_County_Tax_Information.aspx",
+            "http://www.tax-rates.org/pennsylvania/berks_county_property_tax"
+          ]
+        },
+        {
+          "jurisdiction_id": 48,
+          "jurisdiction_name": "Bucks",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:49:05.834112",
+          "scrape_duration_seconds": 23.81,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 70,
+          "property_tax": {
+            "total_rate": 1.25,
+            "components": {
+              "county": 0.25,
+              "state": 0.0,
+              "municipality": 0.5,
+              "school": 0.5
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 2,
+              "typical_pages": 4
+            },
+            "mortgage": {
+              "flat": 60,
+              "per_page": 2,
+              "typical_pages": 5
+            },
+            "surcharge": 10,
+            "surcharge_description": "State mandated surcharge",
+            "recording_fees_source": "Source 2, Source 4",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "https://www.buckscounty.gov/1095/Frequently-Asked-Questions",
+            "https://www.buckscounty.gov/2031/Recording-Fee-Calculator",
+            "https://www.buckscounty.gov/421/Recording-Requirements",
+            "https://www.buckscounty.gov/CivicSend/ViewMessage/message/207798",
+            "https://www.buckscounty.gov/318/Treasurer"
+          ]
+        },
+        {
+          "jurisdiction_id": 63,
+          "jurisdiction_name": "Butler",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:49:30.975639",
+          "scrape_duration_seconds": 24.14,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.027626,
+            "components": {
+              "county": 0.021775,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.005851
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 86.75,
+              "per_page": 0,
+              "typical_pages": 4
+            },
+            "mortgage": {
+              "flat": 86.75,
+              "per_page": 0,
+              "typical_pages": 4
+            },
+            "surcharge": 0,
+            "surcharge_description": "No additional surcharges found",
+            "recording_fees_source": "Source 4 - Deeds & Mortgages",
+            "recording_fees_confidence": 90
+          },
+          "sources_used": [
+            "https://www.butlercountypa.gov/390/Property-Tax-Information",
+            "https://www.butlercountypa.gov/265/Deeds-Mortgages",
+            "https://www.butlercountypa.gov/155/Property-Tax-Assessment"
+          ]
+        },
+        {
+          "jurisdiction_id": 64,
+          "jurisdiction_name": "Centre",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:49:48.924370",
+          "scrape_duration_seconds": 16.95,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 70,
+          "property_tax": {
+            "total_rate": 0.015,
+            "components": {
+              "county": 0.005,
+              "state": 0.0,
+              "municipality": 0.003,
+              "school": 0.007
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 10,
+              "per_page": 2,
+              "typical_pages": 4
+            },
+            "mortgage": {
+              "flat": 15,
+              "per_page": 2,
+              "typical_pages": 5
+            },
+            "surcharge": 5,
+            "surcharge_description": "UPI Stamp fee",
+            "recording_fees_source": "Source 3",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "https://centrecountypa.gov/407/Property-Taxes",
+            "https://centrecountypa.gov/423/Tax-Assessment",
+            "https://centrecountypa.gov/421/Recorder-of-Deeds-Fee-Bill"
+          ]
+        },
+        {
+          "jurisdiction_id": 50,
+          "jurisdiction_name": "Chester",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:50:09.601625",
+          "scrape_duration_seconds": 19.67,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.005164,
+            "components": {
+              "county": 0.005164,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 80,
+              "per_page": 5,
+              "typical_pages": 8
+            },
+            "surcharge": 20,
+            "surcharge_description": "Technology surcharge for electronic filing system",
+            "recording_fees_source": "Source 1 - Recorder of Deeds - Delaware County, Pennsylvania",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "https://www.chesco.org/1585/Tax-Rates",
+            "http://www.tax-rates.org/pennsylvania/chester_county_property_tax",
+            "https://delcopa.gov/departments/recorderofdeeds.html"
+          ]
+        },
+        {
+          "jurisdiction_id": 61,
+          "jurisdiction_name": "Cumberland",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:50:48.674329",
+          "scrape_duration_seconds": 38.07,
+          "success": true,
+          "data_completeness": 75,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.00025,
+            "components": {
+              "county": 0.00025,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.0
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 75,
+              "per_page": 2,
+              "typical_pages": 4
+            },
+            "mortgage": {
+              "flat": 75,
+              "per_page": 2,
+              "typical_pages": 4
+            },
+            "surcharge": 10,
+            "surcharge_description": "State-imposed surcharge",
+            "recording_fees_source": "Source 4 - York County, PA (used as a proxy)",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "https://www.cumberlandcountypa.gov/3024/What-Taxes-Do-I-Pay",
+            "https://yorkcountypa.gov/561/Recording-Fees",
+            "https://www.montgomerycountypa.gov/2710/Realty-Transfer-Tax",
+            "https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/realty-transfer-tax/"
+          ]
+        },
+        {
+          "jurisdiction_id": 58,
+          "jurisdiction_name": "Dauphin",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:51:13.624670",
+          "scrape_duration_seconds": 23.95,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 75,
+          "property_tax": {
+            "total_rate": 0.015,
+            "components": {
+              "county": 0.005,
+              "state": 0.0,
+              "municipality": 0.005,
+              "school": 0.005
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 60,
+              "per_page": 5,
+              "typical_pages": 4
+            },
+            "surcharge": 10,
+            "surcharge_description": "State-imposed surcharge",
+            "recording_fees_source": "Dauphin County Recorder of Deeds Fee Schedule",
+            "recording_fees_confidence": 90
+          },
+          "sources_used": [
+            "https://www.lowerpaxton-pa.gov/219/Your-Taxes",
+            "https://www.dauphincounty.gov/government/publicly-elected-officials/treasurer/real-estate-taxes",
+            "https://www.dauphincounty.gov/government/publicly-elected-officials/recorder-of-deeds/fee-calculators",
+            "https://www.dauphincounty.gov/docs/default-source/recorder/Fee-Schedule.pdf",
+            "https://www.tax-rates.org/pennsylvania/dauphin_county_property_tax"
+          ]
+        },
+        {
+          "jurisdiction_id": 49,
+          "jurisdiction_name": "Delaware",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:51:23.784856",
+          "scrape_duration_seconds": 9.16,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 80,
+          "property_tax": {
+            "total_rate": 0.00101,
+            "components": {
+              "county": 0.0,
+              "state": 0.0,
+              "municipality": 0.00101,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.01
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 0,
+              "per_page": 0,
+              "typical_pages": 0
+            },
+            "mortgage": {
+              "flat": 0,
+              "per_page": 0,
+              "typical_pages": 0
+            },
+            "surcharge": 0,
+            "surcharge_description": "Not found",
+            "recording_fees_source": "Not found",
+            "recording_fees_confidence": 0
+          },
+          "sources_used": [
+            "https://middletowndelcopa.gov/realestatetax",
+            "https://delcopa.gov/recorder-deeds/transfer-taxes"
+          ]
+        },
+        {
+          "jurisdiction_id": 60,
+          "jurisdiction_name": "Erie",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:51:47.117254",
+          "scrape_duration_seconds": 22.33,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 75,
+          "property_tax": {
+            "total_rate": 0.015,
+            "components": {
+              "county": 0.005,
+              "state": 0.0,
+              "municipality": 0.005,
+              "school": 0.005
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 60,
+              "per_page": 5,
+              "typical_pages": 4
+            },
+            "surcharge": 10,
+            "surcharge_description": "State-imposed surcharge",
+            "recording_fees_source": "York County fee schedule",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "http://www.tax-rates.org/pennsylvania/erie_county_property_tax",
+            "https://www.erie.pa.us/government/city_offices_departments/city_treasurer.php",
+            "https://www.montgomerycountypa.gov/2710/Realty-Transfer-Tax",
+            "https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/realty-transfer-tax/",
+            "https://yorkcountypa.gov/561/Recording-Fees"
+          ]
+        },
+        {
+          "jurisdiction_id": 62,
+          "jurisdiction_name": "Lackawanna",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:52:02.110315",
+          "scrape_duration_seconds": 13.99,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 70,
+          "property_tax": {
+            "total_rate": 1.35,
+            "components": {
+              "county": 0.5,
+              "state": 0.0,
+              "municipality": 0.4,
+              "school": 0.45
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 5,
+              "typical_pages": 4
+            },
+            "mortgage": {
+              "flat": 60,
+              "per_page": 5,
+              "typical_pages": 5
+            },
+            "surcharge": 10,
+            "surcharge_description": "State-imposed surcharge",
+            "recording_fees_source": "York County fee schedule",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "Realty Transfer Tax | Montgomery County, PA - Official Website",
+            "Realty Transfer Tax | Services | City of Philadelphia",
+            "Recording Fees | York County, PA"
+          ]
+        },
+        {
+          "jurisdiction_id": 51,
+          "jurisdiction_name": "Lancaster",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:52:10.788169",
+          "scrape_duration_seconds": 7.68,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 80,
+          "property_tax": {
+            "total_rate": 0.015,
+            "components": {
+              "county": 0.005,
+              "state": 0.0,
+              "municipality": 0.005,
+              "school": 0.005
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 2,
+              "typical_pages": 4
+            },
+            "mortgage": {
+              "flat": 80,
+              "per_page": 2,
+              "typical_pages": 8
+            },
+            "surcharge": 20,
+            "surcharge_description": "Technology surcharge for electronic filing system",
+            "recording_fees_source": "Source 4 - Recording Fees | York County, PA",
+            "recording_fees_confidence": 75
+          },
+          "sources_used": [
+            "https://lancasteronline.com/lancaster-county-property-tax-rates/article_ddc76aaa-b558-11e5-a980-d3b41b81b95e.html",
+            "http://www.tax-rates.org/pennsylvania/lancaster_county_property_tax",
+            "https://www.montgomerycountypa.gov/2710/Realty-Transfer-Tax",
+            "https://yorkcountypa.gov/561/Recording-Fees"
+          ]
+        },
+        {
+          "jurisdiction_id": 55,
+          "jurisdiction_name": "Lehigh",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:52:40.042785",
+          "scrape_duration_seconds": 28.25,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 70,
+          "property_tax": {
+            "total_rate": 1.29,
+            "components": {
+              "county": 0.42,
+              "state": 0.0,
+              "municipality": 0.37,
+              "school": 0.5
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 2,
+              "typical_pages": 4
+            },
+            "mortgage": {
+              "flat": 60,
+              "per_page": 2,
+              "typical_pages": 5
+            },
+            "surcharge": 10,
+            "surcharge_description": "Technology fee",
+            "recording_fees_source": "York County fee schedule, assumed similar for Lehigh",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "http://www.tax-rates.org/pennsylvania/lehigh_county_property_tax",
+            "https://www.montgomerycountypa.gov/2710/Realty-Transfer-Tax",
+            "https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/realty-transfer-tax/",
+            "https://yorkcountypa.gov/561/Recording-Fees"
+          ]
+        },
+        {
+          "jurisdiction_id": 56,
+          "jurisdiction_name": "Luzerne",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:52:59.073914",
+          "scrape_duration_seconds": 18.03,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 70,
+          "property_tax": {
+            "total_rate": 0.0165,
+            "components": {
+              "county": 0.005,
+              "state": 0.0,
+              "municipality": 0.003,
+              "school": 0.0085
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 60,
+              "per_page": 5,
+              "typical_pages": 5
+            },
+            "surcharge": 10,
+            "surcharge_description": "Technology fee",
+            "recording_fees_source": "Estimated from county clerk fee schedules",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "https://www.pacodeandbulletin.gov/Display/pabull?file=/secure/pabulletin/data/vol53/53-48/1652.html",
+            "https://www.patreasury.gov/newsroom/archive/2024/3-6-Luzerne.html",
+            "https://www.patreasury.gov/newsroom/archive/2024/6-4-Luzerne.html",
+            "https://www.tax-rates.org/pennsylvania/luzerne_county_property_tax",
+            "https://www.luzernecounty.org/295/Treasurers-Office",
+            "https://www.luzernecounty.org/938/Treasurer-Online-Tax-Payment"
+          ]
+        },
+        {
+          "jurisdiction_id": 47,
+          "jurisdiction_name": "Montgomery",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:53:15.567154",
+          "scrape_duration_seconds": 15.49,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 90,
+          "property_tax": {
+            "total_rate": 0.005625,
+            "components": {
+              "county": 0.005625,
+              "state": 0.0,
+              "municipality": 0.0,
+              "school": 0.0
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 5.5,
+              "per_page": 0,
+              "typical_pages": 1
+            },
+            "mortgage": {
+              "flat": 50,
+              "per_page": 2,
+              "typical_pages": 10
+            },
+            "surcharge": 10,
+            "surcharge_description": "State-imposed surcharge for preservation",
+            "recording_fees_source": "Source 5 - Recording Fee Schedule",
+            "recording_fees_confidence": 85
+          },
+          "sources_used": [
+            "https://www.montgomerycountypa.gov/4520/Real-Estate-Tax",
+            "https://www.montgomerycountypa.gov/622/County-Municipality-Millage-Rates",
+            "https://www.montgomerycountypa.gov/DocumentCenter/View/45438/Montgomery-County-Proposed-2025-Budget",
+            "https://www.montgomerycountypa.gov/2926/Recording-Fee-Schedule",
+            "https://www.montgomerycountypa.gov/2710/Realty-Transfer-Tax"
+          ]
+        },
+        {
+          "jurisdiction_id": 57,
+          "jurisdiction_name": "Northampton",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:53:33.964263",
+          "scrape_duration_seconds": 17.39,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 70,
+          "property_tax": {
+            "total_rate": 1.29,
+            "components": {
+              "county": 0.5,
+              "state": 0.0,
+              "municipality": 0.3,
+              "school": 0.49
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50.0,
+              "per_page": 2.0,
+              "typical_pages": 4
+            },
+            "mortgage": {
+              "flat": 60.0,
+              "per_page": 2.0,
+              "typical_pages": 5
+            },
+            "surcharge": 10.0,
+            "surcharge_description": "Technology fee",
+            "recording_fees_source": "County recorder of deeds fee schedule",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "https://norcopa.gov/tax-payment-instructions",
+            "https://www.norcopa.gov/index.php?section=recording-fees-format&docid=43",
+            "https://norcopa.gov/recorder-of-deeds",
+            "https://www.co.northampton.va.us/government/departments_elected_offices/treasurer",
+            "https://www.countyoffice.org/pa-northampton-county-treasurer-tax-collector/"
+          ]
+        },
+        {
+          "jurisdiction_id": 45,
+          "jurisdiction_name": "Philadelphia",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:53:54.984730",
+          "scrape_duration_seconds": 20.02,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 85,
+          "property_tax": {
+            "total_rate": 0.013998,
+            "components": {
+              "county": 0.0,
+              "state": 0.0,
+              "municipality": 0.006159,
+              "school": 0.007839
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.0145
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 262.75,
+              "per_page": 4,
+              "typical_pages": 2
+            },
+            "mortgage": {
+              "flat": 256.75,
+              "per_page": 4,
+              "typical_pages": 2
+            },
+            "surcharge": 10,
+            "surcharge_description": "Technology fee",
+            "recording_fees_source": "Source 4 - Restated fees of the department of records",
+            "recording_fees_confidence": 90
+          },
+          "sources_used": [
+            "https://www.phila.gov/2024-07-18-own-a-property-in-philly-heres-what-to-know/",
+            "https://www.phila.gov/2025-06-16-important-changes-to-recording-fees-and-transfer-tax-starting-july-1-2025/",
+            "https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/real-estate-tax/",
+            "https://www.phila.gov/media/20231103134711/Records-fee-schedule-2023-english.pdf"
+          ]
+        },
+        {
+          "jurisdiction_id": 59,
+          "jurisdiction_name": "Washington",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:54:11.354766",
+          "scrape_duration_seconds": 15.37,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 80,
+          "property_tax": {
+            "total_rate": 0.0245,
+            "components": {
+              "county": 0.005,
+              "state": 0.0,
+              "municipality": 0.0075,
+              "school": 0.012
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 50,
+              "per_page": 2,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 60,
+              "per_page": 2,
+              "typical_pages": 8
+            },
+            "surcharge": 10,
+            "surcharge_description": "State-imposed surcharge",
+            "recording_fees_source": "Source 5 - Recorder of Deeds: Washington County, PA",
+            "recording_fees_confidence": 85
+          },
+          "sources_used": [
+            "https://www.washingtoncopa.gov/tax-revenue",
+            "https://www.washingtoncopa.gov/recorder-of-deeds",
+            "https://cms.washingtoncopa.gov/uploads/2024_millage_listing_Update_b4d57a55b5.pdf"
+          ]
+        },
+        {
+          "jurisdiction_id": 54,
+          "jurisdiction_name": "Westmoreland",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:54:25.586656",
+          "scrape_duration_seconds": 13.23,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 70,
+          "property_tax": {
+            "total_rate": 0.0125,
+            "components": {
+              "county": 0.005,
+              "state": 0.0,
+              "municipality": 0.003,
+              "school": 0.0045
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 49,
+              "per_page": 20,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 49,
+              "per_page": 20,
+              "typical_pages": 8
+            },
+            "surcharge": 0,
+            "surcharge_description": "Not found",
+            "recording_fees_source": "Source 3 - Fee Schedule",
+            "recording_fees_confidence": 90
+          },
+          "sources_used": [
+            "https://www.westmorelandcountypa.gov/154/Tax-Assessment",
+            "https://www.westmorelandcountypa.gov/152/Fee-Schedule",
+            "https://www.westmorelandcountypa.gov/140/Assessment-Land-Records-Taxes"
+          ]
+        },
+        {
+          "jurisdiction_id": 52,
+          "jurisdiction_name": "York",
+          "state": "PA",
+          "scrape_timestamp": "2025-11-08T10:54:48.472531",
+          "scrape_duration_seconds": 21.88,
+          "success": true,
+          "data_completeness": 87,
+          "scraper_confidence": 75,
+          "property_tax": {
+            "total_rate": 0.0225,
+            "components": {
+              "county": 0.005,
+              "state": 0.0,
+              "municipality": 0.0075,
+              "school": 0.01
+            }
+          },
+          "transfer_tax": {
+            "state_rate": 0.01,
+            "county_rate": 0.005
+          },
+          "recording_fees": {
+            "deed": {
+              "flat": 25.0,
+              "per_page": 0.5,
+              "typical_pages": 3
+            },
+            "mortgage": {
+              "flat": 30.0,
+              "per_page": 0.5,
+              "typical_pages": 8
+            },
+            "surcharge": 5.0,
+            "surcharge_description": "State-imposed surcharge",
+            "recording_fees_source": "Source 4 - Recorder of Deeds | York County, PA",
+            "recording_fees_confidence": 80
+          },
+          "sources_used": [
+            "https://yorkcountypa.gov/501/Property-Taxes",
+            "https://yorkcountypa.gov/539/Recorder-of-Deeds",
+            "https://yorkcountypa.gov/515/Millage-Rates"
+          ]
+        }
+      ]
+    }
+  },
+  "total_duration_seconds": 835.05,
+  "total_duration_minutes": 13.92
+}
