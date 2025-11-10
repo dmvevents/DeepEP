@@ -121,7 +121,7 @@ Critiques:
 {(OUT/'critiques'/'qa.md').read_text(encoding='utf-8') if (OUT/'critiques'/'qa.md').exists() else ''}
 """
     content = llm.complete(system, user)
-    (OUT/"tasks"/"tasks.yaml").write_text(content.replace("```yaml","").replace("```",""), encoding="utf-8")
+    (OUT/"tasks"/"tasks.yaml").write_text(content, encoding="utf-8")
     print("[magenta]Wrote tasks to out/tasks/tasks.yaml[/magenta]")
 
 def execute_commits(cfg):

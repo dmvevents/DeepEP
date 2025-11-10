@@ -21,12 +21,8 @@ def ensure_author():
     os.environ["GIT_COMMITTER_EMAIL"] = email
 
 def git_clean():
-    # consider repo clean if there are no *tracked* changes
-    try:
-        subprocess.check_call(["git","diff-index","--quiet","HEAD","--"])
-        return True
-    except subprocess.CalledProcessError:
-        return False
+    status = subprocess.check_output(["git","status","--porcelain"], text=True)
+    return status.strip() == ""
 
 def git_branch(name):
     subprocess.check_call(["git","checkout","-b",name])
