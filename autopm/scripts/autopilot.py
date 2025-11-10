@@ -201,7 +201,6 @@ def main():
         sys.exit(2)
 
     bprefix = cfg.get("branch_prefix","autopm/")
-    FORCE_BASE = os.getenv("AUTOPM_BASE","").strip()
 
 import re
 def _sanitize_ref(name:str)->str:
@@ -228,7 +227,7 @@ def _sanitize_ref(name:str)->str:
                     break
 
         task_branch = f"{bprefix}{_sanitize_ref(epic_key or 'task')}-task-{_sanitize_ref(tid)[:32]}"
-        run(f"git checkout {FORCE_BASE or base_branch}")
+        run(f"git checkout {base_branch}")
         if DEBUG: print('DEBUG base_branch:', base_branch)
         rc = subprocess.call(["git","rev-parse","--verify","--quiet",task_branch])
         if rc != 0:
