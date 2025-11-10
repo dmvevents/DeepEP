@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-11-10T05:27:36Z",
+  "timestamp": "2025-11-10T05:32:28Z",
   "phase": "phase1",
   "status": "PASS",
   "tests": {
@@ -14,5 +14,5 @@
     "pii_leaks": false,
     "encryption_verified": false
   },
-  "log_file": "/Users/antonalexander/Github/real_estate_app/mortgage-agents/out/smoke_phase1_20251110_002728.log"
+  "log_file": "/Users/antonalexander/Github/real_estate_app/mortgage-agents/out/smoke_phase1_20251110_003220.log"
 }

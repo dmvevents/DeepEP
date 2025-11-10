@@ -1,0 +1,32 @@
+{
+  "tasks": [
+    {
+      "id": "docs-portal",
+      "epic": "Docs & OCR",
+      "story": "Docs portal sections with upload progress, file preview, retry states.",
+      "acceptance": "- Sectionized tasks\n- Upload + preview common types\n- Retry & error banners\n- Mobile-friendly",
+      "persona": "frontend"
+    },
+    {
+      "id": "ocr-hooks",
+      "epic": "Docs & OCR",
+      "story": "Backend file store + OCR pipeline hooks + doc-to-task linkage.",
+      "acceptance": "- Storage abstraction\n- OCR webhook to update task values\n- Virus scan hook\n- Audit events",
+      "persona": "backend"
+    },
+    {
+      "id": "income-calc-service",
+      "epic": "Income Calc",
+      "story": "Income calc (W-2 salary/hourly, OT/bonus; Sched C start) with rules service toggles.",
+      "acceptance": "- Service outputs monthly income\n- Toggle rules (<10 payments, cosigned exclusion)\n- Unit tests for 4 scenarios",
+      "persona": "backend"
+    },
+    {
+      "id": "lo-console",
+      "epic": "LO Console",
+      "story": "LO Console tabs (Credit, Doc Tasks) with include/exclude toggles and rule tooltips.",
+      "acceptance": "- Two tabs functional\n- Toggles update DTI preview\n- RBAC enforced",
+      "persona": "frontend"
+    }
+  ]
+}

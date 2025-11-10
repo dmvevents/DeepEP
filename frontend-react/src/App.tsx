@@ -5,6 +5,7 @@ import MortgageApplication from './pages/MortgageApplication';
 import AdminDashboard from './pages/AdminDashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import DocumentUpload from './pages/DocumentUpload';
+import DocumentsPortal from './pages/DocumentsPortal';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -62,6 +63,7 @@ function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/super-admin" element={<SuperAdminDashboard />} />
           <Route path="/documents" element={<DocumentUpload />} />
+          <Route path="/documents-portal" element={<DocumentsPortal />} />
           <Route path="/credit-review" element={<CreditReview />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

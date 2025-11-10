@@ -75,21 +75,31 @@ export interface Tradeline {
 export interface DocTask {
   id: number;
   user: number;
+  username: string;
   loan_estimate: number | null;
   tradeline: number | null;
   task_type: DocTaskType;
+  task_type_display: string;
   status: DocTaskStatus;
+  status_display: string;
   title: string;
   description: string;
   borrower_notes: string;
   uploaded_documents: number[];
   reviewed_by: number | null;
+  reviewed_by_username: string | null;
   admin_notes: string;
   created_at: string;
   due_date: string | null;
   completed_at: string | null;
   updated_at: string;
   is_overdue: boolean;
+  tradeline_details?: {
+    id: number;
+    account_type: string;
+    creditor_name: string;
+    current_balance: string;
+  };
 }
 
 export interface CreditInquiry {

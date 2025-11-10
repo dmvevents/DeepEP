@@ -1,0 +1,156 @@
+{
+  "phase": "phase2",
+  "generated_at": "2025-11-10",
+  "tasks": [
+    {
+      "id": "doc-storage-infra",
+      "epic": "Docs & OCR",
+      "story": "Implement secure file storage abstraction with S3-compatible backend and time-boxed signed URLs for document access.",
+      "acceptance": [
+        "FileStorageService abstraction supports local/S3 backends",
+        "Signed URLs expire after configurable time (default 15min)",
+        "Virus scan webhook integration placeholder exists",
+        "Unit tests cover upload, retrieval, URL generation",
+        "Audit event logged on document upload and access"
+      ],
+      "persona": "backend",
+      "estimate_hours": 8,
+      "priority": 1
+    },
+    {
+      "id": "doc-task-model",
+      "epic": "Docs & OCR",
+      "story": "Extend DocTask model with file reference, OCR status, and parsed_data JSON field for structured document extraction.",
+      "acceptance": [
+        "DocTask.file_key links to storage service",
+        "DocTask.ocr_status field (pending/processing/completed/failed)",
+        "DocTask.parsed_data JSON field stores extracted values",
+        "Migration applies cleanly on existing data",
+        "Serializer exposes new fields with masking for PII"
+      ],
+      "persona": "backend",
+      "estimate_hours": 4,
+      "priority": 1
+    },
+    {
+      "id": "ocr-webhook",
+      "epic": "Docs & OCR",
+      "story": "Create OCR callback webhook endpoint to receive parsed document data and update DocTask with extracted values.",
+      "acceptance": [
+        "POST /api/documents/ocr-callback/ endpoint exists",
+        "Validates webhook signature/token for security",
+        "Updates DocTask.parsed_data and status atomically",
+        "Creates audit event for OCR completion",
+        "Returns 200 on success, 4xx/5xx on validation errors"
+      ],
+      "persona": "backend",
+      "estimate_hours": 6,
+      "priority": 2
+    },
+    {
+      "id": "docs-portal-ui",
+      "epic": "Docs & OCR",
+      "story": "Build document portal UI with sectionized task cards, upload progress, file preview, and retry controls.",
+      "acceptance": [
+        "Groups tasks by section (Income, Credit, Assets, etc.)",
+        "Upload button with progress indicator per task",
+        "Preview common file types (PDF/image) in modal or inline",
+        "Retry button visible for failed OCR tasks",
+        "Mobile-responsive layout with MUI components"
+      ],
+      "persona": "frontend",
+      "estimate_hours": 10,
+      "priority": 2
+    },
+    {
+      "id": "income-calc-service",
+      "epic": "Income Calc",
+      "story": "Implement income calculation service supporting W-2 salary/hourly with OT/bonus logic and Schedule C self-employment starter logic.",
+      "acceptance": [
+        "IncomeCalculator class outputs monthly_income for W-2 scenarios",
+        "Handles hourly with OT multiplier (1.5x)",
+        "Bonus averaging over specified months (12/24/36)",
+        "Schedule C profit/loss calculation (2-year average starter)",
+        "Unit tests cover 4+ scenarios (salary, hourly+OT, bonus, Sched C)"
+      ],
+      "persona": "backend",
+      "estimate_hours": 12,
+      "priority": 3
+    },
+    {
+      "id": "income-rules-toggles",
+      "epic": "Income Calc",
+      "story": "Add rules engine service to allow toggling income inclusion/exclusion rules (e.g., <10 payments, cosigned accounts).",
+      "acceptance": [
+        "RulesService model stores rule definitions (JSON schema)",
+        "API endpoint GET /api/income/rules/ lists available toggles",
+        "API endpoint POST /api/income/calculate/ accepts rule overrides",
+        "Rules include: exclude_cosigned, min_payment_months threshold",
+        "Changes to rules logged in audit events"
+      ],
+      "persona": "backend",
+      "estimate_hours": 8,
+      "priority": 3
+    },
+    {
+      "id": "lo-console-tabs",
+      "epic": "LO Console",
+      "story": "Build LO Console with Credit and Doc Tasks tabs, including include/exclude toggles and real-time DTI preview.",
+      "acceptance": [
+        "Two tabs render: Credit Review, Document Tasks",
+        "Credit tab shows tradelines with include/exclude checkboxes",
+        "DTI preview updates on toggle change (debounced API call)",
+        "Rule tooltips explain each toggle (MUI Tooltip)",
+        "RBAC enforced: only LO/Admin roles access console"
+      ],
+      "persona": "frontend",
+      "estimate_hours": 12,
+      "priority": 4
+    },
+    {
+      "id": "dti-calc-endpoint",
+      "epic": "LO Console",
+      "story": "Create DTI calculation endpoint that accepts income + selected debts and returns DTI ratio with breakdown.",
+      "acceptance": [
+        "POST /api/underwriting/dti/ endpoint exists",
+        "Accepts monthly_income and array of debt IDs to include",
+        "Returns frontend_ratio and backend_ratio percentages",
+        "Returns breakdown: total_monthly_debt, total_monthly_income",
+        "Validates input and returns 400 on missing/invalid data"
+      ],
+      "persona": "backend",
+      "estimate_hours": 6,
+      "priority": 4
+    },
+    {
+      "id": "compliance-doc-pii",
+      "epic": "Compliance",
+      "story": "Ensure document metadata never logs full filename if it contains PII; hash filenames for audit events.",
+      "acceptance": [
+        "FileStorageService generates hash-based keys (SHA256)",
+        "AuditEvent.context stores file_hash, not original filename",
+        "Original filename stored only in encrypted DocTask.metadata JSON",
+        "Unit test verifies no PII leakage in logs/events",
+        "docs/COMPLIANCE.md updated with document PII section"
+      ],
+      "persona": "compliance",
+      "estimate_hours": 4,
+      "priority": 1
+    },
+    {
+      "id": "phase2-integration-test",
+      "epic": "Testing",
+      "story": "Write end-to-end integration test for doc upload, OCR callback, income calc, and LO console DTI preview flow.",
+      "acceptance": [
+        "Test creates DocTask, uploads file, triggers OCR webhook",
+        "Test creates W-2 income, calculates monthly_income",
+        "Test calls DTI endpoint with selected debts",
+        "Test verifies LO console can retrieve DTI preview",
+        "Test runs in CI without external OCR service (mocked)"
+      ],
+      "persona": "backend",
+      "estimate_hours": 8,
+      "priority": 5
+    }
+  ]
+}
