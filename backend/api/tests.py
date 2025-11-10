@@ -11,7 +11,8 @@ from decimal import Decimal
 
 from .models import (
     State, County, TaxData, Municipality,
-    ScraperLog, UserProfile, LoanEstimate, AuditEvent
+    ScraperLog, UserProfile, LoanEstimate, AuditEvent,
+    DocTask, CreditReport, Tradeline
 )
 
 
@@ -600,3 +601,332 @@ class AuditEventModelTests(TestCase):
         # Most recent should be first
         self.assertEqual(events[0], event2)
         self.assertEqual(events[1], event1)
+
+
+class DocTaskModelTests(TestCase):
+    """Tests for DocTask model"""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser',
+            password='testpass123'
+        )
+        self.state = State.objects.create(code='MD', name='Maryland')
+        self.county = County.objects.create(state=self.state, name='Montgomery')
+        self.tax_data = TaxData.objects.create(
+            state=self.state,
+            county=self.county,
+            version=1,
+            is_current=True,
+            data_completeness=95,
+            scraper_confidence=90,
+            data={},
+            effective_date=timezone.now().date()
+        )
+        self.loan_estimate = LoanEstimate.objects.create(
+            user=self.user,
+            county=self.county,
+            property_value=Decimal('500000'),
+            property_type='single_family',
+            loan_amount=Decimal('400000'),
+            down_payment=Decimal('100000'),
+            interest_rate=Decimal('6.5'),
+            loan_term_years=30,
+            loan_type='conventional',
+            first_time_homebuyer=False,
+            closing_date=timezone.now().date(),
+            calculation_results={},
+            tax_data=self.tax_data
+        )
+
+    def test_doc_task_creation(self):
+        """Test doc task can be created"""
+        task = DocTask.objects.create(
+            user=self.user,
+            loan_estimate=self.loan_estimate,
+            task_type='upload_document',
+            status='pending',
+            title='Upload pay stub',
+            description='Please upload your most recent pay stub'
+        )
+
+        self.assertEqual(task.user, self.user)
+        self.assertEqual(task.task_type, 'upload_document')
+        self.assertEqual(task.status, 'pending')
+
+    def test_doc_task_is_overdue(self):
+        """Test is_overdue property"""
+        # Task with future due date
+        future_task = DocTask.objects.create(
+            user=self.user,
+            task_type='upload_document',
+            status='pending',
+            title='Future task',
+            description='Test',
+            due_date=timezone.now().date() + timedelta(days=7)
+        )
+        self.assertFalse(future_task.is_overdue)
+
+        # Task with past due date
+        overdue_task = DocTask.objects.create(
+            user=self.user,
+            task_type='upload_document',
+            status='pending',
+            title='Overdue task',
+            description='Test',
+            due_date=timezone.now().date() - timedelta(days=7)
+        )
+        self.assertTrue(overdue_task.is_overdue)
+
+        # Completed task should not be overdue
+        completed_task = DocTask.objects.create(
+            user=self.user,
+            task_type='upload_document',
+            status='completed',
+            title='Completed task',
+            description='Test',
+            due_date=timezone.now().date() - timedelta(days=7)
+        )
+        self.assertFalse(completed_task.is_overdue)
+
+
+class DocTaskAPITests(APITestCase):
+    """Tests for DocTask API endpoints"""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='borrower',
+            password='testpass123'
+        )
+        self.admin = User.objects.create_user(
+            username='admin',
+            password='adminpass123',
+            is_staff=True
+        )
+
+        self.state = State.objects.create(code='MD', name='Maryland')
+        self.county = County.objects.create(state=self.state, name='Montgomery')
+        self.tax_data = TaxData.objects.create(
+            state=self.state,
+            county=self.county,
+            version=1,
+            is_current=True,
+            data_completeness=95,
+            scraper_confidence=90,
+            data={},
+            effective_date=timezone.now().date()
+        )
+        self.loan_estimate = LoanEstimate.objects.create(
+            user=self.user,
+            county=self.county,
+            property_value=Decimal('500000'),
+            property_type='single_family',
+            loan_amount=Decimal('400000'),
+            down_payment=Decimal('100000'),
+            interest_rate=Decimal('6.5'),
+            loan_term_years=30,
+            loan_type='conventional',
+            first_time_homebuyer=False,
+            closing_date=timezone.now().date(),
+            calculation_results={},
+            tax_data=self.tax_data
+        )
+
+        self.task = DocTask.objects.create(
+            user=self.user,
+            loan_estimate=self.loan_estimate,
+            task_type='upload_document',
+            status='pending',
+            title='Upload pay stub',
+            description='Please upload your most recent pay stub',
+            due_date=timezone.now().date() + timedelta(days=7)
+        )
+
+    def test_list_doc_tasks_requires_auth(self):
+        """Test listing tasks requires authentication"""
+        url = '/api/doc-tasks/'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_borrower_can_list_own_tasks(self):
+        """Test borrower can list their own tasks"""
+        self.client.force_authenticate(user=self.user)
+        url = '/api/doc-tasks/'
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['user'], self.user.id)
+
+    def test_admin_can_list_all_tasks(self):
+        """Test admin can see all tasks"""
+        # Create task for another user
+        other_user = User.objects.create_user(username='other', password='pass')
+        DocTask.objects.create(
+            user=other_user,
+            task_type='upload_document',
+            status='pending',
+            title='Other user task',
+            description='Test'
+        )
+
+        self.client.force_authenticate(user=self.admin)
+        url = '/api/doc-tasks/'
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(len(response.data['results']), 2)
+
+    def test_admin_can_create_task(self):
+        """Test admin can create tasks for users"""
+        self.client.force_authenticate(user=self.admin)
+        url = '/api/doc-tasks/'
+        data = {
+            'user': self.user.id,
+            'loan_estimate': self.loan_estimate.id,
+            'task_type': 'verify_income',
+            'title': 'Verify income',
+            'description': 'Please provide proof of income',
+            'due_date': (timezone.now().date() + timedelta(days=14)).isoformat()
+        }
+
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['user'], self.user.id)
+        self.assertEqual(response.data['status'], 'pending')
+
+    def test_borrower_can_update_own_task(self):
+        """Test borrower can update their task response"""
+        self.client.force_authenticate(user=self.user)
+        url = f'/api/doc-tasks/{self.task.id}/'
+        data = {
+            'borrower_notes': 'Uploaded document',
+            'uploaded_documents': ['doc_12345.pdf'],
+            'status': 'in_progress'
+        }
+
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['borrower_notes'], 'Uploaded document')
+        self.assertEqual(response.data['status'], 'in_progress')
+
+    def test_borrower_can_submit_task(self):
+        """Test borrower can submit task"""
+        self.client.force_authenticate(user=self.user)
+        url = f'/api/doc-tasks/{self.task.id}/submit/'
+        data = {
+            'borrower_notes': 'Task completed',
+            'uploaded_documents': ['doc_12345.pdf']
+        }
+
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['status'], 'completed')
+        self.assertIsNotNone(response.data['completed_at'])
+
+    def test_borrower_cannot_submit_others_task(self):
+        """Test borrower cannot submit another user's task"""
+        other_user = User.objects.create_user(username='other', password='pass')
+        other_task = DocTask.objects.create(
+            user=other_user,
+            task_type='upload_document',
+            status='pending',
+            title='Other task',
+            description='Test'
+        )
+
+        self.client.force_authenticate(user=self.user)
+        url = f'/api/doc-tasks/{other_task.id}/submit/'
+        data = {'borrower_notes': 'Trying to submit'}
+
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_admin_can_approve_task(self):
+        """Test admin can approve completed task"""
+        # First complete the task
+        self.task.status = 'completed'
+        self.task.completed_at = timezone.now()
+        self.task.save()
+
+        self.client.force_authenticate(user=self.admin)
+        url = f'/api/doc-tasks/{self.task.id}/approve/'
+        data = {'admin_notes': 'Looks good'}
+
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['reviewed_by'], self.admin.id)
+        self.assertEqual(response.data['admin_notes'], 'Looks good')
+
+    def test_borrower_cannot_approve_task(self):
+        """Test borrower cannot approve tasks"""
+        self.task.status = 'completed'
+        self.task.save()
+
+        self.client.force_authenticate(user=self.user)
+        url = f'/api/doc-tasks/{self.task.id}/approve/'
+
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_admin_can_request_revision(self):
+        """Test admin can request revision on completed task"""
+        self.task.status = 'completed'
+        self.task.completed_at = timezone.now()
+        self.task.save()
+
+        self.client.force_authenticate(user=self.admin)
+        url = f'/api/doc-tasks/{self.task.id}/request-revision/'
+        data = {'admin_notes': 'Please provide clearer documentation'}
+
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['status'], 'in_progress')
+        self.assertIsNone(response.data['completed_at'])
+
+    def test_filter_tasks_by_status(self):
+        """Test filtering tasks by status"""
+        DocTask.objects.create(
+            user=self.user,
+            task_type='upload_document',
+            status='completed',
+            title='Completed task',
+            description='Test'
+        )
+
+        self.client.force_authenticate(user=self.user)
+        url = '/api/doc-tasks/?status=pending'
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        for task in response.data['results']:
+            self.assertEqual(task['status'], 'pending')
+
+    def test_task_stats(self):
+        """Test getting task statistics"""
+        DocTask.objects.create(
+            user=self.user,
+            task_type='verify_income',
+            status='completed',
+            title='Completed task',
+            description='Test'
+        )
+
+        self.client.force_authenticate(user=self.user)
+        url = '/api/doc-tasks/stats/'
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('total', response.data)
+        self.assertIn('by_status', response.data)
+        self.assertIn('by_type', response.data)
+        self.assertGreaterEqual(response.data['total'], 2)
+
+    def test_cannot_delete_task(self):
+        """Test tasks cannot be deleted via API"""
+        self.client.force_authenticate(user=self.admin)
+        url = f'/api/doc-tasks/{self.task.id}/'
+        response = self.client.delete(url)
+
+        # Should fail with validation error
+        self.assertNotEqual(response.status_code, status.HTTP_204_NO_CONTENT)

@@ -8,7 +8,8 @@ from django.utils.safestring import mark_safe
 import json
 from .models import (
     State, County, TaxData, Municipality,
-    ScraperLog, UserProfile, LoanEstimate
+    ScraperLog, UserProfile, LoanEstimate, DocTask,
+    CreditReport, Tradeline, AuditEvent
 )
 
 
@@ -235,6 +236,170 @@ class LoanEstimateAdmin(admin.ModelAdmin):
     def formatted_results(self, obj):
         return mark_safe(f'<pre>{json.dumps(obj.calculation_results, indent=2)}</pre>')
     formatted_results.short_description = 'Calculation Results (Formatted)'
+
+
+@admin.register(DocTask)
+class DocTaskAdmin(admin.ModelAdmin):
+    list_display = [
+        'id', 'user', 'task_type', 'status', 'title',
+        'due_date', 'is_overdue_display', 'created_at'
+    ]
+    list_filter = [
+        'status', 'task_type', 'created_at', 'due_date'
+    ]
+    search_fields = [
+        'user__username', 'title', 'description',
+        'borrower_notes', 'admin_notes'
+    ]
+    readonly_fields = [
+        'created_at', 'updated_at', 'completed_at',
+        'is_overdue', 'formatted_uploaded_documents'
+    ]
+    fieldsets = (
+        ('Task Information', {
+            'fields': (
+                'user', 'loan_estimate', 'tradeline',
+                'task_type', 'status', 'title', 'description', 'due_date'
+            )
+        }),
+        ('Borrower Response', {
+            'fields': (
+                'borrower_notes', 'uploaded_documents',
+                'formatted_uploaded_documents'
+            ),
+            'classes': ('collapse',)
+        }),
+        ('Admin Review', {
+            'fields': ('reviewed_by', 'admin_notes')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'completed_at', 'updated_at', 'is_overdue'),
+            'classes': ('collapse',)
+        }),
+    )
+    raw_id_fields = ['user', 'loan_estimate', 'tradeline', 'reviewed_by']
+    date_hierarchy = 'created_at'
+    actions = ['mark_completed', 'mark_in_progress', 'mark_cancelled']
+
+    def is_overdue_display(self, obj):
+        if obj.is_overdue:
+            return format_html('<span style="color: red;">⚠ Overdue</span>')
+        elif obj.status == 'completed':
+            return format_html('<span style="color: green;">✓ Done</span>')
+        return format_html('<span style="color: gray;">-</span>')
+    is_overdue_display.short_description = 'Status'
+
+    def formatted_uploaded_documents(self, obj):
+        if not obj.uploaded_documents:
+            return "No documents uploaded"
+        return mark_safe(f'<pre>{json.dumps(obj.uploaded_documents, indent=2)}</pre>')
+    formatted_uploaded_documents.short_description = 'Uploaded Documents (Formatted)'
+
+    @admin.action(description='Mark selected tasks as completed')
+    def mark_completed(self, request, queryset):
+        from django.utils import timezone
+        updated = queryset.exclude(status='completed').update(
+            status='completed',
+            completed_at=timezone.now(),
+            reviewed_by=request.user
+        )
+        self.message_user(request, f"{updated} tasks marked as completed.")
+
+    @admin.action(description='Mark selected tasks as in progress')
+    def mark_in_progress(self, request, queryset):
+        updated = queryset.exclude(status='in_progress').update(status='in_progress')
+        self.message_user(request, f"{updated} tasks marked as in progress.")
+
+    @admin.action(description='Cancel selected tasks')
+    def mark_cancelled(self, request, queryset):
+        updated = queryset.exclude(status='cancelled').update(
+            status='cancelled',
+            reviewed_by=request.user
+        )
+        self.message_user(request, f"{updated} tasks cancelled.")
+
+
+@admin.register(CreditReport)
+class CreditReportAdmin(admin.ModelAdmin):
+    list_display = [
+        'id', 'user', 'bureau', 'status', 'middle_score',
+        'total_tradelines', 'report_date'
+    ]
+    list_filter = ['bureau', 'status', 'report_date']
+    search_fields = ['user__username', 'report_id']
+    readonly_fields = [
+        'middle_score', 'is_expired', 'report_date',
+        'created_at', 'updated_at'
+    ]
+    raw_id_fields = ['user', 'loan_estimate']
+    date_hierarchy = 'report_date'
+
+
+@admin.register(Tradeline)
+class TradelineAdmin(admin.ModelAdmin):
+    list_display = [
+        'id', 'credit_report', 'account_type', 'creditor_name',
+        'current_balance', 'monthly_payment', 'confirmation_status',
+        'has_recent_lates'
+    ]
+    list_filter = [
+        'account_type', 'status', 'confirmation_status',
+        'is_deferred', 'is_ibr', 'has_less_than_10_payments'
+    ]
+    search_fields = ['creditor_name', 'account_number']
+    readonly_fields = [
+        'has_recent_lates', 'total_lates_24mo', 'needs_confirmation',
+        'created_at', 'updated_at', 'confirmed_at'
+    ]
+    raw_id_fields = ['credit_report']
+    date_hierarchy = 'created_at'
+
+
+@admin.register(AuditEvent)
+class AuditEventAdmin(admin.ModelAdmin):
+    list_display = [
+        'id', 'event_type', 'user', 'borrower_name',
+        'timestamp', 'ip_address'
+    ]
+    list_filter = ['event_type', 'timestamp']
+    search_fields = [
+        'borrower_name', 'ssn_last_four', 'user__username'
+    ]
+    readonly_fields = [
+        'event_type', 'timestamp', 'user', 'borrower_name',
+        'ssn_last_four', 'ip_address', 'user_agent',
+        'loan_estimate', 'context', 'formatted_context'
+    ]
+    fieldsets = (
+        ('Event Information', {
+            'fields': ('event_type', 'timestamp', 'user', 'borrower_name')
+        }),
+        ('Security', {
+            'fields': ('ssn_last_four', 'ip_address', 'user_agent')
+        }),
+        ('Related Objects', {
+            'fields': ('loan_estimate',)
+        }),
+        ('Context', {
+            'fields': ('context', 'formatted_context'),
+            'classes': ('collapse',)
+        }),
+    )
+    date_hierarchy = 'timestamp'
+
+    def has_add_permission(self, request):
+        # Audit events should only be created by the system
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        # Prevent deletion of audit trail
+        return request.user.is_superuser
+
+    def formatted_context(self, obj):
+        if not obj.context:
+            return "No context data"
+        return mark_safe(f'<pre>{json.dumps(obj.context, indent=2)}</pre>')
+    formatted_context.short_description = 'Context (Formatted)'
 
 
 # Customize admin site

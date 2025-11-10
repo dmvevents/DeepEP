@@ -11,7 +11,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from .models import (
     State, County, TaxData, Municipality,
-    ScraperLog, UserProfile, LoanEstimate
+    ScraperLog, UserProfile, LoanEstimate, DocTask, AuditEvent
 )
 from .serializers import (
     StateSerializer, CountySerializer, CountyDetailSerializer,
@@ -19,7 +19,9 @@ from .serializers import (
     MunicipalitySerializer, ScraperLogSerializer,
     UserSerializer, UserRegistrationSerializer,
     UserProfileSerializer, LoanEstimateSerializer,
-    LoanEstimateListSerializer
+    LoanEstimateListSerializer, DocTaskSerializer,
+    DocTaskListSerializer, DocTaskCreateSerializer,
+    DocTaskUpdateSerializer, DocTaskAdminUpdateSerializer
 )
 
 
@@ -327,3 +329,306 @@ class LoanEstimateViewSet(viewsets.ModelViewSet):
             "message": "PDF generation not yet implemented",
             "estimate_id": estimate.id
         }, status=status.HTTP_501_NOT_IMPLEMENTED)
+
+
+class DocTaskViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for DocTask model with RBAC and status transitions.
+
+    Borrowers can view their own tasks and update responses.
+    Staff/admins can view all tasks and manage them.
+    """
+    queryset = DocTask.objects.all().select_related(
+        'user', 'loan_estimate', 'tradeline', 'reviewed_by'
+    )
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['status', 'task_type', 'loan_estimate', 'user']
+    ordering_fields = ['created_at', 'due_date', 'status']
+    ordering = ['status', 'due_date', '-created_at']
+
+    def get_queryset(self):
+        """Filter tasks based on user role."""
+        user = self.request.user
+        if user.is_staff:
+            # Admin/staff can see all tasks
+            return self.queryset
+        # Borrowers can only see their own tasks
+        return self.queryset.filter(user=user)
+
+    def get_serializer_class(self):
+        """Return appropriate serializer based on action and user role."""
+        if self.action == 'list':
+            return DocTaskListSerializer
+        elif self.action == 'create':
+            return DocTaskCreateSerializer
+        elif self.action in ['update', 'partial_update']:
+            # Staff uses admin serializer, borrowers use update serializer
+            if self.request.user.is_staff:
+                return DocTaskAdminUpdateSerializer
+            return DocTaskUpdateSerializer
+        return DocTaskSerializer
+
+    def create(self, request, *args, **kwargs):
+        """Create task and return full serialized response."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        task = serializer.save()
+
+        # Log audit event
+        self._log_audit_event(
+            event_type='doc_task_created',
+            task=task,
+            context={'task_type': task.task_type, 'title': task.title}
+        )
+
+        # Return full task details using DocTaskSerializer
+        return Response(
+            DocTaskSerializer(task).data,
+            status=status.HTTP_201_CREATED
+        )
+
+    def perform_update(self, serializer):
+        """Update task, handle status transitions, and log audit event."""
+        old_status = serializer.instance.status
+        task = serializer.save()
+        new_status = task.status
+
+        # Set completed_at timestamp if transitioning to completed
+        if new_status == 'completed' and old_status != 'completed':
+            from django.utils import timezone
+            task.completed_at = timezone.now()
+            task.save(update_fields=['completed_at'])
+
+        # Log audit event for status transitions
+        if old_status != new_status:
+            event_type = self._get_transition_event_type(old_status, new_status)
+            self._log_audit_event(
+                event_type=event_type,
+                task=task,
+                context={
+                    'old_status': old_status,
+                    'new_status': new_status,
+                    'transitioned_by': self.request.user.username
+                }
+            )
+
+    def perform_destroy(self, instance):
+        """Prevent deletion, only allow cancellation via status update."""
+        raise serializers.ValidationError(
+            "Cannot delete doc tasks. Use status='cancelled' to cancel tasks."
+        )
+
+    @extend_schema(
+        summary="Submit task response (borrower action)",
+        request=DocTaskUpdateSerializer,
+        responses={200: DocTaskSerializer}
+    )
+    @action(detail=True, methods=['post'], url_path='submit')
+    def submit_response(self, request, pk=None):
+        """
+        Borrower submits their response to a task.
+        Transitions status to 'completed' and logs audit event.
+        """
+        task = self.get_object()
+
+        # Only task owner can submit
+        if task.user != request.user:
+            return Response(
+                {"detail": "You can only submit your own tasks."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Validate status allows submission
+        if task.status not in ['pending', 'in_progress']:
+            return Response(
+                {"detail": f"Cannot submit task with status '{task.status}'."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Update task with borrower response
+        serializer = DocTaskUpdateSerializer(
+            task,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+
+        # Force status to completed
+        from django.utils import timezone
+        task = serializer.save(
+            status='completed',
+            completed_at=timezone.now()
+        )
+
+        # Log audit event
+        self._log_audit_event(
+            event_type='doc_task_submitted',
+            task=task,
+            context={
+                'has_notes': bool(task.borrower_notes),
+                'document_count': len(task.uploaded_documents or [])
+            }
+        )
+
+        return Response(DocTaskSerializer(task).data)
+
+    @extend_schema(
+        summary="Approve task (admin action)",
+        responses={200: DocTaskSerializer}
+    )
+    @action(detail=True, methods=['post'], url_path='approve', permission_classes=[IsAuthenticated])
+    def approve_task(self, request, pk=None):
+        """
+        Admin approves a completed task.
+        Logs audit event.
+        """
+        if not request.user.is_staff:
+            return Response(
+                {"detail": "Only staff can approve tasks."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        task = self.get_object()
+
+        if task.status != 'completed':
+            return Response(
+                {"detail": "Can only approve completed tasks."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Update reviewed_by and admin_notes if provided
+        task.reviewed_by = request.user
+        if 'admin_notes' in request.data:
+            task.admin_notes = request.data['admin_notes']
+        task.save(update_fields=['reviewed_by', 'admin_notes'])
+
+        # Log audit event
+        self._log_audit_event(
+            event_type='doc_task_approved',
+            task=task,
+            context={'reviewed_by': request.user.username}
+        )
+
+        return Response(DocTaskSerializer(task).data)
+
+    @extend_schema(
+        summary="Request revision (admin action)",
+        request={'application/json': {'type': 'object', 'properties': {'admin_notes': {'type': 'string'}}}},
+        responses={200: DocTaskSerializer}
+    )
+    @action(detail=True, methods=['post'], url_path='request-revision', permission_classes=[IsAuthenticated])
+    def request_revision(self, request, pk=None):
+        """
+        Admin requests revision on a completed task.
+        Transitions back to 'in_progress' and logs audit event.
+        """
+        if not request.user.is_staff:
+            return Response(
+                {"detail": "Only staff can request revisions."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        task = self.get_object()
+
+        if task.status != 'completed':
+            return Response(
+                {"detail": "Can only request revision on completed tasks."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Update task status and admin notes
+        task.status = 'in_progress'
+        task.reviewed_by = request.user
+        task.admin_notes = request.data.get('admin_notes', '')
+        task.completed_at = None  # Reset completion timestamp
+        task.save(update_fields=['status', 'reviewed_by', 'admin_notes', 'completed_at'])
+
+        # Log audit event
+        self._log_audit_event(
+            event_type='doc_task_revision_requested',
+            task=task,
+            context={
+                'reviewed_by': request.user.username,
+                'admin_notes': task.admin_notes[:100]  # First 100 chars
+            }
+        )
+
+        return Response(DocTaskSerializer(task).data)
+
+    @extend_schema(
+        summary="Get tasks summary statistics",
+        responses={200: {'type': 'object'}}
+    )
+    @action(detail=False, methods=['get'], url_path='stats')
+    def task_stats(self, request):
+        """Get task statistics for current user or all users (staff)."""
+        from django.db.models import Count, Q
+
+        queryset = self.get_queryset()
+
+        stats = {
+            'total': queryset.count(),
+            'by_status': dict(
+                queryset.values('status').annotate(count=Count('id')).values_list('status', 'count')
+            ),
+            'by_type': dict(
+                queryset.values('task_type').annotate(count=Count('id')).values_list('task_type', 'count')
+            ),
+            'overdue': queryset.filter(
+                due_date__lt=timezone.now().date(),
+                status__in=['pending', 'in_progress']
+            ).count(),
+        }
+
+        return Response(stats)
+
+    def _log_audit_event(self, event_type, task, context=None):
+        """Helper to log audit events for doc task operations."""
+        # Map our event types to AuditEvent types or use context
+        # For now, we'll use a generic approach with context
+        try:
+            event_context = {
+                'doc_task_id': task.id,
+                'task_type': task.task_type,
+                'task_status': task.status,
+                **(context or {})
+            }
+
+            # Create audit event (simplified - using document_view as placeholder)
+            AuditEvent.objects.create(
+                event_type='document_view',  # Using existing event type
+                user=self.request.user if hasattr(self, 'request') else None,
+                borrower_name=task.user.get_full_name() or task.user.username,
+                loan_estimate=task.loan_estimate,
+                ip_address=self._get_client_ip(),
+                user_agent=self.request.META.get('HTTP_USER_AGENT', '')[:255] if hasattr(self, 'request') else '',
+                context=event_context
+            )
+        except Exception as e:
+            # Log error but don't fail the request
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to create audit event: {e}")
+
+    def _get_transition_event_type(self, old_status, new_status):
+        """Map status transitions to event type strings."""
+        transitions = {
+            ('pending', 'in_progress'): 'doc_task_started',
+            ('in_progress', 'completed'): 'doc_task_completed',
+            ('completed', 'in_progress'): 'doc_task_reopened',
+            ('pending', 'cancelled'): 'doc_task_cancelled',
+            ('in_progress', 'cancelled'): 'doc_task_cancelled',
+        }
+        return transitions.get((old_status, new_status), 'doc_task_status_changed')
+
+    def _get_client_ip(self):
+        """Get client IP address from request."""
+        if not hasattr(self, 'request'):
+            return None
+        x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = self.request.META.get('REMOTE_ADDR')
+        return ip

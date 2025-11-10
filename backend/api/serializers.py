@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from .models import (
     State, County, TaxData, Municipality,
     ScraperLog, UserProfile, LoanEstimate,
-    CreditReport, Tradeline, AuditEvent
+    CreditReport, Tradeline, AuditEvent, DocTask
 )
 
 
@@ -404,3 +404,145 @@ class AuditEventSerializer(serializers.ModelSerializer):
             'loan_estimate', 'context'
         ]
         read_only_fields = ['id', 'timestamp']
+
+
+class DocTaskSerializer(serializers.ModelSerializer):
+    """Serializer for DocTask model with full CRUD support."""
+    task_type_display = serializers.CharField(source='get_task_type_display', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    username = serializers.CharField(source='user.username', read_only=True)
+    reviewed_by_username = serializers.CharField(
+        source='reviewed_by.username',
+        read_only=True,
+        allow_null=True
+    )
+    is_overdue = serializers.BooleanField(read_only=True)
+
+    # Related object details
+    tradeline_details = serializers.SerializerMethodField()
+
+    class Meta:
+        model = DocTask
+        fields = [
+            'id', 'user', 'username',
+            'loan_estimate', 'tradeline', 'tradeline_details',
+            # Task info
+            'task_type', 'task_type_display',
+            'status', 'status_display',
+            'title', 'description',
+            # Borrower response
+            'borrower_notes', 'uploaded_documents',
+            # Admin review
+            'reviewed_by', 'reviewed_by_username', 'admin_notes',
+            # Timestamps
+            'created_at', 'due_date', 'completed_at', 'updated_at',
+            # Computed
+            'is_overdue'
+        ]
+        read_only_fields = [
+            'id', 'user', 'created_at', 'updated_at', 'completed_at'
+        ]
+
+    def get_tradeline_details(self, obj):
+        """Return basic tradeline info if task is linked to a tradeline."""
+        if obj.tradeline:
+            return {
+                'id': obj.tradeline.id,
+                'account_type': obj.tradeline.get_account_type_display(),
+                'creditor_name': obj.tradeline.creditor_name,
+                'current_balance': str(obj.tradeline.current_balance)
+            }
+        return None
+
+
+class DocTaskListSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for listing doc tasks."""
+    task_type_display = serializers.CharField(source='get_task_type_display', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    username = serializers.CharField(source='user.username', read_only=True)
+    is_overdue = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = DocTask
+        fields = [
+            'id', 'user', 'username',
+            'task_type', 'task_type_display',
+            'status', 'status_display',
+            'title', 'due_date', 'is_overdue',
+            'created_at', 'updated_at'
+        ]
+
+
+class DocTaskCreateSerializer(serializers.ModelSerializer):
+    """Serializer for creating doc tasks (admin/system use)."""
+
+    class Meta:
+        model = DocTask
+        fields = [
+            'user', 'loan_estimate', 'tradeline',
+            'task_type', 'title', 'description', 'due_date'
+        ]
+
+    def validate(self, attrs):
+        """Validate that tradeline belongs to user if specified."""
+        if attrs.get('tradeline') and attrs.get('user'):
+            tradeline = attrs['tradeline']
+            user = attrs['user']
+            if tradeline.credit_report.user != user:
+                raise serializers.ValidationError({
+                    'tradeline': 'Tradeline must belong to the specified user.'
+                })
+        return attrs
+
+
+class DocTaskUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for borrower updating their doc task (response)."""
+
+    class Meta:
+        model = DocTask
+        fields = ['borrower_notes', 'uploaded_documents', 'status']
+
+    def validate_status(self, value):
+        """Only allow status transitions from pending->in_progress or in_progress->completed."""
+        instance = self.instance
+        if instance:
+            current_status = instance.status
+            # Borrower can only move to in_progress or completed
+            if value not in ['in_progress', 'completed']:
+                raise serializers.ValidationError(
+                    "Borrowers can only set status to 'in_progress' or 'completed'."
+                )
+            # Validate transition
+            if current_status == 'pending' and value not in ['in_progress', 'completed']:
+                raise serializers.ValidationError(
+                    "Can only transition from 'pending' to 'in_progress' or 'completed'."
+                )
+            if current_status == 'in_progress' and value not in ['in_progress', 'completed']:
+                raise serializers.ValidationError(
+                    "Can only transition from 'in_progress' to 'completed'."
+                )
+            if current_status == 'completed':
+                raise serializers.ValidationError(
+                    "Cannot change status of completed task."
+                )
+            if current_status == 'cancelled':
+                raise serializers.ValidationError(
+                    "Cannot change status of cancelled task."
+                )
+        return value
+
+
+class DocTaskAdminUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for admin updating doc task (review/cancel)."""
+
+    class Meta:
+        model = DocTask
+        fields = ['status', 'admin_notes', 'reviewed_by']
+
+    def validate_status(self, value):
+        """Admin can transition to any status except restricting completed."""
+        instance = self.instance
+        if instance and instance.status == 'completed' and value != 'completed':
+            # Allow admin to reopen tasks if needed
+            pass
+        return value

@@ -6,7 +6,8 @@ from rest_framework.routers import DefaultRouter
 from ..views import (
     StateViewSet, CountyViewSet, TaxDataViewSet,
     MunicipalityViewSet, ScraperLogViewSet,
-    UserViewSet, UserProfileViewSet, LoanEstimateViewSet
+    UserViewSet, UserProfileViewSet, LoanEstimateViewSet,
+    DocTaskViewSet
 )
 
 app_name = 'api'
@@ -21,6 +22,7 @@ router.register(r'scraper-logs', ScraperLogViewSet, basename='scraperlog')
 router.register(r'users', UserViewSet, basename='user')
 router.register(r'profiles', UserProfileViewSet, basename='userprofile')
 router.register(r'loan-estimates', LoanEstimateViewSet, basename='loanestimate')
+router.register(r'doc-tasks', DocTaskViewSet, basename='doctask')
 
 urlpatterns = [
     path('', include(router.urls)),
