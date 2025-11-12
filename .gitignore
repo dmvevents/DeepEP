@@ -7,7 +7,5 @@ build/
 .vscode/
 */cmake-build-*/
 
-# Claude Code files (local only)
+# Local workspace files
 .claude/
-**/claude*.md
-CLAUDE*.md
