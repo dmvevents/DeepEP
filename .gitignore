@@ -6,3 +6,8 @@ build/
 .cache/
 .vscode/
 */cmake-build-*/
+
+# Claude Code files (local only)
+.claude/
+**/claude*.md
+CLAUDE*.md
