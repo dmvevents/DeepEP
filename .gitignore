@@ -9,3 +9,4 @@ build/
 
 # Local workspace files
 .claude/
+.mailmap
