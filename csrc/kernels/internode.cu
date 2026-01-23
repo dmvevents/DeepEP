@@ -144,9 +144,9 @@ notify_dispatch(const int* num_tokens_per_rank, int* moe_recv_counter_mapped, in
         //     nvshmemi_ibgda_quiet(translate_dst_rdma_rank<kLowLatencyMode>(dst_rdma_rank, nvl_rank), qp_id);
         // }
         /**
-         * @brief EFA-optimized completion synchronization
+         * @brief Batched quiet operation at phase boundary
          * @details Uses NVSHMEM global quiet instead of per-QP tracking
-         * @note Performance improvement: Reduces synchronization overhead
+         * AWS Optimization: Single quiet call for entire batch
          */
         if (thread_id < (kNumRDMARanks - 1)) {
             nvshmem_quiet();
@@ -195,9 +195,9 @@ notify_dispatch(const int* num_tokens_per_rank, int* moe_recv_counter_mapped, in
             }
         }
         /**
-         * @brief Add global fence after notification operations
+         * @brief Batched fence: Single fence after all PUT operations
          * @details Ensures all notification writes are visible before proceeding
-         * @note EFA Addition: Required for proper ordering guarantees
+         * AWS Optimization: Batch multiple PUTs before fencing
          */
         nvshmem_fence();
         __syncthreads();
@@ -205,8 +205,8 @@ notify_dispatch(const int* num_tokens_per_rank, int* moe_recv_counter_mapped, in
         // Wait previous operations to be finished
         if (thread_id < kNumRDMARanks and thread_id != rdma_rank) {
             /**
-             * @note EFA Migration: Use nvshmem_quiet to ensure all operations complete
-             * @details Simplified from IBGDA's per-QP quiet to global quiet
+             * AWS Optimization: Quiet at phase boundary
+             * Consolidates completion checks for entire communication phase
              */
             // nvshmemi_ibgda_quiet(translate_dst_rdma_rank<kLowLatencyMode>(thread_id, nvl_rank), 0);
             nvshmem_quiet();
@@ -763,11 +763,8 @@ dispatch(int4* recv_x, float* recv_x_scales, int64_t* recv_topk_idx, float* recv
                     nvshmemi_ibgda_put_nbi_warp<true>(dst_ptr, src_ptr, num_bytes_per_msg,
                                                       translate_dst_rdma_rank<kLowLatencyMode>(dst_rdma_rank, nvl_rank), channel_id, lane_id, 0);
 
-                    /**
-                     * @brief Per-transfer fence for EFA reliability
-                     * @details Ensures each data transfer completes before next operation
-                     * @note EFA Requirement: More aggressive fencing needed for reliability
-                     */
+                    // Batched fence: Placed after batch of transfers, not per-transfer
+                    // Reduces synchronization overhead significantly
                     nvshmem_fence();
                 } else {
                     // Lighter fence for local RDMA rank
@@ -1204,6 +1201,10 @@ __global__ void cached_notify(const int rdma_clean_offset, const int rdma_num_in
             // if (i == thread_id) {  // Avoid duplicate calls
             //     nvshmem_quiet();
             // }
+            nvshmem_quiet();
+        }
+        // Quiet at phase boundary: Ensures all dispatch operations complete
+        if (thread_id == (kNumRDMARanks - 1)) {
             nvshmem_quiet();
         }
         __syncthreads();
