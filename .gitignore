@@ -6,3 +6,7 @@ build/
 .cache/
 .vscode/
 */cmake-build-*/
+
+# Local workspace files
+.claude/
+.mailmap
