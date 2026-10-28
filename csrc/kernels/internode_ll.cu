@@ -162,16 +162,16 @@ dispatch(void* packed_recv_x, void* packed_recv_x_scales,
                                      slot_idx * num_bytes_per_msg;
                 const auto dst_p2p_ptr = nvshmemi_get_p2p_ptr(dst_ptr, rank, dst_rank);
                 if (dst_p2p_ptr == 0) {
-                    // AWS Optimization: nvshmemx_putmem_nbi_warp for warp-level batching
-                    // All 32 lanes participate for maximum EFA bandwidth utilization
-                    // No per-operation fence - batched below for efficiency
+                    // Remote rank: warp-collective NVSHMEM put (all 32 lanes call it with
+                    // the same arguments). No fence per token; lane 0 fences after the loop.
                     nvshmemx_putmem_nbi_warp(reinterpret_cast<void*>(dst_ptr),
                                              reinterpret_cast<const void*>(src_ptr),
                                              num_bytes_per_msg,
                                              dst_rank);
                 } else {
-                    // NVLink path detected by nvshmem_ptr
-                    // Use direct memory copy for intra-node communication
+                    // Local or same-node rank: nvshmemi_get_p2p_ptr() gave a load/store
+                    // address, so the warp copies directly (over NVLink for a peer GPU)
+                    // NOTES: only 2 load iterations for 7K hidden with 8 unrolls
                     const auto* src_int4_ptr = reinterpret_cast<const int4*>(src_ptr);
                     const auto* dst_int4_ptr = reinterpret_cast<int4*>(dst_p2p_ptr);
                     UNROLLED_WARP_COPY(8, lane_id, num_int4_per_msg, dst_int4_ptr, src_int4_ptr, ld_nc_global, st_na_global);
@@ -182,8 +182,8 @@ dispatch(void* packed_recv_x, void* packed_recv_x_scales,
                 lane_id == 0 ? atomic_add_release_global(atomic_finish_counter_per_expert + dst_expert_idx, 1) : 0;
             }
         }
-        // AWS Optimization: Batched fence after all tokens
-        // Single fence instead of per-token fences reduces overhead by 30-40%
+        // Lane 0 of each sending warp fences once, after all of its token puts.
+        // Each token's finish counter above is released before this fence.
         if (lane_id == 0) {
             nvshmem_fence();
         }
@@ -241,7 +241,7 @@ dispatch(void* packed_recv_x, void* packed_recv_x_scales,
         auto dst_ptr = reinterpret_cast<uint64_t>(rdma_recv_count + dst_expert_local_idx * num_ranks + rank);
         auto dst_p2p_ptr = nvshmemi_get_p2p_ptr(dst_ptr, rank, dst_rank);
         if (dst_p2p_ptr == 0) {
-            // AWS Optimization: Batched signaling via atomic operations
+            // Remote rank: one NVSHMEM atomic add sends the encoded count (-num_tokens_sent - 1)
             nvshmemi_ibgda_amo_nonfetch_add(reinterpret_cast<int*>(dst_ptr), -num_tokens_sent - 1, dst_rank, dst_expert_local_idx);
         } else {
             st_release_sys_global(reinterpret_cast<int*>(dst_p2p_ptr), -num_tokens_sent - 1);
@@ -289,10 +289,8 @@ dispatch(void* packed_recv_x, void* packed_recv_x_scales,
         EP_DEVICE_ASSERT(num_warps_per_group > 1 and num_warp_groups < 15);
         if (sub_warp_id == 1 and lane_id == 0) {
             auto start_time = clock64();
-            // AWS Optimization: nvshmem_int_wait_until for efficient polling
-            // Replaces busy-wait with hardware-supported wait operation
-            // Reduces power consumption and improves overall system efficiency
-            // Particularly effective on AWS Graviton-based instances
+            // Poll on the GPU until the sender's count is nonzero (nvshmem_int_wait_until
+            // spins on the value), then re-read it with acquire semantics
             nvshmem_int_wait_until(rdma_recv_count + local_expert_idx * num_ranks + src_rank, NVSHMEM_CMP_NE, 0);
             num_recv_tokens = ld_acquire_sys_global(rdma_recv_count + local_expert_idx * num_ranks + src_rank);
             auto wait_recv_cost = clock64() - start_time;
@@ -619,18 +617,16 @@ combine(void* combined_x,
             // Issue RDMA
             // NOTES: for zero-copy mode, we assume the data is already in the send buffer
             if (dst_p2p_ptr == 0)
-                // AWS Optimization: nvshmemx_putmem_nbi_warp for warp-level batching
-                // All lanes participate for maximum bandwidth
-                // Optimized for EFA's bulk transfer characteristics
-                // No per-operation fence - batched below
+                // Remote rank: warp-collective NVSHMEM put (all lanes call it with the same
+                // arguments). No fence per token.
                 nvshmemx_putmem_nbi_warp(reinterpret_cast<void*>(dst_ptr),
                                          reinterpret_cast<const void*>(buf_ptr),
                                          hidden * sizeof(nv_bfloat16),
                                          dst_rank);
         }
 
-        // AWS Optimization: Batched fence after all combine operations
-        // Single fence for entire combine phase improves throughput
+        // Sub-warp 0, lane 0 fences once, after its own token puts. The other
+        // sub-warps do not fence; their puts can be issued after this fence.
         if (sub_warp_id == 0 && lane_id == 0) {
             nvshmem_fence();
         }
@@ -664,9 +660,8 @@ combine(void* combined_x,
         EP_DEVICE_ASSERT(num_warps_per_group > 1);
         if (sub_warp_id == 0 and lane_id == 0) {
             auto start_time = clock64();
-            // AWS Optimization: nvshmem_int_wait_until for efficient waiting
-            // Hardware-supported wait reduces spinning overhead
-            // Critical for latency-sensitive combine operations
+            // Poll on the GPU until the finishing flag is nonzero
+            // (nvshmem_int_wait_until spins on the value)
             nvshmem_int_wait_until(rdma_recv_flag + responsible_expert_idx, NVSHMEM_CMP_NE, 0);
             auto wait_recv_cost = clock64() - start_time;
             if (combine_wait_recv_cost_stats != nullptr) {

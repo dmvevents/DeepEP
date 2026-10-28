@@ -7,11 +7,14 @@
 namespace deep_ep {
 
 /**
- * @brief Replacement for ibgda_get_p2p_ptr function to handle peer memory access
+ * @brief NVSHMEM-API replacement for nvshmemi_get_p2p_ptr in ibgda_device.cuh
  *
- * AWS Optimization: Uses nvshmem_ptr for NVLink detection
- * - Returns valid pointer when NVLink available (p5.48xlarge instances)
- * - Returns 0 for EFA-only paths, triggering proper RDMA operations
+ * Returns a load/store address for dst_rank's copy of ptr, or 0 if there is none:
+ * - dst_rank == rank: ptr itself
+ * - a peer this GPU can load/store, such as a same-node GPU over NVLink on P5:
+ *   the address nvshmem_ptr() maps
+ * - any other peer, such as a GPU on another node: 0, and the caller uses an
+ *   NVSHMEM put or atomic instead
  *
  * @param ptr The local memory pointer to translate
  * @param rank The current process rank
@@ -22,8 +25,7 @@ __device__ __forceinline__ uint64_t nvshmemi_get_p2p_ptr(const uint64_t& ptr, co
     if (rank == dst_rank)
         return ptr;
 
-    // Use nvshmem_ptr to obtain the remote pointer
-    // In EFA environment, this returns NULL; with NVLink, returns valid pointer
+    // nvshmem_ptr() returns NULL when dst_rank's memory is not load/store accessible
     void* remote_ptr = nvshmem_ptr(reinterpret_cast<void*>(ptr), dst_rank);
     if (remote_ptr == NULL)
         return 0;
@@ -32,20 +34,19 @@ __device__ __forceinline__ uint64_t nvshmemi_get_p2p_ptr(const uint64_t& ptr, co
 }
 
 /**
- * @brief Warp-collective non-blocking put operation
+ * @brief NVSHMEM-API replacement for the IBGDA warp put, called by a whole warp
  *
- * AWS Optimization: Simplified warp-level interface
- * - Uses nvshmem_putmem_nbi for compatibility
- * - Can be replaced with nvshmemx_putmem_nbi_warp for higher performance
+ * Lane 0 issues one nvshmem_putmem_nbi() for the whole message; the warp then
+ * synchronizes with __syncwarp(). The put itself is not warp-collective.
  *
- * @tparam kAlwaysDoPostSend Whether to always post send completion
+ * @tparam kAlwaysDoPostSend Unused, kept for API compatibility
  * @param req_rptr Remote destination address
  * @param req_lptr Local source address
  * @param bytes Number of bytes to transfer
  * @param dst_pe Destination processing element
  * @param qp_id Queue pair ID (unused, kept for API compatibility)
- * @param lane_id Warp lane ID
- * @param message_idx Message index for batched operations
+ * @param lane_id Warp lane ID; lane 0 issues the put
+ * @param message_idx Unused, kept for API compatibility
  */
 template <bool kAlwaysDoPostSend = false>
 __device__ __forceinline__ void
@@ -60,11 +61,10 @@ nvshmemi_ibgda_put_nbi_warp(uint64_t req_rptr, uint64_t req_lptr, size_t bytes, 
 }
 
 /**
- * @brief Atomic add without fetch for batched signaling
+ * @brief NVSHMEM-API replacement for the IBGDA non-fetching atomic add
  *
- * AWS Optimization: Batched signaling support
- * - Local operations use GPU atomics
- * - Remote operations use nvshmem_int_atomic_add
+ * - is_local_copy: CUDA atomicAdd on the local address
+ * - otherwise: nvshmem_int_atomic_add() to PE pe
  *
  * @param rptr Pointer to target memory
  * @param value Value to add
@@ -82,7 +82,7 @@ nvshmemi_ibgda_amo_nonfetch_add(void *rptr, const int& value, int pe, int qp_id,
 }
 
 /**
- * @brief Remote memory put operation
+ * @brief Single-int remote put via nvshmem_int_p(); qp_id is unused
  */
 __device__ __forceinline__ void
 nvshmemi_ibgda_rma_p(void *rptr, const int& value, int pe, int qp_id) {
@@ -90,11 +90,9 @@ nvshmemi_ibgda_rma_p(void *rptr, const int& value, int pe, int qp_id) {
 }
 
 /**
- * @brief Quiet operation at phase boundaries
+ * @brief NVSHMEM-API replacement for the IBGDA per-QP quiet
  *
- * AWS Optimization: Placed at strategic boundaries for batching
- * - Replaces per-QP quiet with global quiet
- * - Enables batching of multiple operations before synchronization
+ * Calls the global nvshmem_quiet(); dst_pe and qp_id are unused.
  */
 __device__ __forceinline__ void
 nvshmemi_ibgda_quiet(int dst_pe, int qp_id) {
