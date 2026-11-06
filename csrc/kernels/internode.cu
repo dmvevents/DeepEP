@@ -144,9 +144,9 @@ notify_dispatch(const int* num_tokens_per_rank, int* moe_recv_counter_mapped, in
         //     nvshmemi_ibgda_quiet(translate_dst_rdma_rank<kLowLatencyMode>(dst_rdma_rank, nvl_rank), qp_id);
         // }
         /**
-         * @brief EFA-optimized completion synchronization
-         * @details Uses NVSHMEM global quiet instead of per-QP tracking
-         * @note Performance improvement: Reduces synchronization overhead
+         * @details NVSHMEM replacement for the per-QP IBGDA quiet loop above:
+         *          threads 0 .. kNumRDMARanks - 2, one per remote RDMA rank, each
+         *          call nvshmem_quiet(), which takes no destination or QP argument.
          */
         if (thread_id < (kNumRDMARanks - 1)) {
             nvshmem_quiet();
@@ -195,9 +195,10 @@ notify_dispatch(const int* num_tokens_per_rank, int* moe_recv_counter_mapped, in
             }
         }
         /**
-         * @brief Add global fence after notification operations
-         * @details Ensures all notification writes are visible before proceeding
-         * @note EFA Addition: Required for proper ordering guarantees
+         * @brief Fence after the count puts above
+         * @details Every thread of this block calls nvshmem_fence(). A fence orders
+         *          puts and atomics to the same destination PE; it does not wait
+         *          for completion. The nvshmem_quiet() below waits for completion.
          */
         nvshmem_fence();
         __syncthreads();
@@ -205,8 +206,8 @@ notify_dispatch(const int* num_tokens_per_rank, int* moe_recv_counter_mapped, in
         // Wait previous operations to be finished
         if (thread_id < kNumRDMARanks and thread_id != rdma_rank) {
             /**
-             * @note EFA Migration: Use nvshmem_quiet to ensure all operations complete
-             * @details Simplified from IBGDA's per-QP quiet to global quiet
+             * One thread per remote RDMA rank calls the global nvshmem_quiet()
+             * in place of IBGDA's quiet on that rank's QP 0 (commented out below).
              */
             // nvshmemi_ibgda_quiet(translate_dst_rdma_rank<kLowLatencyMode>(thread_id, nvl_rank), 0);
             nvshmem_quiet();
@@ -763,11 +764,8 @@ dispatch(int4* recv_x, float* recv_x_scales, int64_t* recv_topk_idx, float* recv
                     nvshmemi_ibgda_put_nbi_warp<true>(dst_ptr, src_ptr, num_bytes_per_msg,
                                                       translate_dst_rdma_rank<kLowLatencyMode>(dst_rdma_rank, nvl_rank), channel_id, lane_id, 0);
 
-                    /**
-                     * @brief Per-transfer fence for EFA reliability
-                     * @details Ensures each data transfer completes before next operation
-                     * @note EFA Requirement: More aggressive fencing needed for reliability
-                     */
+                    // Fence after each RDMA put, ahead of the tail atomic below that
+                    // advances the destination RDMA rank's tail
                     nvshmem_fence();
                 } else {
                     // Lighter fence for local RDMA rank
@@ -1204,6 +1202,12 @@ __global__ void cached_notify(const int rdma_clean_offset, const int rdma_num_in
             // if (i == thread_id) {  // Avoid duplicate calls
             //     nvshmem_quiet();
             // }
+            nvshmem_quiet();
+        }
+        // One more quiet before the RDMA barrier, from thread num_rdma_ranks - 1,
+        // the first thread the loop above leaves idle. nvshmem_quiet() takes no
+        // destination, so this is the same call the loop makes.
+        if (thread_id == (num_rdma_ranks - 1)) {
             nvshmem_quiet();
         }
         __syncthreads();
